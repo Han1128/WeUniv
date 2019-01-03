@@ -1,2 +1,3 @@
 # WeUniv
-social platform
+
+vue-cli 2.9.6
