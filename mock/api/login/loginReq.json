@@ -1,0 +1,16 @@
+/**
+ * 登录接口测试
+ *
+ * @url /loginReq
+ */
+{
+  "code": 0,
+  "data": [
+    {
+      "username": "chris",
+      "password": "123456"
+    }
+  ],
+  "success": true,
+  "message": "Success"
+}
