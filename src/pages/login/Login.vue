@@ -78,7 +78,6 @@
       </div>
     </div>
     <div class="login-bottom">
-
     </div>
   </div>
 </template>
@@ -99,15 +98,21 @@ export default {
     },
     loginAction () {
       // 校验步骤
-      this.axios.post('/api/login')
+      this.axios.post('/api/login', {
+        email: this.form.username
+      })
       .then(res => {
-        console.log('res', res);
-        this.$router.push({
-          path: '/home'
-        })
+        if (res.data.status) {
+          localStorage.setItem('token', res.data.token);
+          this.$router.push({
+            path: '/home'
+          })
+        }
+        else {
+          this.$Message.error(res.data.message);
+        }
       })
       .catch(err => {
-        console.log('err', err);
         this.$router.push({
           path: '/login'
         })

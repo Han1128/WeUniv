@@ -18,14 +18,14 @@
         margin: 7px 30px;
         background: url(~assets/images/WeUniv.png) no-repeat;
         background-size: 100%;
-      }
+    }
     .header-left {
       float: left;
       height: 100%;
       .menu {
         height: 100%;
         margin: 0 10px;
-        li{
+        > li{
           float: left;
           padding: 0 20px;
           a {
@@ -37,20 +37,44 @@
         }
       }
     }
+    .header-search__input {
+        width: 250px;
+        line-height: 46px;
+        float: left;
+        margin-left: 20px;
+        /deep/.ivu-input {
+          font-size: 13px;
+        }
+    }
     .header-right {
       float: right;
-      ul {
-        li {
+      .icon-list {
+        > li {
           float: left;
-          .header-icon {
+          .icon-style {
             font-size: 25px;
             margin-right: 20px;
             cursor: pointer;
           }
           .header-avatar {
             margin-right: 20px;
+            cursor: pointer;
             color: #f56a00;
             background-color: #fde3cf;
+          }
+          /deep/.ivu-poptip-body {
+            padding: 0;
+            .list-details {
+              font-size: 14px;
+              padding: 5px 0;
+              > li {
+                padding: 5px 0;
+                cursor: pointer;
+                &:hover {
+                  background: #f2f2f5;
+                }
+              }
+            }
           }
         }
       }
@@ -67,31 +91,64 @@
         <li><a href="/">推荐</a></li>
       </ul>
     </div>
-    <Input placeholder="Enter text" style="width: auto">
+    <Input class="header-search__input" placeholder="Enter text">
       <Icon type="ios-search" slot="suffix" @click="search"/>
     </Input>
     <div class="header-right">
-      <ul>
+      <ul class="icon-list">
         <li>
-          <Icon type="ios-settings-outline" class="header-icon"/>
+
+          <Poptip placement="bottom" v-model="settingVisible">
+            <Icon type="ios-settings-outline" class="icon-style"/>
+            <div slot="content">
+              <ul class="list-details">
+                <li>标签管理</li>
+                <li>我的设置</li>
+                <li>关于</li>
+              </ul>
+            </div>
+          </Poptip>
         </li>
         <li>
-          <Icon
-          type="ios-mail-outline"
-          class="header-icon"
-          v-show="!openMail"
-          @click="openMail = !openMail" />
+          <Poptip placement="bottom" v-model="mailVisible">
+            <Icon
+            type="ios-mail-outline"
+            class="icon-style"
+            v-show="!mailVisible"
+            @click="mailVisible = !mailVisible"/>
+            <Icon
+              type="ios-mail-open-outline"
+              class="icon-style"
+              style="margin-bottom: 7px"
+              v-show="mailVisible"
+              @click="mailVisible = !mailVisible"/>
+            <div slot="content">
+              <ul class="list-details">
+                <li>@我的</li>
+                <li>私信</li>
+                <li>赞</li>
+                <li>评论</li>
+                <li>广播通知</li>
+              </ul>
+            </div>
+          </Poptip>
         </li>
         <li>
-          <Icon
-            type="ios-mail-open-outline"
-            class="header-icon"
-            style="margin-bottom: 7px"
-            v-show="openMail"
-            @click="openMail = !openMail"/>
-        </li>
-        <li>
-          <Avatar class="header-avatar">U</Avatar>
+          <Poptip placement="bottom-end" v-model="userVisible">
+              <Avatar class="header-avatar">U</Avatar>
+              <div class="api" slot="title">
+                Title
+              </div>
+              <div slot="content">
+                <ul class="list-details">
+                  <li>我的喜欢</li>
+                  <li>我的收藏</li>
+                  <li>我的主页</li>
+                  <li>个人设置</li>
+                  <li>退出</li>
+                </ul>
+              </div>
+          </Poptip>
         </li>
       </ul>
     </div>
@@ -103,9 +160,10 @@ export default {
   name: 'g-header',
   data () {
     return {
-      userName: '',
-      openMail: false,
-    }
+      userVisible: false,
+      mailVisible: false,
+      settingVisible: false,
+I    }
   },
   methods: {
     search () {
