@@ -15,11 +15,20 @@ const router =  new Router({
       path: '/login',
       name: 'Login',
       meta: {
-        title: '登录页',
-        noCheckSession: true
+        title: '登录页'
       },
       component: (resolve) => {
-        require(['@/pages/login/Login'], resolve);
+        require(['@/pages/account/Login'], resolve);
+      }
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      meta: {
+        title: '登录页'
+      },
+      component: (resolve) => {
+        require(['@/pages/account/Register'], resolve);
       }
     },
     {
@@ -35,14 +44,17 @@ const router =  new Router({
     }
   ]
 })
-
+// 导航守卫 实现 路由拦截
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
+    console.log('路由验证')
     if (localStorage.getItem('token')) {
       // 判断登录情况
+      console.log('token存在')
       next();
     }
     else {
+      console.log('token不存在')
       next({
         path: '/login',
         query: { redirect: to.fullPath }
@@ -52,21 +64,6 @@ router.beforeEach((to, from, next) => {
   else {
     next();
   }
-  // if(to.matched.some (record => !record.meta.noCheckSession)) {
-  //   if(!isLogin) {
-  //     console.error('Pleace Login');
-  //     next({
-  //       path: '/login',
-  //       query: { redirect: to.fullPath } // 跳转到登录页
-  //     })
-  //   }
-  //   else {
-  //     next();
-  //   }
-  // }
-  // else {
-  //   next();
-  // }
 })
 
 export default router

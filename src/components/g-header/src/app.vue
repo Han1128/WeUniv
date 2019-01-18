@@ -97,7 +97,6 @@
     <div class="header-right">
       <ul class="icon-list">
         <li>
-
           <Poptip placement="bottom" v-model="settingVisible">
             <Icon type="ios-settings-outline" class="icon-style"/>
             <div slot="content">
@@ -162,8 +161,8 @@ export default {
     return {
       userVisible: false,
       mailVisible: false,
-      settingVisible: false,
-I    }
+      settingVisible: false
+    }
   },
   methods: {
     search () {
