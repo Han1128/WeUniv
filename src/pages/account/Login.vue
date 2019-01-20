@@ -10,7 +10,7 @@
   background: url(~assets/images/bg.jpg) #fff;
   background-size: cover;
   .weuniv-login__container {
-    .operator-content {
+    .login__panel {
       width: 432px;
       height: 500px;
       border-radius: 10px;
@@ -21,7 +21,8 @@
       left: 50%;
       transform: translate(-50%, -50%);
       .input-area {
-        width: 100%;
+        width: 70%;
+        margin: 0 auto;
         height: 150px;
         margin-top: 150px;
         .input-wrapper {
@@ -30,8 +31,9 @@
           margin-top: 30px;
           input {
             height: 40px;
-            width: 70%;
+            width: 100%;
             color: #fff;
+            padding-left: 5px;
             background: inherit;
             border: 0;
             border-bottom: 1px solid #fff;
@@ -46,8 +48,22 @@
             position: absolute;
             font-size: 25px;
             top: 8px;
-            right: 65px;
+            right: 5px;
             cursor: pointer;
+          }
+        }
+        .signin-question {
+          & > a:first-child {
+            float: left;
+          }
+          & > a:last-child {
+            float: right;
+          }
+          a {
+            color: #fff;
+            margin: 5px 5px;
+            line-height: 30px;
+            font-size: 14px;
           }
         }
       }
@@ -56,7 +72,8 @@
         width: 100%;
         height: 45px;
         bottom: 0;
-        background: #ccc;
+        border-radius: 0 0 10px 10px;
+        background: rgba(255,255,255, 0.9);
         .panel-bottom__label {
           font-size: 17px;
           line-height: 45px;
@@ -119,7 +136,7 @@
   <div class="weuniv-login">
     <div class="weuniv-login__container">
       <!-- 登录面板 -->
-      <div class="operator-content" v-show="panelType === 'login'">
+      <div class="login__panel" v-show="panelType === 'login'">
         <div class="input-area">
           <div class="input-wrapper">
             <input type="text" v-model="loginForm.username" placeholder="输入账号或邮箱"/>
@@ -128,6 +145,10 @@
             <input :type="inputType" v-model="loginForm.password" placeholder="密码"/>
             <Icon v-show="inputType === 'password'" type="md-eye-off" @click="changeInputType"/>
             <Icon v-show="inputType === 'text'" type="md-eye" @click="changeInputType"/>
+          </div>
+          <div class="signin-question">
+            <a href="#">邮箱未验证？</a>
+            <a href="#">忘记密码？</a>
           </div>
         </div>
         <Button type="primary" @click="loginAction">登录</Button>
@@ -146,7 +167,7 @@
           <Step title="完成" icon="md-checkmark-circle"></Step>
         </Steps>
         <Form :model="registerForm" label-position="right" :label-width="100">
-          <template v-if="currentStep === 0">
+          <div v-show="currentStep === 0">
             <FormItem label="Title">
                 <i-input v-model="registerForm.input1"></i-input>
             </FormItem>
@@ -156,18 +177,18 @@
             <FormItem label="Aligned title">
                 <i-input v-model="registerForm.input3"></i-input>
             </FormItem>
-          </template>
-          <template v-if="currentStep === 1">
+          </div>
+          <div v-show="currentStep === 1">
             <FormItem label="邮箱">
-                <i-input v-model="registerForm.input1"></i-input>
+                <i-input v-model="registerForm.input1" placeholder="输入邮箱作为登录账号"></i-input>
             </FormItem>
             <FormItem label="密码">
-                <i-input v-model="registerForm.input2"></i-input>
+                <i-input type="password" v-model="registerForm.input2" placeholder="输入账号密码"></i-input>
             </FormItem>
             <FormItem label="密码确认">
-                <i-input v-model="registerForm.input3"></i-input>
+                <i-input type="password" v-model="registerForm.input3" placeholder="确认密码输入"></i-input>
             </FormItem>
-          </template>
+          </div>
         </Form>
         <Button type="primary" @click="nextStep">{{currentStep === 2 ? '完成注册' : '下一步'}}</Button>
         <div class="panel-bottom">
@@ -178,6 +199,7 @@
         </div>
       </div>
     </div>
+    <!-- 页面底部 -->
     <div class="login-bottom">
     </div>
   </div>
@@ -208,7 +230,13 @@ export default {
       this.panelType = this.panelType === 'login' ? 'register' : 'login';
     },
     nextStep() {
-      this.currentStep = this.currentStep === 2 ? 0 : this.currentStep + 1;
+      if (this.currentStep === 2) {
+        this.panelType = 'login';
+        this.currentStep = 0;
+      }
+      else {
+        this.currentStep = this.currentStep + 1;
+      }
     },
     loginAction () {
       // 校验步骤
