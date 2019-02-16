@@ -11,9 +11,9 @@
   background-size: cover;
   .weuniv-login__container {
     .login__panel {
-      width: 432px;
-      height: 500px;
-      border-radius: 10px;
+      width: 43.2rem;
+      height: 50rem;
+      border-radius: 1rem;
       text-align: center;
       background-color: rgba(0, 0, 0, 0.35);
       position: absolute;
@@ -23,20 +23,21 @@
       .input-area {
         width: 70%;
         margin: 0 auto;
-        height: 150px;
-        margin-top: 150px;
+        height: 15rem;
+        margin-top: 15rem;
         .input-wrapper {
           position: relative;
           display: block;
-          margin-top: 30px;
+          margin-top: 3rem;
           input {
-            height: 40px;
+            height: 4rem;
             width: 100%;
             color: #fff;
-            padding-left: 5px;
+            padding-left: rem;
             background: inherit;
             border: 0;
-            border-bottom: 1px solid #fff;
+            border-bottom: .1rem solid #fff;
+            font-size: 1.4rem;
             &:focus {
               outline: none;
             }
@@ -46,9 +47,9 @@
           }
           .ivu-icon {
             position: absolute;
-            font-size: 25px;
-            top: 8px;
-            right: 5px;
+            font-size: 2.5rem;
+            top: .8rem;
+            right: .5rem;
             cursor: pointer;
           }
         }
@@ -61,22 +62,22 @@
           }
           a {
             color: #fff;
-            margin: 5px 5px;
-            line-height: 30px;
-            font-size: 14px;
+            margin: .5rem .5rem;
+            line-height: 3rem;
+            font-size: 1.4rem;
           }
         }
       }
       .panel-bottom {
         position: absolute;
         width: 100%;
-        height: 45px;
+        height: 4.5rem;
         bottom: 0;
-        border-radius: 0 0 10px 10px;
+        border-radius: 0 0 1rem 1rem;
         background: rgba(255,255,255, 0.9);
         .panel-bottom__label {
-          font-size: 17px;
-          line-height: 45px;
+          font-size: 1.7rem;
+          line-height: 4.5rem;
           p {
             display: inline;
           }
@@ -87,14 +88,14 @@
       }
       .ivu-btn {
         width: 70%;
-        font-size: 15px;
-        border-radius: 5px;
+        font-size: 1.5rem;
+        border-radius: .5rem;
       }
     }
     .register-content {
-      width: 432px;
-      height: 500px;
-      border-radius: 10px;
+      width: 43.2rem;
+      height: 50rem;
+      border-radius: 1rem;
       // text-align: center;
       // background-color: rgba(0, 0, 0, 0.35);
       background: #fff;
@@ -103,14 +104,17 @@
       left: 50%;
       transform: translate(-50%, -50%);
       .ivu-steps {
-        margin: 20px;
-        padding-left: 20px;
+        margin: 2rem;
+        padding-left: 2rem;
       }
       .ivu-form {
-        margin-top: 30px;
+        margin-top: 3rem;
         .ivu-form-item {
           /deep/.ivu-form-item-content {
-              margin-right: 70px;
+              margin-right: 7rem;
+              .ivu-date-picker {
+                width: 100%;
+              }
           }
         }
       }
@@ -122,7 +126,7 @@
       .panel-bottom {
         .panel-bottom__label {
           text-align: center;
-          margin-top: 25px;
+          margin-top: 2.5rem;
           p {
             display: inline;
           }
@@ -168,25 +172,47 @@
         </Steps>
         <Form :model="registerForm" label-position="right" :label-width="100">
           <div v-show="currentStep === 0">
-            <FormItem label="Title">
-                <i-input v-model="registerForm.input1"></i-input>
+            <FormItem label="用户名">
+                <i-input v-model="registerForm.username" placeholder="请输入用户名"></i-input>
             </FormItem>
-            <FormItem label="Title name">
-                <i-input v-model="registerForm.input2"></i-input>
+            <FormItem label="性别">
+                <RadioGroup v-model="registerForm.gender">
+                    <Radio label="1">我是男生</Radio>
+                    <Radio label="0">我是女生</Radio>
+                </RadioGroup>
             </FormItem>
-            <FormItem label="Aligned title">
-                <i-input v-model="registerForm.input3"></i-input>
+            <FormItem label="用户类型">
+              <Select v-model="registerForm.userType" placeholder="请选择用户类型">
+                  <Option v-for="item in userTypeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+              </Select>
+            </FormItem>
+            <FormItem label="出生日期">
+              <DatePicker
+                v-model="registerForm.birth"
+                type="date"
+                :options="dateOption"
+                placement="bottom-end"
+                placeholder="选择日期"
+                >
+              </DatePicker>
+            </FormItem>
+            <FormItem label="密码">
+                <i-input type="password" v-model="registerForm.password" placeholder="输入账号密码"></i-input>
+            </FormItem>
+            <FormItem label="密码确认">
+                <i-input type="password" v-model="registerForm.reconfirmPass" placeholder="确认密码输入"></i-input>
             </FormItem>
           </div>
           <div v-show="currentStep === 1">
-            <FormItem label="邮箱">
-                <i-input v-model="registerForm.input1" placeholder="输入邮箱作为登录账号"></i-input>
+            <FormItem label="邮箱" style="margin-bottom: .8rem">
+                <i-input v-model="registerForm.email" placeholder="输入邮箱作为登录账号"></i-input>
             </FormItem>
-            <FormItem label="密码">
-                <i-input type="password" v-model="registerForm.input2" placeholder="输入账号密码"></i-input>
+            <FormItem label="" style="margin-bottom: 1rem">
+              <a href="#" v-if="!isActiveClick" @click="activeEmail">{{timeOut === 0 ? '重新发送' : '点击激活邮箱'}}</a>
+              <span v-else>{{timeOut}} s</span>
             </FormItem>
-            <FormItem label="密码确认">
-                <i-input type="password" v-model="registerForm.input3" placeholder="确认密码输入"></i-input>
+            <FormItem label="请输入激活码">
+                <i-input type="text" v-model="registerForm.code" placeholder="输入邮箱激活码"></i-input>
             </FormItem>
           </div>
         </Form>
@@ -210,16 +236,68 @@ export default {
     return {
       currentStep: 0,
       panelType: 'login',
+      isActiveClick: false,
+      timeOut: 60,
       loginForm: {
         username: '',
         password: ''
       },
       registerForm: {
-        input1: '',
-        input2: '',
-        input3: '',
+        username: '',
+        birth: '',
+        userType: '',
+        gender: '',
+        email: '',
+        password: '',
+        reconfirmPass: '',
+        code: ''
       },
-      inputType: 'password'
+      userTypeList: [{
+        label: '学生',
+        value: 'student'
+      }, {
+        label: '教师',
+        value: 'teacher'
+      }, {
+         label: '机构',
+        value: 'organization'
+      }],
+      value1: '',
+      inputType: 'password',
+      dateOption: {
+        disabledDate (date) {
+            return date && date.valueOf() > Date.now();
+        },
+        shortcuts: [
+          {
+            text: '1 week',
+            value () {
+                const end = new Date();
+                const start = new Date();
+                start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                return [start, end];
+            }
+          },
+          {
+            text: '1 month',
+            value () {
+                const end = new Date();
+                const start = new Date();
+                start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                return [start, end];
+            }
+          },
+          {
+            text: '3 months',
+            value () {
+                const end = new Date();
+                const start = new Date();
+                start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                return [start, end];
+            }
+          }
+        ]
+      }
     }
   },
   methods: {
@@ -228,6 +306,7 @@ export default {
     },
     changePanelType() {
       this.panelType = this.panelType === 'login' ? 'register' : 'login';
+      this.currentStep = 0;
     },
     nextStep() {
       if (this.currentStep === 2) {
@@ -236,7 +315,61 @@ export default {
       }
       else {
         this.currentStep = this.currentStep + 1;
+        if (this.currentStep === 2) {
+          this.emailCheckCode();
+        }
       }
+    },
+    activeEmail() {
+      this.isActiveClick = !this.isActiveClick;
+      this.timeOut = 60;
+      let timer = setInterval(() => {
+        this.timeOut--;
+        if (this.timeOut === 0) {
+          clearInterval(timer);
+          this.isActiveClick = false;
+        }
+      }, 1000);
+      const data = {
+        username: this.registerForm.username,
+        email: this.registerForm.email,
+        userType: this.registerForm.userType,
+        password: this.registerForm.password,
+        birth: this.registerForm.birth,
+        gender: this.registerForm.gender,
+        description: ''
+      }
+      debugger
+      this.axios.post('/register', data)
+      .then(res => {
+        if (res.data.success) {
+          this.$Message.success(res.data.message);
+        }
+        else {
+          this.$Message.error(res.data.message);
+        }
+      })
+      .catch(err => {
+        console.log('err', err)
+      })
+    },
+    emailCheckCode () {
+      const data = {
+        code : this.registerForm.code,
+        account: this.registerForm.email
+      }
+      this.axios.post('/checkMail', data)
+      .then(res => {
+        if (res.data.success) {
+          this.$Message.success(res.data.message);
+        }
+        else {
+          this.$Message.error(res.data.message);
+        }
+      })
+      .catch(err => {
+        console.log('err', err)
+      })
     },
     loginAction () {
       // 校验步骤
@@ -247,6 +380,8 @@ export default {
       .then(res => {
         if (res.data.status) {
           localStorage.setItem('token', res.data.data.token);
+          localStorage.setItem('username', res.data.data.username);
+          localStorage.setItem('userid', res.data.data.userid);
           this.$router.push({
             path: '/home'
           })

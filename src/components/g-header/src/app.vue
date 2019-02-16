@@ -1,85 +1,4 @@
 <style lang="less" scoped>
-  .g-header {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 50px;
-    line-height: 50px;
-    background: #fafafa;
-    border-top: 3px solid #009a61;
-    box-shadow: 0 0 1px 0px rgba(0,0,0,0.3), 0 0 6px 2px rgba(0,0,0,0.15);
-    z-index: 100;
-    .logo {
-        display: block;
-        float: left;
-        width: 100px;
-        height: 100%;
-        margin: 7px 30px;
-        background: url(~assets/images/WeUniv.png) no-repeat;
-        background-size: 100%;
-    }
-    .header-left {
-      float: left;
-      height: 100%;
-      .menu {
-        height: 100%;
-        margin: 0 10px;
-        > li{
-          float: left;
-          padding: 0 20px;
-          a {
-            color: #333;
-          }
-          &:hover {
-            background: #d4d4d4;
-          }
-        }
-      }
-    }
-    .header-search__input {
-        width: 250px;
-        line-height: 46px;
-        float: left;
-        margin-left: 20px;
-        /deep/.ivu-input {
-          font-size: 13px;
-        }
-    }
-    .header-right {
-      float: right;
-      .icon-list {
-        > li {
-          float: left;
-          .icon-style {
-            font-size: 25px;
-            margin-right: 20px;
-            cursor: pointer;
-          }
-          .header-avatar {
-            margin-right: 20px;
-            cursor: pointer;
-            color: #f56a00;
-            background-color: #fde3cf;
-          }
-          /deep/.ivu-poptip-body {
-            padding: 0;
-            .list-details {
-              font-size: 14px;
-              padding: 5px 0;
-              > li {
-                padding: 5px 0;
-                cursor: pointer;
-                &:hover {
-                  background: #f2f2f5;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 </style>
 <template>
   <div class="g-header">
@@ -94,10 +13,11 @@
     <Input class="header-search__input" placeholder="Enter text">
       <Icon type="ios-search" slot="suffix" @click="search"/>
     </Input>
+
     <div class="header-right">
       <ul class="icon-list">
         <li>
-          <Poptip placement="bottom" v-model="settingVisible">
+          <Poptip placement="bottom" v-model="settingVisible" width="100">
             <Icon type="ios-settings-outline" class="icon-style"/>
             <div slot="content">
               <ul class="list-details">
@@ -118,7 +38,7 @@
             <Icon
               type="ios-mail-open-outline"
               class="icon-style"
-              style="margin-bottom: 7px"
+              style="margin-bottom: .7rem"
               v-show="mailVisible"
               @click="mailVisible = !mailVisible"/>
             <div slot="content">
@@ -140,17 +60,28 @@
               </div>
               <div slot="content">
                 <ul class="list-details">
-                  <li>我的喜欢</li>
-                  <li>我的收藏</li>
-                  <li>我的主页</li>
-                  <li>个人设置</li>
-                  <li>退出</li>
+                  <li
+                    v-for="item in userDetails"
+                    :key="item.value"
+                    :value="item.value"
+                    @click="detailOption(item.value)"
+                  >{{item.label}}</li>
                 </ul>
               </div>
           </Poptip>
         </li>
       </ul>
     </div>
+    <Dropdown trigger="click" @on-click="goToArticle($event)">
+        <Button>
+            创建
+            <Icon type="ios-arrow-down"></Icon>
+        </Button>
+        <DropdownMenu slot="list">
+            <DropdownItem name="short">短文</DropdownItem>
+            <DropdownItem name="long">长文</DropdownItem>
+        </DropdownMenu>
+    </Dropdown>
   </div>
 </template>
 <script>
@@ -161,12 +92,38 @@ export default {
     return {
       userVisible: false,
       mailVisible: false,
-      settingVisible: false
+      settingVisible: false,
+      userDetails: [
+        { label: '我的喜欢', value: 'like' },
+        { label: '我的收藏', value: 'collect' },
+        { label: '我的主页', value: 'main' },
+        { label: '个人设置', value: 'setting' },
+        { label: '退出', value: 'exist' }
+      ],
+      msgDetails: {
+
+      },
+      setDetails: {
+
+      }
     }
   },
   methods: {
     search () {
       alert('search');
+    },
+    detailOption(value) {
+      if (value === 'exist') {
+        localStorage.removeItem('token');
+        this.$router.push({ path: '/login' })
+      }
+    },
+    goToArticle(name) {
+      if (name === 'long') {
+        this.$router.push({
+          path: '/write'
+        })
+      }
     }
   }
 }

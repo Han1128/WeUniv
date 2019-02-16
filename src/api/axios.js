@@ -8,7 +8,7 @@ import router from '../router/index';
 // 创建一个axios实例
 const instance = axios.create({
   baseURL: 'http://localhost:9000/api',
-  timeout: 5000, // 超时验证
+  timeout: 10000, // 超时验证
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'
   }
@@ -24,7 +24,6 @@ instance.interceptors.request.use(
     return config;
   },
   err => {
-    console.log('请求拦截token不存在');
     return Promise.reject(err);
   }
 )

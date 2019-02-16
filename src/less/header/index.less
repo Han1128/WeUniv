@@ -1,0 +1,103 @@
+.g-header {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 5rem;
+  line-height: 5rem;
+  background: #fafafa;
+  border-top: .3rem solid #009a61;
+  box-shadow: 0 0 .1rem 0 rgba(0,0,0,0.3), 0 0 .6rem .2rem rgba(0,0,0,0.15);
+  z-index: 100;
+  .logo {
+      display: block;
+      float: left;
+      width: 10rem;
+      height: 100%;
+      margin: 0.5rem 2rem;
+      margin-left: 3rem;
+      background: url(~assets/images/WeUniv.png) no-repeat;
+      background-size: 90%;
+  }
+  .header-left {
+    float: left;
+    height: 100%;
+    .menu {
+      font-size: 1.4rem;
+      height: 100%;
+      margin: 0 1rem;
+      > li{
+        float: left;
+        padding: 0 2rem;
+        line-height: 3.4rem;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+        a {
+          color: #333;
+        }
+        &:hover {
+          background: #d4d4d4;
+          border-radius: 5px;
+          color: #009A61;
+        }
+      }
+    }
+  }
+  .header-search__input {
+      width: 25rem;
+      margin-left: 2rem;
+      /deep/.ivu-input {
+        font-size: 1.3rem;
+      }
+  }
+  .header-right {
+    float: right;
+    .icon-list {
+      > li {
+        float: left;
+        .icon-style {
+          font-size: 2.5rem;
+          margin-right: 2rem;
+          cursor: pointer;
+        }
+        .header-avatar {
+          font-size: 1.3rem;
+          margin-right: 2rem;
+          cursor: pointer;
+          color: #f56a00;
+          background-color: #fde3cf;
+        }
+        .ivu-poptip-title {
+          .api {
+            text-align: center;
+            font-size: 1.4rem;
+          }
+        }
+        /deep/.ivu-poptip-body {
+          padding: 0;
+          .list-details {
+            font-size: 1.4rem;
+            padding: .5rem 0;
+            > li {
+              padding: .6rem 2rem;
+              cursor: pointer;
+              &:hover {
+                background: #f2f2f5;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .ivu-dropdown {
+    float: right;
+    margin-right: 3rem;
+    .ivu-btn {
+      background: #009A61;
+      font-size: 14px;
+      color: #fff;
+    }
+  }
+}

@@ -15,7 +15,8 @@ const router =  new Router({
       path: '/login',
       name: 'Login',
       meta: {
-        title: '登录页'
+        title: '登录页',
+
       },
       component: (resolve) => {
         require(['@/pages/account/Login'], resolve);
@@ -25,10 +26,20 @@ const router =  new Router({
       path: '/register',
       name: 'Register',
       meta: {
-        title: '登录页'
+        title: '注册页'
       },
       component: (resolve) => {
         require(['@/pages/account/Register'], resolve);
+      }
+    },
+    {
+      path: '/error',
+      name: 'error',
+      meta: {
+        title: '错误页'
+      },
+      component: (resolve) => {
+        require(['@/pages/error/error'], resolve);
       }
     },
     {
@@ -41,28 +52,50 @@ const router =  new Router({
       component: (resolve) => {
         require(['@/pages/home/BaseHomeFramework'], resolve);
       }
+    },
+    {
+      path: '/write',
+      name: 'article-writing',
+      meta: {
+        title: '编辑',
+        requiresAuth: true,
+        requireSave: true
+      },
+      component: (resolve) => {
+        require(['@/pages/article/article-writing'], resolve);
+      }
+    },
+    {
+      path: '/view',
+      name: 'article-scan',
+      meta: {
+        requiresAuth: true,
+        requireSave: true
+      },
+      component: (resolve) => {
+        require(['@/pages/article/components/article-scan'], resolve);
+      }
     }
   ]
 })
 // 导航守卫 实现 路由拦截
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
-    console.log('路由验证')
     if (localStorage.getItem('token')) {
       // 判断登录情况
-      console.log('token存在')
-      next();
+      next()
     }
     else {
-      console.log('token不存在')
-      next({
-        path: '/login',
-        query: { redirect: to.fullPath }
-      })
+      next({ path: '/login' })
     }
   }
   else {
-    next();
+    if (localStorage.getItem('token')) {
+      next({  path: '/home' })
+    }
+    else {
+      next()
+    }
   }
 })
 
