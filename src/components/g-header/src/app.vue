@@ -21,9 +21,11 @@
             <Icon type="ios-settings-outline" class="icon-style"/>
             <div slot="content">
               <ul class="list-details">
-                <li>标签管理</li>
-                <li>我的设置</li>
-                <li>关于</li>
+                <li
+                  v-for="item in setDetails"
+                  :key="item.value"
+                  :value="item.value"
+                >{{item.label}}</li>
               </ul>
             </div>
           </Poptip>
@@ -43,11 +45,11 @@
               @click="mailVisible = !mailVisible"/>
             <div slot="content">
               <ul class="list-details">
-                <li>@我的</li>
-                <li>私信</li>
-                <li>赞</li>
-                <li>评论</li>
-                <li>广播通知</li>
+                <li
+                  v-for="item in msgDetails"
+                  :key="item.value"
+                  :value="item.value"
+                >{{item.label}}</li>
               </ul>
             </div>
           </Poptip>
@@ -56,7 +58,7 @@
           <Poptip placement="bottom-end" v-model="userVisible">
               <Avatar class="header-avatar">U</Avatar>
               <div class="api" slot="title">
-                Title
+                {{username}}
               </div>
               <div slot="content">
                 <ul class="list-details">
@@ -72,19 +74,26 @@
         </li>
       </ul>
     </div>
-    <Dropdown trigger="click" @on-click="goToArticle($event)">
+    <Dropdown trigger="click" @on-click="itemClick($event)">
         <Button>
             创建
             <Icon type="ios-arrow-down"></Icon>
         </Button>
         <DropdownMenu slot="list">
-            <DropdownItem name="short">短文</DropdownItem>
-            <DropdownItem name="long">长文</DropdownItem>
+            <DropdownItem name="short">
+              短文
+            </DropdownItem>
+            <DropdownItem name="long">
+              <transition name="slide">
+                <router-link tag="li" to="/write">长文</router-link>
+              </transition>
+            </DropdownItem>
         </DropdownMenu>
     </Dropdown>
   </div>
 </template>
 <script>
+import bus from '@/common/bus.js';
 import bg from '@/assets/images/WeUniv.png';
 export default {
   name: 'g-header',
@@ -93,20 +102,29 @@ export default {
       userVisible: false,
       mailVisible: false,
       settingVisible: false,
+      username: '',
       userDetails: [
+        { label: '我的主页', value: 'me' },
         { label: '我的喜欢', value: 'like' },
         { label: '我的收藏', value: 'collect' },
-        { label: '我的主页', value: 'main' },
         { label: '个人设置', value: 'setting' },
         { label: '退出', value: 'exist' }
       ],
-      msgDetails: {
-
-      },
-      setDetails: {
-
-      }
+      msgDetails: [
+        { label: '@我的', value: 'menitionMe' },
+        { label: '私信', value: 'priMess' },
+        { label: '赞', value: 'likeBy' },
+        { label: '评论', value: 'comments' },
+        { label: '广播通知', value: 'notice' }
+      ],
+      setDetails: [
+        { label: '标签管理', value: 'tagManage' },
+        { label: '关于', value: 'about' },
+      ]
     }
+  },
+  created() {
+    this.username = localStorage.getItem('username');
   },
   methods: {
     search () {
@@ -115,14 +133,21 @@ export default {
     detailOption(value) {
       if (value === 'exist') {
         localStorage.removeItem('token');
-        this.$router.push({ path: '/login' })
+        localStorage.removeItem('username');
+        localStorage.removeItem('userid');
+        localStorage.removeItem('userData');
+        this.$router.push({ path: '/login' });
+      }
+      else if (value === 'me') {
+        this.$router.push({ path: `/user/${localStorage.getItem('userid')}`});
+      }
+      else if (value === 'setting') {
+        this.$router.push({ path: '/usersetting'});
       }
     },
-    goToArticle(name) {
-      if (name === 'long') {
-        this.$router.push({
-          path: '/write'
-        })
+    itemClick(name) {
+      if(name === 'short') {
+        bus.$emit('writeShortText');
       }
     }
   }

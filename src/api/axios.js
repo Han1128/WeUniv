@@ -1,6 +1,5 @@
 /**
- * axios配置
- * 拦截器
+ * axios配置拦截器
  **/
 import axios from 'axios';
 import router from '../router/index';
@@ -8,7 +7,7 @@ import router from '../router/index';
 // 创建一个axios实例
 const instance = axios.create({
   baseURL: 'http://localhost:9000/api',
-  timeout: 10000, // 超时验证
+  timeout: 20000, // 超时验证
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'
   }
@@ -32,7 +31,14 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   res => {
     console.log('正常响应');
-    return res;
+    // 将操作结果进行筛选
+    if (!res.data.success) {
+      const err = new Error();
+      err.message = res.data.message;
+      err.success = false;
+      return Promise.reject(err);
+    }
+    return res.data;
   },
   err => {
     console.log('响应拦截服务端错误状态码');
@@ -88,7 +94,8 @@ instance.interceptors.response.use(
       err.message = '连接到服务器失败';
     }
     console.log('err message', err.message);
-    return Promise.reject(error.response.data)   // 返回接口返回的错误信息
+    return Promise.reject(err)   // 返回接口返回的错误信息
+    // return Promise.reject(error.response.data)
   }
 )
 

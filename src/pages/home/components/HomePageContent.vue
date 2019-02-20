@@ -1,8 +1,8 @@
 <style lang="less" scoped>
 .home-page-content {
     width: 80%;
-    height: 152rem;
-    min-height: 152rem;
+    // height: 152rem;
+    // min-height: 152rem;
     margin: 0 auto;
     margin-top: 5rem;
     position: relative;
@@ -30,7 +30,7 @@
     }
     .content-center {
       width: 100%;
-      height: 100%;
+      height: 200rem;
       background: #007FFF;
       margin-top: 2rem;
       .center-left {
@@ -144,14 +144,15 @@
         </div>
         <div class="center-right"></div>
       </div>
+      <short-text-editor></short-text-editor>
   </div>
 </template>
 <script>
 import 'swiper/dist/css/swiper.css';
-
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
+import shortTextEditor from '../../article/components/short-text-editor';
 export default {
-  components: { swiper, swiperSlide },
+  components: { swiper, swiperSlide, shortTextEditor },
   data () {
     return {
       value2: 0,
@@ -186,7 +187,6 @@ export default {
     this.swiper.slideTo(3, 1000, false);
   },
   methods: {
-
   }
 }
 </script>

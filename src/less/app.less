@@ -1,3 +1,98 @@
 #app {
   font-size: 1.4rem;
 }
+.img-cropper {
+  .button-list {
+    text-align: center;
+    margin-top: 2rem;
+    .ivu-btn {
+      margin: 0 1rem;
+    }
+  }
+}
+
+// 短文
+.short-text-modal {
+  .ivu-modal-content {
+    width: 64rem;
+    .ivu-modal-body {
+      padding-bottom: 0;
+      .modal-center {
+        .short-text-input {
+          .input-area {
+            height: 10rem;
+            font-size: 1.4rem;
+            border-radius: .5rem;
+            border: 1px solid #333;
+            padding: .5rem 1rem;
+            &:focus {
+              border: 1px solid #009a61;
+            }
+          }
+          .img-area {
+            width: auto;
+            height: 8rem;
+            padding: 1rem;
+            box-sizing: content-box;
+            li {
+              float: left;
+              img {
+                width: 8rem;
+                height: 8rem;
+                border-radius: .5rem;
+                margin-right: 2rem;
+              }
+              .add-img {
+                width: 8rem;
+                height: 8rem;
+                border-radius: .5rem;
+                margin-right: 2rem;
+                border: 1.2px dashed;
+                font-size: 4.5rem;
+                text-align: center;
+                cursor: pointer;
+                &:hover {
+                  color: #D1D1D1;
+                  background: #eee;
+                }
+              }
+              .upload-img {
+
+              }
+            }
+          }
+        }
+        .btn-list {
+          overflow: hidden;
+          li {
+            float: left;
+            font-size: 1.55rem;
+            cursor: pointer;
+            padding: .5rem 1rem;
+            margin-right: 1.5rem;
+            .article-top {
+              /deep/.ivu-switch-checked {
+                  border-color: #009a61;
+                  background-color: #009a61;
+              }
+            }
+          }
+        }
+        .emoji-content {
+          position: absolute;
+          height: 32rem;
+          margin-top: 32px;
+          .emoji-mart-bar {
+            display: none;
+          }
+        }
+      }
+    }
+    .ivu-modal-footer {
+      .submit-btn {
+          background: #009a61;
+          color: #fff;
+        }
+    }
+  }
+}

@@ -54,17 +54,21 @@
           }
         }
         .signin-question {
-          & > a:first-child {
-            float: left;
+          .ivu-checkbox-wrapper {
+              line-height: 3rem;
+              color: #fff;
+              font-size: 1.3rem;
+              float: left;
+              margin: 0.8rem 0.5rem;
           }
           & > a:last-child {
             float: right;
           }
           a {
             color: #fff;
-            margin: .5rem .5rem;
+            margin: 0.8rem 0.5rem;
             line-height: 3rem;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
           }
         }
       }
@@ -151,7 +155,7 @@
             <Icon v-show="inputType === 'text'" type="md-eye" @click="changeInputType"/>
           </div>
           <div class="signin-question">
-            <a href="#">邮箱未验证？</a>
+            <Checkbox v-model="registerForm.rememberme">记住我</Checkbox>
             <a href="#">忘记密码？</a>
           </div>
         </div>
@@ -192,7 +196,7 @@
                 type="date"
                 :options="dateOption"
                 placement="bottom-end"
-                placeholder="选择日期"
+                placeholder="输入或选择日期"
                 >
               </DatePicker>
             </FormItem>
@@ -250,7 +254,8 @@ export default {
         email: '',
         password: '',
         reconfirmPass: '',
-        code: ''
+        code: '',
+        rememberme: false
       },
       userTypeList: [{
         label: '学生',
@@ -309,15 +314,16 @@ export default {
       this.currentStep = 0;
     },
     nextStep() {
-      if (this.currentStep === 2) {
+      if (this.currentStep === 1) {
+          this.emailCheckCode();
+      }
+      else if (this.currentStep === 2) {
         this.panelType = 'login';
         this.currentStep = 0;
+        // TODO:清空表单
       }
       else {
         this.currentStep = this.currentStep + 1;
-        if (this.currentStep === 2) {
-          this.emailCheckCode();
-        }
       }
     },
     activeEmail() {
@@ -331,44 +337,35 @@ export default {
         }
       }, 1000);
       const data = {
-        username: this.registerForm.username,
-        email: this.registerForm.email,
-        userType: this.registerForm.userType,
-        password: this.registerForm.password,
-        birth: this.registerForm.birth,
-        gender: this.registerForm.gender,
-        description: ''
+        email: this.registerForm.email
       }
-      debugger
       this.axios.post('/register', data)
       .then(res => {
-        if (res.data.success) {
-          this.$Message.success(res.data.message);
-        }
-        else {
-          this.$Message.error(res.data.message);
-        }
+        this.$Message.success(res.message);
       })
       .catch(err => {
         console.log('err', err)
+        this.$Message.error(err.message);
       })
     },
     emailCheckCode () {
       const data = {
-        code : this.registerForm.code,
-        account: this.registerForm.email
+        username: this.registerForm.username,
+        email: this.registerForm.email,
+        userType: this.registerForm.userType,
+        password: this.registerForm.password,
+        gender: this.registerForm.gender,
+        birth: this.registerForm.birth,
+        code: this.registerForm.code
       }
       this.axios.post('/checkMail', data)
       .then(res => {
-        if (res.data.success) {
-          this.$Message.success(res.data.message);
-        }
-        else {
-          this.$Message.error(res.data.message);
-        }
+        this.$Message.success(res.message);
+        this.currentStep = this.currentStep + 1;
       })
       .catch(err => {
         console.log('err', err)
+        this.$Message.error(err.message);
       })
     },
     loginAction () {
@@ -378,19 +375,15 @@ export default {
         password: this.loginForm.password
       })
       .then(res => {
-        if (res.data.status) {
-          localStorage.setItem('token', res.data.data.token);
-          localStorage.setItem('username', res.data.data.username);
-          localStorage.setItem('userid', res.data.data.userid);
-          this.$router.push({
-            path: '/home'
-          })
-        }
-        else {
-          this.$Message.error(res.data.message);
-        }
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('username', res.data.username);
+        localStorage.setItem('userid', res.data.userid);
+        this.$router.push({
+          path: '/home'
+        })
       })
       .catch(err => {
+        this.$Message.error(err.message);
         this.$router.push({
           path: '/login'
         })

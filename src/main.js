@@ -8,7 +8,6 @@ import iView from 'iview'
 import 'iview/dist/styles/iview.css'
 import components from './components'
 import './less/index.less'
-// import '@/assets/css/index.css'
 
 
 Vue.config.productionTip = false;

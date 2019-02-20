@@ -53,9 +53,9 @@
         @focus="onEditorFocus($event)"
         @ready="onEditorReady($event)">
     </quill-editor>
-    <div class="quill-code">
+    <!-- <div class="quill-code">
       <Code class="hljs" v-html="contentCode"></Code>
-    </div>
+    </div> -->
     <Spin fix v-show="spinshow">
         <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
         <div>Loading</div>
@@ -195,8 +195,8 @@ export default {
     // 表单提交
     articleConfirm() {
       //TODO:表单校验
-      this.spinshow = true;
       if (this.articleForm.content === '') return;
+      this.spinshow = true;
       const userid = localStorage.getItem('userid');
       const username = localStorage.getItem('username');
       const data = {
@@ -211,18 +211,12 @@ export default {
       this.axios.post('/addArticleContent', data)
       .then(res => {
         console.log('res', res);
-        if (res.data.success) {
-          this.$Message.success('文章提交成功');
-          this.$router.push({
-            path: '/view'
-          })
-        }
-        else {
-          this.$Message.error('文章提交失败');
-        }
+        this.$Message.success('文章提交成功');
+        this.$emit('turnPage');
       })
       .catch(err => {
         console.error('err', err);
+        this.$Message.error('文章提交失败');
       })
       .finally(_ => {
         this.spinshow = false;

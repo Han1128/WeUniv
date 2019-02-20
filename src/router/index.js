@@ -54,6 +54,28 @@ const router =  new Router({
       }
     },
     {
+      path: '/user/:userid',
+      name: 'userPage',
+      meta: {
+        title: '用户页',
+        requiresAuth: true
+      },
+      component: (resolve) => {
+        require(['@/pages/user/userPage'], resolve);
+      }
+    },
+    {
+      path: '/usersetting',
+      name: 'userSetting',
+      meta: {
+        title: '设置页',
+        requiresAuth: true
+      },
+      component: (resolve) => {
+        require(['@/pages/user/user-setting'], resolve);
+      }
+    },
+    {
       path: '/write',
       name: 'article-writing',
       meta: {
@@ -66,14 +88,15 @@ const router =  new Router({
       }
     },
     {
-      path: '/view',
-      name: 'article-scan',
+      path: '/view/:articleid',
+      name: 'article-view',
       meta: {
+        title: '浏览',
         requiresAuth: true,
         requireSave: true
       },
       component: (resolve) => {
-        require(['@/pages/article/components/article-scan'], resolve);
+        require(['@/pages/article/article-view'], resolve);
       }
     }
   ]
