@@ -118,7 +118,9 @@
             <div class="swiper-button-next" slot="button-next"></div>
           </swiper>
         </div>
-        <div class="head-right"></div>
+        <div class="head-right">
+          <g-emoji></g-emoji>
+        </div>
       </div>
       <div class="content-center">
         <div class="center-left">

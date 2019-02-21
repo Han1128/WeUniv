@@ -1,17 +1,26 @@
 <style lang="less" scoped>
+.a {
 
+}
 </style>
 <template>
-  <div>
+  <div class="a">
 
   </div>
 </template>
 <script>
 export default {
+  components: {},
   data () {
     return {
 
     }
+  },
+  created() {
+
+  },
+  computed: {
+
   },
   methods: {
 

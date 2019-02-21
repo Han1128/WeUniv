@@ -65,23 +65,21 @@
               </span>
             </li>
           </ul>
-          <picker class="emoji-content" v-show="emojiShow" @select="addEmoji"/>
+          <g-emoji v-show="emojiShow" @emojiClick="addEmoji"></g-emoji>
         </div>
         <!-- 自定义尾部 -->
         <div slot="footer">
-            <Button @click="shortTextConfirm" class="submit-btn" size="large" long >发布</Button>
+          <Button @click="shortTextConfirm" class="submit-btn" size="large" long >发布</Button>
         </div>
     </Modal>
   </div>
 </template>
 <script>
 import ClickOutside from 'vue-click-outside'
-import { Picker } from 'emoji-mart-vue'
 import bus from '@/common/bus.js';
 import imgUpload from '@/pages/user/components/Img-upload-component'
 export default {
-  name: 'editor',
-  components: { imgUpload, Picker },
+  components: { imgUpload },
   directives: {
     ClickOutside
   },
@@ -106,10 +104,10 @@ export default {
   },
   methods: {
     addEmoji(emoji) {
-      this.editorContent = this.editorContent + emoji.native;
+      this.editorContent = this.editorContent + emoji;
     },
     showEmoji() {
-      this.emojiShow = true;
+      this.emojiShow = this.emojiShow ? false : true;
     },
     hideEmoji() {
       this.emojiShow = false;

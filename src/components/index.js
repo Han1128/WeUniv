@@ -1,7 +1,9 @@
 import gHeader from './g-header/main'
+import gEmoji from './g-emoji/main'
 
 const components = [
-  gHeader
+  gHeader,
+  gEmoji
 ];
 
 const gobal = function (Vue) {

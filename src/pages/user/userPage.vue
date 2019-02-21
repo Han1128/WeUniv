@@ -112,14 +112,14 @@
       }
     }
     .profile-container {
-      height: 100rem;
       margin-top: 2rem;
       background: pink;
+      overflow: hidden;
       .container-left {
         width: 70rem;
         height: 100%;
         float: left;
-        background: #d9d9;
+        background: #DBDBDB;
         .panel-top {
           .ivu-menu {
             background: #D9D9D9;
@@ -231,18 +231,19 @@
             </Menu>
           </div>
           <div class="panel-content">
-            <user-article-details :articleDetails="articleDetails"></user-article-details>
+            <user-article-details :articleDetails="articleDetails" @updateOperator="getArticleDetails"></user-article-details>
           </div>
         </div>
-        <div class="container-right"></div>
+        <div class="container-right">
+        </div>
       </div>
       <div class="profile-bottom">
-
       </div>
     </div>
   </div>
 </template>
 <script>
+import bus from '@/common/bus.js';
 import userArticleDetails from './components/user-article-details';
 export default {
   components: { userArticleDetails },
@@ -280,6 +281,12 @@ export default {
     this.user.id = this.$route.params.userid;
     this.getUserInfo();
     this.getArticleDetails();
+    bus.$on('uploadUserData', () => {
+      this.getArticleDetails();
+    })
+  },
+  destroyed() {
+    bus.$off('uploadUserData');
   },
   methods: {
     getUserInfo() {

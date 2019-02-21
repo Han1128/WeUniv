@@ -154,7 +154,7 @@ export default {
       if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
         // 文件类型出错
         this.$Notice.warning({
-            title: '文件不规范',
+            title: '格式不规范',
             desc: '您提交的文件格式不合规范,请重新提交'
         });
         return false;
@@ -163,7 +163,7 @@ export default {
       if (file.size / (1024 * 1024) > 2) {
         // 文件太大
         this.$Notice.warning({
-            title: '文件不规范',
+            title: '大小超出',
             desc: '您提交的文件超出大小限制,请重新选择'
         });
         return false;
