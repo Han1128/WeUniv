@@ -246,11 +246,12 @@ export default {
         username: '',
         password: ''
       },
+      cacheEmail: '', // 成功发送邮箱后保存发送邮箱
       registerForm: {
         username: '',
         birth: '',
         userType: '',
-        gender: '',
+        gender: '1',
         email: '',
         password: '',
         reconfirmPass: '',
@@ -312,20 +313,60 @@ export default {
     changePanelType() {
       this.panelType = this.panelType === 'login' ? 'register' : 'login';
       this.currentStep = 0;
+      this.resetFromFields();
     },
+    // 重设表单
+    resetFromFields() {
+      this.registerForm = {
+        username: '',
+        birth: '',
+        userType: '',
+        gender: '1',
+        email: '',
+        password: '',
+        reconfirmPass: '',
+        code: '',
+        rememberme: false
+      }
+    },
+    // 表单验证 因为表单是跨页面的 不适合使用表单验证
+    validateForm() {
+      if (!this.registerForm.username || !this.registerForm.userType || !this.registerForm.birth ||
+      !this.registerForm.password|| !this.registerForm.reconfirmPass) {
+        this.$Message.error('表单不完整,请检查');
+        return false;
+      }
+      else if (this.registerForm.password !== this.registerForm.reconfirmPass) {
+        this.$Message.error('前后密码不一致,请检查');
+        return false;
+      }
+      return true;
+    },
+    // 下一步
     nextStep() {
-      if (this.currentStep === 1) {
-          this.emailCheckCode();
+      if (this.currentStep === 0) {
+        // 验证输入
+        if(!this.validateForm()) return;
+        this.currentStep = this.currentStep + 1;
+      }
+      else if (this.currentStep === 1) {
+        if (this.registerForm.code === '') {
+          this.$Message.error('请输入验证码');
+          return;
+        }
+        else if (this.registerForm.email !== this.cacheEmail) {
+          this.$Message.error('输入邮箱和发送验证邮箱不符,请修改');
+          return;
+        }
+        this.emailCheckCode();
       }
       else if (this.currentStep === 2) {
         this.panelType = 'login';
         this.currentStep = 0;
-        // TODO:清空表单
-      }
-      else {
-        this.currentStep = this.currentStep + 1;
+        this.resetFromFields();
       }
     },
+    // 发送邮件激活邮箱
     activeEmail() {
       this.isActiveClick = !this.isActiveClick;
       this.timeOut = 60;
@@ -339,15 +380,16 @@ export default {
       const data = {
         email: this.registerForm.email
       }
-      this.axios.post('/register', data)
+      this.axios.post('/sendEmail', data)
       .then(res => {
         this.$Message.success(res.message);
+        this.cacheEmail = res.cacheEmail;
       })
       .catch(err => {
-        console.log('err', err)
         this.$Message.error(err.message);
       })
     },
+    // 验证码校验
     emailCheckCode () {
       const data = {
         username: this.registerForm.username,

@@ -98,6 +98,7 @@
                     img {
                       width: 10rem;
                       height: 10rem;
+                      cursor: zoom-in;
                     }
                   }
                 }
@@ -131,6 +132,36 @@
             margin-right: .5rem;
           }
         }
+      }
+    }
+  }
+  .preview {
+    position: fixed;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    .preview-show {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      .skip-btn {
+        font-size: 7rem;
+        cursor: pointer;
+        &:hover {
+          color: rgba(239, 239, 239, 0.6);
+        }
+      }
+      .turn-left {
+        margin-right: 2rem;
+      }
+      .turn-right {
+        margin-left: 2rem;
       }
     }
   }
@@ -176,8 +207,8 @@
                 </div>
                 <div class="content-img">
                   <ul>
-                    <li v-for="imgUrl in item.coverBg" :key="imgUrl">
-                      <img :src="imgUrl">
+                    <li v-for="(imgUrl,index) in item.coverBg" :key="imgUrl">
+                      <img :src="imgUrl" @click="showPreview(item.coverBg, index)">
                     </li>
                   </ul>
                 </div>
@@ -187,10 +218,10 @@
           <div class="card-bottom">
             <!-- 点赞 -->
             <span
-              v-if="!getLikeStatus(item.author, item._id)" class="text-icon" @click="addToList('add', 'like', item._id, index)">
+              v-if="!getLikeStatus(item._id)" class="text-icon" @click="addToList('add', 'like', item._id, item.author._id)">
               <Icon type="ios-thumbs-up"/>点赞 × {{getLikeCount(item)}}
             </span>
-            <span v-else class="text-icon like" @click="addToList('cancel', 'like', item._id, index)">
+            <span v-else class="text-icon like" @click="addToList('cancel', 'like', item._id, item.author._id)">
               <Icon type="ios-thumbs-up"/>点赞 × {{getLikeCount(item)}}
             </span>
             <!-- 评论 -->
@@ -198,10 +229,10 @@
               <Icon type="md-chatboxes" />评论 {{getCommentNum(item)}}
             </span>
             <!-- 收藏 -->
-            <span v-if="!getCollectStatus(item.author, item._id)" class="text-icon" @click="addToList('add', 'collect', item._id, index)">
+            <span v-if="!getCollectStatus(item._id)" class="text-icon" @click="addToList('add', 'collect', item._id, item.author._id)">
               <Icon type="md-bookmark" />收藏 {{getCollectNum(item)}}
             </span>
-            <span v-else class="text-icon collect" @click="addToList('cancel', 'collect', item._id, index)">
+            <span v-else class="text-icon collect" @click="addToList('cancel', 'collect', item._id, item.author._id)">
               <Icon type="md-bookmark" />收藏 {{getCollectNum(item)}}
             </span>
           </div>
@@ -210,12 +241,26 @@
           <comment-panel
             v-if="showCommentList[index]"
             :articleId="item._id"
-            :commentList="item.comment"
-            :avatar="item.author.avatar">
+            :author_id="item.author._id"
+            :commentList="item.commentFrom"
+            :avatar="userDetails.avatar">
           </comment-panel>
         </template>
       </li>
     </ul>
+    <div class="preview" v-show="showPreviews" @click="hidePreview">
+      <div class="preview-show">
+        <Icon
+          class="skip-btn turn-left"
+          type="ios-arrow-dropleft-circle"
+          @click.stop="showLeftImg" />
+        <img :src="perviewSrc" style="cursor: zoom-out">
+        <Icon
+          class="skip-btn turn-right"
+          type="ios-arrow-dropright-circle"
+          @click.stop="showRightImg" />
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -226,11 +271,18 @@ export default {
   props: {
     articleDetails: {
       type: Array
+    },
+    userDetails: {
+      type: Object
     }
   },
   data () {
     return {
       commentPanel: false,
+      showPreviews: false,
+      perviewSrc: '',
+      allPerviewImg: [],
+      previewIndex: -1,
       showCommentList: []
     }
   },
@@ -247,7 +299,7 @@ export default {
     },
     getCommentNum() {
       return function (item) {
-        return item.comment ?  item.comment.length : 0;
+        return item.commentFrom ?  item.commentFrom.length : 0;
       }
     },
   },
@@ -258,13 +310,47 @@ export default {
     getDateType(time) {
       return Date.parse(new Date()) - Date.parse(time) > 86400 * 3 * 1000 ? 'date' : 'relative'
     },
-    // 判断作者是否点赞了这篇文章
-    getLikeStatus(authorInfo, articleId) {
-      return authorInfo.like.includes(articleId) ? true : false;
+    // 判断用户是否点赞了这篇文章
+    getLikeStatus(articleId) {
+      return this.userDetails.like_article.includes(articleId) ? true : false;
     },
-    // 判断作者是否收藏了这篇文章
-    getCollectStatus(authorInfo, articleId) {
-      return authorInfo.collect.includes(articleId) ? true : false;
+    // 判断用户是否收藏了这篇文章
+    getCollectStatus(articleId) {
+      return this.userDetails.collect.includes(articleId) ? true : false;
+    },
+    // 放大图片
+    showPreview(allImg, index) {
+      this.showPreviews = true;
+      this.perviewSrc = allImg[index];
+      this.allPerviewImg = JSON.parse(JSON.stringify(allImg));
+      this.previewIndex = index;
+    },
+    // 隐藏图片全屏
+    hidePreview() {
+      this.showPreviews = false;
+      this.perviewSrc = '';
+      this.allPerviewImg = [];
+      this.previewIndex = -1;
+    },
+    // 向左换图
+    showLeftImg() {
+      if (this.previewIndex !== 0) {
+        this.previewIndex = this.previewIndex - 1;
+      }
+      else {
+        this.previewIndex = this.allPerviewImg.length - 1;
+      }
+      this.perviewSrc = this.allPerviewImg[this.previewIndex];
+    },
+    // 向右换图
+    showRightImg() {
+      if (this.previewIndex !== this.allPerviewImg.length - 1) {
+        this.previewIndex = this.previewIndex + 1;
+      }
+      else {
+        this.previewIndex = 0;
+      }
+      this.perviewSrc = this.allPerviewImg[this.previewIndex];
     },
     showComment(index) {
       if (!this.showCommentList[index]) {
@@ -278,24 +364,21 @@ export default {
      * 将文章加入点赞列表中
      * @param operatorType 区分操作是点赞还是取消点赞 add是点赞 cancel是取消
      */
-    addToList(operatorType, addType, articleId, index) {
+    addToList(operatorType, addType, articleId, authorId) {
       // 判断操作文章的id是否是用户自己的文章
-      const userData = JSON.parse(localStorage.getItem('userData'));
       let data = {
         userId: localStorage.getItem('userid'),
         username: localStorage.getItem('username'),
-        articleId,
+        authorId, // 文章归宿者
+        articleId, // 被点赞/收藏文章id
         type: operatorType, // 是点赞还是取消点赞
-        ownOperator: userData.article.includes(articleId) // 是否是自己操作
       }
       let api = addType === 'like' ? '/addLike' : '/addCollect';
       this.axios.post(api, data)
       .then(res => {
-        console.log('res', res)
         this.$emit('updateOperator');
       })
       .catch(err => {
-        console.log('err', err)
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     }

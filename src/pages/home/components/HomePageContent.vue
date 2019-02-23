@@ -16,10 +16,28 @@
         margin-right: 2rem;
         background: #FCF8E3;
         /deep/.swiper-container-horizontal {
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            line-height: 40rem;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          line-height: 40rem;
+          .swiper-slide {
+            img {
+              width: 100%;
+              height: 100%;
+            }
+            p {
+              position: absolute;
+              bottom: 0;
+              height: 5rem;
+              line-height: 5rem;
+              color: #fff;
+              width: 100%;
+              font-weight: bold;
+              font-size: 2rem;
+              background: rgba(239,239,239,0.4);
+              cursor: pointer;
+            }
+          }
         }
       }
       .head-right {
@@ -30,74 +48,12 @@
     }
     .content-center {
       width: 100%;
-      height: 200rem;
+      // height: 200rem;
       background: #007FFF;
       margin-top: 2rem;
       .center-left {
-        .article-detail {
-          margin: 0;
-          padding: 0;
-          li {
-            display: block;
-            list-style: none;
-            width: 60%;
-            height:180px;
-            background: #FCF8E3;
-            .image {
-              display:block;
-              height: 180px;
-              width: 180px;
-              float: right;
-              background:#009A61;
-            }
-            .main {
-              position: relative;
-              margin-right: 180px;
-              .title {
-                padding: 10px;
-                a {
-                  font-size: 18px;
-                  font-weight: 700px;
-                  color: #333;
-                  text-decoration: none;
-                  &:hover {
-                    text-decoration: underline;
-                  }
-                  &:visited {
-                    color: #969696;
-                  }
-                }
-              }
-              .abstract {
-                padding: 0 15px;
-                p {
-                  margin: 0;
-                  font-size: 13px;
-                  line-height: 24px;
-                  color: #999;
-                }
-              }
-              .meta {
-                font-size: 12px;
-                line-height: 20px;
-                font-weight: 400px;
-                margin-top: 10px;
-                padding: 0 15px;
-                a {
-                  text-decoration: none;
-                  color: #b4b4b4;
-                  margin-right: 20px;
-                  &:hover {
-                    color: #787878;
-                  }
-                }
-                p {
-                  display: inline;
-                }
-              }
-            }
-          }
-        }
+        width: 60%;
+
       }
     }
 }
@@ -108,9 +64,16 @@
         <div class="head-left">
           <!-- swiper -->
           <swiper :options="swiperOption" ref="mySwiper">
-            <swiper-slide>Slide 1</swiper-slide>
-            <swiper-slide>Slide 2</swiper-slide>
-            <swiper-slide>Slide 3</swiper-slide>
+            <swiper-slide>
+              <img :src="articleDetails[6].coverBg[0]">
+              <p>这是文章介绍</p>
+            </swiper-slide>
+            <swiper-slide>
+              <img :src="articleDetails[1].coverBg[0]">
+            </swiper-slide>
+            <swiper-slide>
+              <img :src="articleDetails[4].coverBg[0]">
+            </swiper-slide>
             <swiper-slide>Slide 4</swiper-slide>
             <swiper-slide>Slide 5</swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
@@ -119,45 +82,34 @@
           </swiper>
         </div>
         <div class="head-right">
-          <g-emoji></g-emoji>
         </div>
       </div>
       <div class="content-center">
         <div class="center-left">
-          <ul class="article-detail">
-            <li>
-                <div class="image"></div>
-                <div class="main">
-                  <div class="title">
-                    <a href="#">大专程序员质问马云：你说招聘从不看文凭，为何我投阿里石沉大海</a>
-                  </div>
-                  <div class="abstract">
-                    <p>
-                      在互联网职业分享社区，一名大专程序员对马云发出了质问：你说招聘从不看文凭，为啥我投阿里的简历石沉大海，我同学浙大投了马上就有面试？很显然，这名大...
-                    </p>
-                  </div>
-                  <div class="meta">
-                    <a href="">Java入门到入坟</a>
-                    <p>刚刚</p>
-                  </div>
-                </div>
-            </li>
-          </ul>
+          <user-article-details
+            :articleDetails="articleDetails"
+            :userDetails="userDetails"
+            @updateOperator="getHomePageArticle"></user-article-details>
         </div>
         <div class="center-right"></div>
       </div>
-      <short-text-editor></short-text-editor>
+      <g-short-text></g-short-text>
+      <!-- <short-text-editor></short-text-editor> -->
   </div>
 </template>
 <script>
+import bus from '@/common/bus.js';
 import 'swiper/dist/css/swiper.css';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import shortTextEditor from '../../article/components/short-text-editor';
+import userArticleDetails from '../../user/components/user-article-details';
 export default {
-  components: { swiper, swiperSlide, shortTextEditor },
+  components: { swiper, swiperSlide, shortTextEditor, userArticleDetails },
   data () {
     return {
-      value2: 0,
+      userId: '',
+      articleDetails: [],
+      userDetails: {},
       swiperOption: {
         slidesPerView: 1,
         spaceBetween: 30,
@@ -184,11 +136,51 @@ export default {
       return this.$refs.mySwiper.swiper
     }
   },
+  created() {
+    this.userId = localStorage.getItem('userid');
+    this.getUserInfo();
+    this.getHomePageArticle();
+    bus.$on('uploadUserData', () => {
+      this.getHomePageArticle();
+    })
+  },
+  destroyed() {
+    bus.$off('uploadUserData');
+  },
   mounted() {
     console.log('this is current swiper instance object', this.swiper);
     this.swiper.slideTo(3, 1000, false);
   },
   methods: {
+    getUserInfo() {
+      this.axios.get('/getUserDetails', {
+        params: {
+          id: this.userId
+        }
+      })
+      .then(res => {
+        localStorage.setItem('userData', JSON.stringify(res.data.result));
+        this.userDetails = res.data.result
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    getHomePageArticle() {
+      this.axios.get('/getHomePageArticle', {
+        params: {
+          userId: this.userId
+        }
+      })
+      .then(res => {
+        console.log('res', res)
+        this.articleDetails = res.data.result;
+        this.getUserInfo();
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    }
   }
 }
 </script>

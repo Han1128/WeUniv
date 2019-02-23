@@ -136,8 +136,6 @@
             transform: translate(0,-50%);
           }
         }
-        .panel-content {
-        }
       }
     }
     .profile-bottom {
@@ -152,6 +150,7 @@
 <template>
   <div class="user-page">
     <g-header></g-header>
+    <g-short-text></g-short-text>
     <div class="profile">
       <!-- 用户信息头部 -->
       <div class="profile-header">
@@ -231,7 +230,10 @@
             </Menu>
           </div>
           <div class="panel-content">
-            <user-article-details :articleDetails="articleDetails" @updateOperator="getArticleDetails"></user-article-details>
+            <user-article-details
+            :articleDetails="articleDetails"
+            :userDetails="userDetails"
+            @updateOperator="getArticleDetails"></user-article-details>
           </div>
         </div>
         <div class="container-right">
@@ -245,8 +247,9 @@
 <script>
 import bus from '@/common/bus.js';
 import userArticleDetails from './components/user-article-details';
+import shortTextEditor from '@/pages/article/components/short-text-editor';
 export default {
-  components: { userArticleDetails },
+  components: { userArticleDetails, shortTextEditor },
   data () {
     return {
       onload: false,
@@ -296,7 +299,6 @@ export default {
         }
       })
       .then(res => {
-        console.log('res', res)
         this.userDetails = JSON.parse(JSON.stringify(res.data.result));
       })
       .catch(err => {
@@ -312,6 +314,7 @@ export default {
       .then(res => {
         console.log('res', res)
         this.articleDetails = res.data.result;
+        this.getUserInfo();
       })
       .catch(err => {
         console.log('err', err)

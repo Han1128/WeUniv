@@ -8,6 +8,7 @@
   border: 1px solid #ccc;
   box-shadow: 0 4px 20px 1px rgba(0,0,0,0.2);
   background: #fff;
+  z-index: 1000;
   .emoji-panel {
     overflow: hidden;
     padding: 0.5rem 0;

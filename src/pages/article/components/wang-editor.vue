@@ -10,6 +10,39 @@
       padding-left: 2rem;
     }
   }
+  .article-config {
+    margin-bottom: 2rem;
+    .is-top {
+      float: left;
+      height: 4rem;
+      line-height: 4rem;
+      font-size: 1.7rem;
+      padding-left: 1rem;
+    }
+    .input-tags {
+      height: 4rem;
+      line-height: 4rem;
+      font-size: 1.5rem;
+      margin-left: 15rem;
+      padding-left: 2rem;
+      border: 1px solid #ccc;
+      border-radius: .5rem;
+      &:empty::before{
+        color:lightgrey;
+        content:attr(placeholder);
+      }
+    }
+    .tags-panel {
+      width: 50rem;
+      height: 20rem;
+      border: 1px solid #ccc;
+      margin-left: 15rem;
+      margin-top: .5rem;
+      position: absolute;
+      z-index: 3;
+      background: #fff;
+    }
+  }
   /deep/.w-e-menu {
     z-index: 2 !important;
   }
@@ -33,26 +66,25 @@
 <template>
   <div class="wang-editor">
     <Input v-model="editorTitle" placeholder="标题:用一句话来描述你的文章" />
-    <div>
-      <span>是否置顶:</span>
-      <i-switch v-model="setTop"/>
-      <div>
-        <Input v-model="editorTags" placeholder="选择您文章的类型">
-          <div slot="prepend">
-            <Tag checkable color="primary">电影</Tag>
-            <Tag checkable color="success">英语</Tag>
-            <Tag checkable color="error">音乐</Tag>
-            <Tag checkable color="warning">社团</Tag>
-          </div>
-        </Input>
+    <div class="article-config">
+      <div class="is-top">
+        <span>是否置顶:</span>
+        <i-switch v-model="setTop"/>
       </div>
+      <div class="input-tags" contenteditable="true" placeholder="选择标签" @focus="tagsPanelShow = true" @blur="tagsPanelShow = false">
+        <Tag checkable color="primary">电影</Tag>
+        <Tag checkable color="success">英语</Tag>
+        <Tag checkable color="error">音乐</Tag>
+        <Tag checkable color="warning">社团</Tag>
+      </div>
+      <div v-show="tagsPanelShow" class="tags-panel"></div>
     </div>
     <div id="editorElem" ref="editorElem" style="text-align:left"></div>
     <p class="upload-label">上传一张图片作为封面大图吧~</p>
     <img-upload
       class="article-bg-upload"
       :fixed="true"
-      :fixedNumber="[4,3]"
+      :fixedNumber="[12,7]"
       :submitType="'articleBg'"
       @cropperSuccess="cropperSuccess">
       <div slot="upload-btn" style="padding: 20px 0">
@@ -81,6 +113,7 @@ export default {
     return {
       spinshow: false,
       setTop: false,
+      tagsPanelShow: false,
       fileType: '',
       editorTitle: '',
       editorContent: '',
