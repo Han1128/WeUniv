@@ -54,15 +54,44 @@ const router =  new Router({
       }
     },
     {
+      path: '/message/:action',
+      name: 'messageDetails',
+      meta: {
+        title: '消息页',
+        requiresAuth: true
+      },
+      component: (resolve) => {
+        require(['@/pages/user/components/user-message-details'], resolve);
+      }
+    },
+    {
       path: '/user/:userid',
       name: 'userPage',
+      redirect: '/user/:userid/home',
       meta: {
         title: '用户页',
         requiresAuth: true
       },
       component: (resolve) => {
         require(['@/pages/user/userPage'], resolve);
-      }
+      },
+      children: [{
+        path: 'home',
+        meta: {
+          requiresAuth: true // 不要忘了这句
+        },
+        component: (resolve) => {
+          require(['@/pages/user/components/user-article-details'], resolve);
+        }
+      }, {
+        path: ':search',
+        meta: {
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/user/components/user-search-details'], resolve);
+        }
+      }],
     },
     {
       path: '/usersetting',
@@ -115,6 +144,7 @@ router.beforeEach((to, from, next) => {
   else {
     if (localStorage.getItem('token')) {
       next({  path: '/home' })
+      // next()
     }
     else {
       next()

@@ -70,8 +70,8 @@
   </div>
 </template>
 <script>
-import generalSet from './components/general-set';
-import uoloadImg from './components/upload-img';
+import generalSet from './components/setting/general-set';
+import uoloadImg from './components/setting/upload-img';
 export default {
   components: { generalSet, uoloadImg },
   data () {

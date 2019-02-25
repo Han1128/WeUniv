@@ -86,10 +86,10 @@
       </div>
       <div class="content-center">
         <div class="center-left">
-          <user-article-details
+          <user-article-list
             :articleDetails="articleDetails"
             :userDetails="userDetails"
-            @updateOperator="getHomePageArticle"></user-article-details>
+            @updateOperator="getHomePageArticle"></user-article-list>
         </div>
         <div class="center-right"></div>
       </div>
@@ -102,9 +102,9 @@ import bus from '@/common/bus.js';
 import 'swiper/dist/css/swiper.css';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import shortTextEditor from '../../article/components/short-text-editor';
-import userArticleDetails from '../../user/components/user-article-details';
+import userArticleList from '../../user/components/article/user-article-list';
 export default {
-  components: { swiper, swiperSlide, shortTextEditor, userArticleDetails },
+  components: { swiper, swiperSlide, shortTextEditor, userArticleList },
   data () {
     return {
       userId: '',

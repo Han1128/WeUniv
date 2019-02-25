@@ -35,19 +35,27 @@
     <Divider/>
     <div class="upload-content">
       <img :src="userAvatar" class="mid-avatar">
-      <img-upload
+      <!-- <img-upload
         class="avatar-upload"
         :submitType="'avatar'"
         @cropperSuccess="confirmUpload">
         <div slot="upload-btn" class="upload-btn">
             <Icon type="ios-camera" size="20"></Icon>
         </div>
-      </img-upload>
+      </img-upload> -->
+      <g-img-upload
+        class="avatar-upload"
+        :submitType="'avatar'"
+        @cropperSuccess="confirmUpload">
+        <div slot="upload-btn" class="upload-btn">
+            <Icon type="ios-camera" size="20"></Icon>
+        </div>
+      </g-img-upload>
     </div>
   </div>
 </template>
 <script>
-import imgUpload from '../components/Img-upload-component'
+import imgUpload from '../Img-upload-component'
 export default {
   components: {  imgUpload },
   data () {

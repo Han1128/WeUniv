@@ -115,28 +115,6 @@
       margin-top: 2rem;
       background: pink;
       overflow: hidden;
-      .container-left {
-        width: 70rem;
-        height: 100%;
-        float: left;
-        background: #DBDBDB;
-        .panel-top {
-          .ivu-menu {
-            background: #D9D9D9;
-            .ivu-menu-item {
-              // color: #009a61;
-              // border-bottom: 2px solid #009a61;
-            }
-          }
-          .ivu-input-wrapper {
-            width: 20rem;
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translate(0,-50%);
-          }
-        }
-      }
     }
     .profile-bottom {
       height: 10rem;
@@ -160,41 +138,50 @@
         <div class="header-right">
           <Card :bordered="false">
               <p slot="title">写一段话来介绍一下你吧~</p>
-              <p>{{userDetails.description}}</p>
+              <p>{{userAuthorDetails.description}}</p>
           </Card>
         </div>
         <div class="header-center">
           <div class="userInfo-box">
             <h2>
-              {{userDetails.username}}
+              {{userAuthorDetails.username}}
+              <Button
+                v-if="authorId !== userDetails._id"
+                @click="changFollowShip">{{fllowShip}}</Button>
               <a href="#">查看完整信息</a>
             </h2>
             <div class="baseInfo">
               <p>
                 <Icon type="md-mail"/>
                 邮箱
-                <span class="detail-info">{{userDetails.email}}</span>
+                <span class="detail-info">{{userAuthorDetails.email}}</span>
               </p>
               <p>
                 <Icon type="md-school"/>
                 学校
-                <span class="detail-info" v-if="userDetails.school">肇庆学院</span>
+                <span class="detail-info" v-if="userAuthorDetails.school">肇庆学院</span>
                 <a class="suppleInfo" href="#" v-else>填写所在学校</a>
               </p>
               <p>
                 <Icon type="md-person"/>
                 身份
-                <span class="detail-info">{{userType[userDetails.userType]}}</span>
+                <span class="detail-info">{{userType[userAuthorDetails.userType]}}</span>
               </p>
             </div>
             <ul class="followShip">
               <li>
-                <a href="#">{{following}}</a>
+                <router-link tag="a" :to="'/user/' + authorId + '/following'">
+                    {{following}}
+                </router-link>
+                <!-- <a href="#">{{following}}</a> -->
                 <div>关注</div>
                 <p class="gap"></p>
               </li>
               <li style="border-left: 1px solid #D9D9D9;border-right: 1px solid #D9D9D9">
-                <a href="#">{{follower}}</a>
+                <router-link tag="a" :to="'/user/' + authorId + '/follower'">
+                    {{follower}}
+                </router-link>
+                <!-- <a href="#">{{follower}}</a> -->
                 <div>粉丝</div>
               </li>
               <li>
@@ -207,38 +194,9 @@
       </div>
       <!-- 用户信息主体 -->
       <div class="profile-container">
-        <div class="container-left">
-          <div class="panel-top">
-            <Menu mode="horizontal" active-name="1">
-              <MenuItem name="1">
-                  <Icon type="ios-paper" />
-                  全部内容
-              </MenuItem>
-              <Submenu name="2">
-                  <template slot="title">
-                      <Icon type="ios-stats" />
-                      类型筛选
-                  </template>
-                  <MenuGroup title="类型">
-                      <MenuItem name="3-1">长文本</MenuItem>
-                      <MenuItem name="3-2">短文本</MenuItem>
-                  </MenuGroup>
-              </Submenu>
-              <Input placeholder="Enter text" style="width: auto">
-                    <Icon type="ios-search" slot="suffix" />
-                </Input>
-            </Menu>
-          </div>
-          <div class="panel-content">
-            <user-article-details
-            :articleDetails="articleDetails"
-            :userDetails="userDetails"
-            @updateOperator="getArticleDetails"></user-article-details>
-          </div>
-        </div>
-        <div class="container-right">
-        </div>
+        <router-view></router-view>
       </div>
+      <!-- 关注 被关注列表查看 -->
       <div class="profile-bottom">
       </div>
     </div>
@@ -253,12 +211,10 @@ export default {
   data () {
     return {
       onload: false,
-      user: {
-        id: '',
-        name: ''
-      },
-      userDetails: {},
-      articleDetails: [],
+      authorId: '',
+      fllowShip: '关注', // 关注状态
+      userAuthorDetails: {}, // 页面作者
+      userDetails: {}, // 登录用户
       userType: {
         student: '学生',
         teacher: '教师',
@@ -268,34 +224,83 @@ export default {
   },
   computed: {
     following() {
-      return this.userDetails.follow ? this.userDetails.follow.following_num : 0;
+      return this.userAuthorDetails.follow ? this.userAuthorDetails.follow.following_num : 0;
     },
     follower() {
-      return this.userDetails.follow ? this.userDetails.follow.follower_num : 0;
+      return this.userAuthorDetails.follow ? this.userAuthorDetails.follow.follower_num : 0;
     },
     articleCount() {
-      return this.userDetails.article ? this.userDetails.article.length : 0;
+      return this.userAuthorDetails.article ? this.userAuthorDetails.article.length : 0;
     },
     userAvatar() {
-      return this.userDetails.avatar ? this.userDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+      return this.userAuthorDetails.avatar ? this.userAuthorDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
     }
   },
   created() {
-    this.user.id = this.$route.params.userid;
+    this.authorId = this.$route.params.userid;
+    this.getAuthorInfo();
     this.getUserInfo();
-    this.getArticleDetails();
-    bus.$on('uploadUserData', () => {
-      this.getArticleDetails();
-    })
   },
   destroyed() {
     bus.$off('uploadUserData');
   },
   methods: {
+    // 获取关注状态
+    getFollowStatus() {
+      // 四种状态 互相关注 被关注 关注 无关系
+      if(!this.userDetails.follow) return '关注';
+      if (this.userDetails.follow.follower.includes(this.authorId) && this.userDetails.follow.following.includes(this.authorId)) {
+        this.fllowShip = '互相关注';
+      }
+      else if (this.userDetails.follow.following.includes(this.authorId)) {
+        this.fllowShip = '已关注';
+      }
+      else {
+        // 被关注或无关系
+        this.fllowShip = '关注';
+      }
+    },
+    changFollowShip() {
+      let Msg = ['互相关注', '已关注'].includes(this.fllowShip) ? '取消关注' : '关注';
+      this.$Modal.confirm({
+        title: '操作提示',
+        content: `<p>是否确定${Msg}该用户？</p>`,
+        onOk: () => {
+          const api = Msg === '关注' ? '/addFllowShip' : '/removeFollowShip';
+          this.axios.post(api, {
+            userId: this.userDetails._id,
+            followId: this.userAuthorDetails._id
+          })
+          .then(res => {
+            this.$Notice.success({ title: '提示',  desc: '更新状态成功!' });
+            this.getAuthorInfo();
+            this.getUserInfo();
+          })
+          .catch(err => {
+            console.log('err', err)
+          })
+        }
+      });
+    },
+    // 获取当前页作者的信息 需要展示渲染页面
+    getAuthorInfo() {
+      this.axios.get('/getUserDetails', {
+        params: {
+          id: this.authorId
+        }
+      })
+      .then(res => {
+        this.userAuthorDetails = JSON.parse(JSON.stringify(res.data.result));
+      })
+      .catch(err => {
+        console.log('err', err)
+      })
+    },
+    // 获取更新登录用户的信息 用于传入子组件用来判断点赞 评论状态
     getUserInfo() {
       this.axios.get('/getUserDetails', {
         params: {
-          id: this.user.id
+          id: localStorage.getItem('userid')
         }
       })
       .then(res => {
@@ -304,22 +309,10 @@ export default {
       .catch(err => {
         console.log('err', err)
       })
+      .finally( _=> {
+        this.getFollowStatus();
+      })
     },
-    getArticleDetails() {
-      this.axios.get('/getUserArticles', {
-        params: {
-          userid: this.user.id
-        }
-      })
-      .then(res => {
-        console.log('res', res)
-        this.articleDetails = res.data.result;
-        this.getUserInfo();
-      })
-      .catch(err => {
-        console.log('err', err)
-      })
-    }
   }
 }
 </script>

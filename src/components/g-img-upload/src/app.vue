@@ -88,6 +88,7 @@
 <script>
 import { VueCropper }  from 'vue-cropper'
 export default {
+  name: 'g-img-upload',
   components: { VueCropper },
   props: {
     outputType: {
@@ -115,7 +116,7 @@ export default {
     },
     fixedNumber: {
       type: Array,
-      default: [1, 1]
+      default: () => [1, 1]
     }
   },
   data () {

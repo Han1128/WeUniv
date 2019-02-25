@@ -49,6 +49,7 @@
                   v-for="item in msgDetails"
                   :key="item.value"
                   :value="item.value"
+                  @click="detailOption(item.value)"
                 >{{item.label}}</li>
               </ul>
             </div>
@@ -107,15 +108,15 @@ export default {
         { label: '我的主页', value: 'me' },
         { label: '我的喜欢', value: 'like' },
         { label: '我的收藏', value: 'collect' },
+        { label: '我的评论', value: 'comment' },
         { label: '个人设置', value: 'setting' },
         { label: '退出', value: 'exist' }
       ],
       msgDetails: [
-        { label: '@我的', value: 'menitionMe' },
-        { label: '私信', value: 'priMess' },
         { label: '赞', value: 'likeBy' },
-        { label: '评论', value: 'comments' },
-        { label: '广播通知', value: 'notice' }
+        { label: '收藏', value: 'collectBy' },
+        { label: '评论', value: 'commentBy' },
+        { label: '未读通知', value: 'unRead' }
       ],
       setDetails: [
         { label: '标签管理', value: 'tagManage' },
@@ -143,6 +144,9 @@ export default {
       }
       else if (value === 'setting') {
         this.$router.push({ path: '/usersetting'});
+      }
+      else if (value === 'likeBy') {
+        this.$router.push({ path: `/message/likeBy`});
       }
     },
     itemClick(name) {

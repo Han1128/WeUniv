@@ -1,11 +1,13 @@
 import gHeader from './g-header/main'
 import gEmoji from './g-emoji/main'
 import gShortText from  './g-shortText-modal/main'
+import gImgUpload from  './g-img-upload/main'
 
 const components = [
   gHeader,
   gEmoji,
-  gShortText
+  gShortText,
+  gImgUpload
 ];
 
 const gobal = function (Vue) {

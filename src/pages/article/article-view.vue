@@ -122,7 +122,7 @@
   </div>
 </template>
 <script>
-import commentPanel from '../user/components/comment-panel'
+import commentPanel from '../user/components/article/comment-panel'
 export default {
   components: { commentPanel },
   data () {
