@@ -16,102 +16,76 @@
 }
 </style>
 <template>
-  <div class="follow-list">
+  <div class="follow-list" style="margin-top:7rem;">
     <g-header></g-header>
-    <div class="option-menu" style="margin-top:7rem;">
+    <div class="option-menu">
       <Menu :active-name="activeName" @on-select="selectName">
-          <MenuGroup title="已读信息">
-              <MenuItem name="following">
-                  <Icon type="md-document" />
-                  我的关注
-              </MenuItem>
-              <MenuItem name="follower">
-                  <Icon type="md-chatbubbles" />
-                  我的粉丝
+          <MenuGroup title="未读信息">
+              <MenuItem name="unReadMsg">
+                  <Icon type="md-document"/>
+                  未读信息
               </MenuItem>
           </MenuGroup>
-          <MenuGroup class="movement" title="未读信息">
+          <MenuGroup class="movement" title="收到信息">
+              <Submenu name="like">
+                  <template slot="title">
+                      <Icon type="md-heart" />
+                      收到点赞
+                  </template>
+                  <MenuItem name="likeArticle">文章点赞</MenuItem>
+                  <MenuItem name="likeComment">评论点赞</MenuItem>
+              </Submenu>
               <MenuItem name="collect">
                   <Icon type="md-leaf" />
-                  收藏
+                  收到收藏
               </MenuItem>
               <MenuItem name="comment">
                   <Icon type="md-eye" />
-                  评论
+                  收到评论
               </MenuItem>
           </MenuGroup>
       </Menu>
     </div>
     <div class="container">
-      <user-follow-list
-        v-if="['following', 'follower'].includes(searchOption)"
-        :searchOption="searchOption">
-      </user-follow-list>
-      <user-movement
+      <user-unread-message v-if="searchOption === 'unReadMsg'"></user-unread-message>
+      <user-movement-msg
         v-if="['likeArticle', 'likeComment', 'collect'].includes(searchOption)"
         :searchOption="searchOption">
-      </user-movement>
-      <user-comment v-if="searchOption === 'comment'"></user-comment>
+      </user-movement-msg>
+      <user-get-comment v-if="searchOption === 'comment'"></user-get-comment>
     </div>
   </div>
 </template>
 <script>
-import userComment from './search/user-comment'
-import userFollowList from './search/user-follow-list';
-import userMovement from './search/user-movement';
+import userUnreadMessage from './message/user-unread-message';
+import userMovementMsg from './message/user-movement-message';
+import userGetComment from './message/user-get-comment';
 export default {
-  components: { userFollowList, userMovement, userComment },
+  components: { userUnreadMessage, userMovementMsg, userGetComment },
   data () {
     return {
-      authorId: '',
-      activeName: '',
-      userAuthorDetails: {}, // 页面作者
-      userDetails: {}, // 登录用户
+      activeName: ''
     }
   },
   created() {
-    this.authorId = this.$route.params.userid;
-    this.getAuthorInfo();
-    this.getUserInfo();
+    this.userId = localStorage.getItem('userid');
   },
   computed: {
     searchOption() {
-      this.activeName = this.$route.params.search;
-      return this.$route.params.search;
+      let action = this.$route.params.action;
+      if (action === 'like') {
+        this.activeName = 'likeArticle';
+      }
+      else {
+        this.activeName = this.$route.params.action;
+      }
+      return this.activeName;
     }
   },
   methods: {
     selectName(name) {
       this.$router.push({
-        path: `/user/${this.authorId}/${name}`
-      })
-    },
-    // 获取当前页作者的信息 需要展示渲染页面
-    getAuthorInfo() {
-      this.axios.get('/getUserDetails', {
-        params: {
-          id: this.authorId
-        }
-      })
-      .then(res => {
-        this.userAuthorDetails = JSON.parse(JSON.stringify(res.data.result));
-      })
-      .catch(err => {
-        console.log('err', err)
-      })
-    },
-    // 获取更新登录用户的信息 用于传入子组件用来判断点赞 评论状态
-    getUserInfo() {
-      this.axios.get('/getUserDetails', {
-        params: {
-          id: localStorage.getItem('userid')
-        }
-      })
-      .then(res => {
-        this.userDetails = JSON.parse(JSON.stringify(res.data.result));
-      })
-      .catch(err => {
-        console.log('err', err)
+        path: `/message/${name}`
       })
     },
   }

@@ -9,7 +9,7 @@
 </style>
 <template>
   <div class="short-text-editor">
-    <Modal class="short-text-modal" v-model="modalShow" width="360">
+    <Modal class="short-text-modal" v-model="modalShow" width="360" @on-cancel="resetFields">
         <!-- 自定义头部 -->
         <p slot="header" style="color:#009a61;text-align:center">
             <span>发说说</span>
@@ -24,8 +24,11 @@
               placeholder="Enter something..." />
             <div class="img-area" v-show="imgList.length !== 0">
               <ul>
-                <li v-for="item in imgList" :key="item">
+                <li class="uplload-list" v-for="(item,index) in imgList" :key="item">
                   <img :src="item">
+                  <div class="background-cover">
+                    <Icon type="ios-trash-outline" @click.native="deleteImgItem(index)"></Icon>
+                  </div>
                 </li>
                 <li>
                   <img-upload
@@ -61,7 +64,7 @@
             <li style="float: right">
               <span class="article-top">
                 是否置顶
-                <i-switch v-model="isTop"></i-switch>
+                <i-switch v-model="isTop" @on-change="setArticleTop"></i-switch>
               </span>
             </li>
           </ul>
@@ -87,6 +90,7 @@ export default {
   data () {
     return {
       isTop: false,
+      topId: '', // 置顶文章id
       imgList: [], // 图片组合
       editorContent: '', // 输入的内容
       emojiShow: false, // emoji表情框显示状态
@@ -94,6 +98,7 @@ export default {
     }
   },
   created() {
+    this.topId = JSON.parse(localStorage.getItem('userData')).topArticle;
     bus.$on('writeShortText', () => {
       this.modalShow = this.modalShow ? false : true;
     })
@@ -110,8 +115,30 @@ export default {
     showEmoji() {
       this.emojiShow = this.emojiShow ? false : true;
     },
+    deleteImgItem(index) {
+      this.imgList.splice(index, 1);
+    },
     hideEmoji() {
       this.emojiShow = false;
+    },
+    resetFields() {
+      this.imgList = [];
+      this.isTop = false;
+      this.editorContent = '';
+    },
+    setArticleTop(status) {
+      if (this.topId && status === true) {
+        this.$Modal.confirm({
+          title: '操作提示',
+          content: `<p>您已有置顶文章,是否提交后替换该文章?</p>`,
+          onOk: () => {
+            this.isTop = true;
+          },
+          onCancel: () => {
+            this.isTop = false;
+          }
+        });
+      }
     },
     cropperSuccess(url) {
       if(this.imgList.length <= 3) {
@@ -130,13 +157,15 @@ export default {
         username: localStorage.getItem('username'),
         content: this.editorContent,
         coverBg: this.imgList,
-        isTop: this.isTop
+        isTop: this.isTop,
+        topId: this.topId, // 置顶文章id
       }
       this.axios.post('/addShortArticle', data)
       .then(res => {
         this.$Message.success('提交成功');
         this.modalShow = false;
         bus.$emit('uploadUserData');
+        bus.$emit('updateHomeData');
       })
       .catch(err => {
         this.$Message.error('提交失败');

@@ -49,9 +49,63 @@ const router =  new Router({
         title: '首页',
         requiresAuth: true
       },
+      redirect: '/home/main',
       component: (resolve) => {
         require(['@/pages/home/BaseHomeFramework'], resolve);
-      }
+      },
+      children: [{
+        path: 'main',
+        meta: {
+          requiresAuth: true // 不要忘了这句
+        },
+        component: (resolve) => {
+          require(['@/pages/home/components/HomePageContent'], resolve);
+        }
+      }, {
+        path: 'follow',
+        meta: {
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/home/components/user-follow-page'], resolve);
+        }
+      }, {
+        path: 'tag',
+        meta: {
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/home/components/user-tags-manage'], resolve);
+        }
+      }],
+    },
+    {
+      path: '/search/:searchInfo',
+      name: 'searchPage',
+      meta: {
+        title: '搜索',
+        requiresAuth: true
+      },
+      component: (resolve) => {
+        require(['@/pages/home/components/search-page'], resolve);
+      },
+      children: [{
+        path: 'home',
+        meta: {
+          requiresAuth: true // 不要忘了这句
+        },
+        component: (resolve) => {
+          require(['@/pages/user/components/user-article-details'], resolve);
+        }
+      }, {
+        path: ':search',
+        meta: {
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/user/components/user-search-details'], resolve);
+        }
+      }],
     },
     {
       path: '/message/:action',
@@ -114,6 +168,17 @@ const router =  new Router({
       },
       component: (resolve) => {
         require(['@/pages/article/article-writing'], resolve);
+      }
+    },
+    {
+      path: '/write/edit/:articleId',
+      name: 'article-text-edit',
+      meta: {
+        requiresAuth: true,
+        requireSave: true
+      },
+      component: (resolve) => {
+        require(['@/pages/article/components/article-text-edit'], resolve);
       }
     },
     {

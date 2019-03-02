@@ -22,19 +22,19 @@
   <div class="article-details">
     <div class="container-left">
       <div class="panel-top">
-        <Menu mode="horizontal" active-name="1">
-          <MenuItem name="1">
+        <Menu mode="horizontal" :active-name="activeName" @on-select="selectName">
+          <MenuItem name="all">
               <Icon type="ios-paper" />
               全部内容
           </MenuItem>
-          <Submenu name="2">
+          <Submenu name="typefilter">
               <template slot="title">
                   <Icon type="ios-stats" />
                   类型筛选
               </template>
               <MenuGroup title="类型">
-                  <MenuItem name="3-1">长文本</MenuItem>
-                  <MenuItem name="3-2">短文本</MenuItem>
+                  <MenuItem name="long">长文本</MenuItem>
+                  <MenuItem name="short">短文本</MenuItem>
               </MenuGroup>
           </Submenu>
           <Input placeholder="Enter text" style="width: auto">
@@ -44,6 +44,7 @@
       </div>
       <div class="panel-content">
         <user-article-list
+          :filterType="activeName"
           :articleDetails="articleDetails"
           :userDetails="userDetails"
           @updateOperator="getArticleDetails">
@@ -62,6 +63,7 @@ export default {
   components: { userArticleList },
   data () {
     return {
+      activeName: 'all',
       authorId: '',
       articleDetails: [],
       userDetails: {},
@@ -71,11 +73,17 @@ export default {
     this.authorId = this.$route.params.userid;
     this.getAuthorInfo();
     this.getArticleDetails();
-    bus.$on('uploadUserData', () => {
+    bus.$on('updateUserData', () => {
       this.getArticleDetails();
     })
   },
+  destroyed() {
+    bus.$off('updateUserData');
+  },
   methods: {
+    selectName(name) {
+      this.activeName = name;
+    },
     // 获取当前作者所有文章信息 用于当前页面渲染
     getArticleDetails() {
       this.axios.get('/getUserArticles', {
@@ -88,7 +96,7 @@ export default {
         this.getUserInfo();
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
     // 获取当前页作者的信息 需要展示渲染页面
@@ -102,7 +110,7 @@ export default {
         this.userAuthorDetails = JSON.parse(JSON.stringify(res.data.result));
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
     // 获取更新登录用户的信息 用于传入子组件用来判断点赞 评论状态
@@ -116,7 +124,7 @@ export default {
         this.userDetails = JSON.parse(JSON.stringify(res.data.result));
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
   }

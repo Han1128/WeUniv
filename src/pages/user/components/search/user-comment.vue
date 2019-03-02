@@ -80,7 +80,7 @@ export default {
         this.commentList = res.data.result.comment;
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
   }

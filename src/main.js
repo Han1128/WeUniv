@@ -6,6 +6,8 @@ import axios from './api/index'
 // import 'element-ui/lib/theme-chalk/index.css';
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
+import './assets/js/iconfont.js'
+import './assets/css/icon.css'
 import components from './components'
 import './less/index.less'
 

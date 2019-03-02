@@ -59,8 +59,23 @@
           </div>
         </li>
       </ul>
-      <ul v-else class="list-item">
+      <ul v-else-if="searchOption === 'follower'" class="list-item">
         <li v-for="item in followerlist" :key="item._id">
+          <div class="avatar">
+            <img :src="item.avatar">
+          </div>
+          <div class="follow-status">
+            <Button>已关注</Button>
+          </div>
+          <div class="user-info">
+            <p>{{item.username}}</p>
+            <p class="description">{{item.description}}</p>
+          </div>
+        </li>
+      </ul>
+      <!-- 共同关注 -->
+      <ul v-else class="list-item">
+        <li v-for="item in commonFollowlist" :key="item._id">
           <div class="avatar">
             <img :src="item.avatar">
           </div>
@@ -77,29 +92,34 @@
   </div>
 </template>
 <script>
+const R = require('ramda');
 export default {
   props: {
     searchOption: {
       type: String
     },
+    authorDetails: {
+      type: Object
+    }
   },
   data () {
     return {
       userId: '',
       authorId: '',
-      appellation: '我的',
-      userAuthorDetails: {}, // 页面作者
+      appellation: '',
       userDetails: {}, // 登录用户
       followinglist: [],
       followerlist: [],
+      commonFollowlist: []
     }
   },
   computed: {
     getListTitle() {
+      if(this.searchOption === 'commonfollow') return '共同关注'
       if (this.userId === this.authorId) {
         this.appellation = '我的'
       }
-      else if (this.userAuthorDetails.gender) {
+      else if (this.authorDetails.gender) {
         this.appellation = '他的';
       }
       else {
@@ -116,7 +136,7 @@ export default {
         if (val === 'following') {
           this.getFollowingList();
         }
-        else {
+        else if (val === 'follower'){
           this.getFollowerList();
         }
       }
@@ -125,7 +145,6 @@ export default {
   created() {
     this.userId = localStorage.getItem('userid');
     this.authorId = this.$route.params.userid;
-    this.getAuthorInfo();
     this.getUserInfo();
   },
   methods: {
@@ -136,11 +155,10 @@ export default {
         }
       })
       .then(res => {
-        console.log('res', res.data.followResult)
         this.followinglist = res.data.followResult.following;
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
     getFollowerList() {
@@ -150,25 +168,28 @@ export default {
         }
       })
       .then(res => {
-        console.log('res.data', res.data)
         this.followerlist = res.data.followResult.follower;
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 获取当前页作者的信息 需要展示渲染页面
-    getAuthorInfo() {
-      this.axios.get('/getUserDetails', {
+    getCommonFollowList() {
+      if (!this.authorDetails.follow || !this.userDetails.follow) return;
+      let authorFollowList = this.authorDetails.follow.following; // 当前页作者关注对象
+      let userFollowList = this.userDetails.follow.following; // 登录用户的关注对象
+      // 筛选相同关注
+      let filterResult = R.filter(val => authorFollowList.includes(val))(userFollowList);
+      this.axios.get('/getCommonFollow', {
         params: {
-          id: this.authorId
+          idList: filterResult
         }
       })
       .then(res => {
-        this.userAuthorDetails = JSON.parse(JSON.stringify(res.data.result));
+        this.commonFollowlist = res.result;
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
     // 获取更新登录用户的信息 用于传入子组件用来判断点赞 评论状态
@@ -182,7 +203,12 @@ export default {
         this.userDetails = JSON.parse(JSON.stringify(res.data.result));
       })
       .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_=> {
+        if (this.searchOption === 'commonfollow') {
+          this.getCommonFollowList();
+        }
       })
     },
   }

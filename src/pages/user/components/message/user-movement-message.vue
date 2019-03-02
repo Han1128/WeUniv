@@ -22,14 +22,16 @@
       <ul class="collect-list">
         <li v-for="item in likeList" :key="item._id">
           <div class="list-img">
-            <img :src="userAuthorDetails.avatar">
+            <img :src="item.from_user.avatar">
           </div>
           <div class="list-content">
-            <p>{{userAuthorDetails.username}}</p>
             <p>
-              点赞了{{item.author.username}}的
-              {{item.type === 'long' ? '文章' : '说说'}}
-              {{item.title || item.content}}
+              {{item.from_user.username}}点赞了你的
+              {{item.from_article.type === 'long' ? '文章' : '说说'}}
+              {{item.from_article.title || item.from_article.content}}
+            </p>
+            <p>
+              {{item.time}}
             </p>
           </div>
         </li>
@@ -39,12 +41,15 @@
       <ul class="collect-list">
         <li v-for="item in likeList" :key="item._id">
           <div class="list-img">
-            <img :src="userAuthorDetails.avatar">
+            <img :src="item.from_user.avatar">
           </div>
           <div class="list-content">
-            <p>{{userAuthorDetails.username}}</p>
+           <p>
+              {{item.from_user.username}}点赞了你的评论
+              {{item.from_comment.content}}
+            </p>
             <p>
-              点赞了{{item.from_author.username}}的评论 {{item.content}}
+              {{item.time}}
             </p>
           </div>
         </li>
@@ -52,16 +57,15 @@
     </template>
     <template v-else>
       <ul class="collect-list">
-        <li v-for="item in collectList.collect" :key="item._id">
+        <li v-for="item in collectList" :key="item._id">
           <div class="list-img">
-            <img :src="collectList.avatar">
+            <img :src="item.from_user.avatar">
           </div>
           <div class="list-content">
-            <p>{{collectList.username}}</p>
             <p>
-              收藏了{{item.author.username}}的
-              {{item.type === 'long' ? '文章' : '说说'}}
-              {{item.title || item.content}}
+              {{item.from_user.username}}收藏了你的
+              {{item.from_article.type === 'long' ? '文章' : '说说'}}
+              {{item.from_article.title || item.from_article.content}}
             </p>
           </div>
         </li>
@@ -75,86 +79,78 @@ export default {
   props: {
     searchOption: {
       type: String
-    },
+    }
   },
   data () {
     return {
       userId: '',
-      authorId: '',
       likeList: [],
-      appellation: '我的',
-      collectList: {},
-      userAuthorDetails: {}, // 页面作者
-      userDetails: {}, // 登录用户
+      collectList: {}
     }
   },
   computed: {
     getListTitle() {
-      if (this.userId === this.authorId) {
-        this.appellation = '我的'
-      }
-      else if (this.userAuthorDetails.gender) {
-        this.appellation = '他的';
-      }
-      else {
-        this.appellation = '她的';
-      }
-      return this.appellation.concat(this.searchOption === 'collect' ? '收藏' : '赞');
+      return this.searchOption === 'collect' ? '收到的收藏' : '收到的赞';
     }
   },
   watch: {
     searchOption: {
       immediate: true, // 如果没有这句在created的时候不会执行
       handler (val) {
-        this.authorId = this.$route.params.userid;
+        this.userId = localStorage.getItem('userid');
         if (val === 'collect') {
-          this.getCollectList();
+          this.getCollectMsg();
         }
         else {
-          this.getLikeList();
+          this.getLikeMsg();
         }
       }
     }
   },
   created() {
     this.userId = localStorage.getItem('userid');
-    this.authorId = this.$route.params.userid;
   },
   methods: {
-    // 获取当前页作者的信息 需要展示渲染页面
-    getCollectList() {
-      this.axios.get('/getUserCollect', {
+    getCollectMsg() {
+      this.axios.get('/getCollectMsg', {
         params: {
-          authorId: this.authorId
+          userId: this.userId
         }
       })
       .then(res => {
-        this.collectList = res.data.result;
+        this.collectList = res.data.result.message;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 获取更新登录用户的信息 用于传入子组件用来判断点赞 评论状态
-    getLikeList() {
-      this.axios.get('/getUserLike', {
+    getLikeMsg() {
+      this.axios.get('/getLikeMsg', {
         params: {
-          authorId: this.authorId
+          userId: this.userId
         }
       })
       .then(res => {
-        this.userAuthorDetails = R.pick(['_id', 'username', 'avatar', 'gender', 'description'])(res.data.result);
+        this.likeList = [];
         if (this.searchOption === 'likeComment') {
-          this.likeList = R.pick(['like_comment'])(res.data.result).like_comment;
+          R.map((val) => {
+            if (R.has('from_comment')(val)) {
+              this.likeList.push(val);
+            }
+          })(R.pick(['message'])(res.data.result).message)
         }
         else {
-          this.likeList = R.pick(['like_article'])(res.data.result).like_article;
+          R.map((val) => {
+            if (R.has('from_article')(val)) {
+              this.likeList.push(val);
+            }
+          })(R.pick(['message'])(res.data.result).message)
         }
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
-    },
+    }
   }
 }
 </script>

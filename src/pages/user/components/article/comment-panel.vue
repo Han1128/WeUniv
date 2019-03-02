@@ -5,8 +5,22 @@
   line-height: 4rem;
   .submit-area {
     margin-bottom: 2rem;
-    .ivu-input-wrapper {
+    .btn-style {
+      float: right;
+      margin-right: 2rem;
+    }
+    .comment-box {
       width: auto;
+      white-space: nowrap;
+      margin-left: 6rem;
+      margin-right: 8rem;
+      .ivu-input-wrapper {
+        width: 100%;
+        /deep/.ivu-input {
+          width: calc(100% - 5rem);
+          font-size: 1.4rem;
+        }
+      }
     }
     .emoji-btn {
       font-size: 2.5rem;
@@ -19,15 +33,15 @@
     img {
       width: 4rem;
       height: 4rem;
-      margin-left: 1rem;
-      margin-right: 1.5rem;
+      margin-left: 1.5rem;
+      margin-right: 1rem;
       float: left;
       border-radius: 4rem;
     }
-    /deep/.ivu-input {
-      width: 50rem;
-      font-size: 1.4rem;
-    }
+    // /deep/.ivu-input {
+    //   width: 50rem;
+    //   font-size: 1.4rem;
+    // }
   }
   .history-comment {
     .comment-list {
@@ -48,11 +62,11 @@
           width: 4rem;
           height: 4rem;
           border-radius: 4rem;
-          margin-left: 1rem;
+          margin-left: 1.5rem;
         }
       }
       .content {
-        margin-left: 6rem;
+        margin-left: 6.5rem;
         .content-top {
           .info-username {
             margin-right: .5rem;
@@ -102,7 +116,7 @@
       }
       .reply-emoji-btn {
         font-size: 2.5rem;
-        margin-left: 5rem;
+        margin-left: 2rem;
         cursor: pointer;
         user-select: none;
       }
@@ -113,13 +127,16 @@
 <template>
   <div class="comment-panel">
     <div class="submit-area">
-      <span>
+      <img :src="avatar">
+      <div class="btn-style">
+        <Button @click="submitComment">评论</Button>
+      </div>
+      <div class="comment-box">
         <Icon class="emoji-btn" type="md-happy" v-click-outside="hideEmoji" @click="showEmoji"/>
         <Input v-model="editorContent" placeholder="Enter something..." ></Input>
-      </span>
-      <img :src="avatar">
+        <!-- <input type="text"> -->
+      </div>
       <g-emoji v-show="emojiShow" @emojiClick="addEmoji"></g-emoji>
-      <Button @click="submitComment">评论</Button>
     </div>
     <div class="history-comment" v-show="commentList.length !== 0">
       <ul v-for="(item,index) in commentList" :key="item._id">
@@ -249,7 +266,8 @@ export default {
       }
       this.axios.post('/addCommentLike', data)
       .then(res => {
-        bus.$emit('uploadUserData');
+        bus.$emit('updateUserData');
+        bus.$emit('updateHomeData');
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

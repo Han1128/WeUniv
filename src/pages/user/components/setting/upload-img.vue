@@ -35,14 +35,7 @@
     <Divider/>
     <div class="upload-content">
       <img :src="userAvatar" class="mid-avatar">
-      <!-- <img-upload
-        class="avatar-upload"
-        :submitType="'avatar'"
-        @cropperSuccess="confirmUpload">
-        <div slot="upload-btn" class="upload-btn">
-            <Icon type="ios-camera" size="20"></Icon>
-        </div>
-      </img-upload> -->
+      <p>图片预览</p>
       <g-img-upload
         class="avatar-upload"
         :submitType="'avatar'"
@@ -74,11 +67,13 @@ export default {
   },
   methods: {
     confirmUpload(result) {
+      const oldAvatar = this.userAvatar === 'https://i.loli.net/2017/08/21/599a521472424.jpg' ? '' : this.userAvatar;
       this.axios.post('/uploadAvatar', {
         userId: localStorage.getItem('userid'),
         imgName: localStorage.getItem('username'),
         fileType: result.fileType,
-        cropperImg: result.cropperSrc
+        cropperImg: result.cropperSrc,
+        oldAvatar: oldAvatar
       })
       .then(res => {
         console.log('res', res)

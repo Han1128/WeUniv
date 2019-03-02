@@ -35,6 +35,7 @@ export const EDIT_OPTIONS = {
     },
   }
 }
+
 export const TOOL_BAR_OPTIONS = [
   ['bold', 'italic', 'underline', 'strike'],
   ['blockquote', 'code-block'],
@@ -50,4 +51,10 @@ export const TOOL_BAR_OPTIONS = [
   [{ 'align': [] }],
   ['clean'],
   ['link', 'image', 'video']
+]
+
+export const EDITOR_TAGS = [
+  '电影', '音乐', '学习', '资源',
+  '校内新闻', '社团', '游戏', '考试',
+  '考研', '公选课'
 ]

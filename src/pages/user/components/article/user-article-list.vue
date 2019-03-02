@@ -14,25 +14,38 @@
       .card {
         width:100%;
         .card-header-img {
-          width:80px;
-          height:80px;
-          margin: 1rem;
+          width: 8rem;
+          height: 6rem;
+          margin: 2rem 1rem;
           border-radius: 80px;
-          float:left;
+          float: left;
+          text-align: center;
           img {
-            width: 8rem;
-            height: 8rem;
-            border-radius: 8rem;
+            width: 6rem;
+            height: 6rem;
+            border-radius: 6rem;
           }
         }
         .card-center {
           padding-top: 1rem;
-          margin-left: 10rem;
+          margin-left: 9rem;
+          margin-bottom: 1.5rem;
           .article-header {
-            padding: 15px 10px;
+            padding: 1.5rem 1rem;
+            padding-bottom: 1rem;
             .user-name {
               font-size: 2rem;
               font-weight: bold;
+            }
+            .ivu-dropdown {
+              float: right;
+              margin-top: .5rem;
+              margin-right: 2rem;
+              cursor: pointer;
+              user-select: none;
+              .ivu-icon {
+                font-size: 2.5rem;
+              }
             }
             .article-time {
               margin-top: .2rem;
@@ -90,12 +103,12 @@
             .short-text {
               margin-right: 5rem;
               margin-left: 1rem;
-              margin-bottom: 2rem;
+              margin-bottom: 1rem;
               .content-body {
                 min-height: 3rem;
               }
               .content-img {
-                margin-top: 1rem;
+                // margin-top: 1rem;
                 ul {
                   overflow: hidden;
                   li {
@@ -112,16 +125,32 @@
             }
           }
         }
+        .divider {
+          height: 1.5px;
+          background: #E8EAEC;
+          margin: 0 2rem;
+        }
         .card-bottom {
-          background: #eee;
+          // background: #eee;
           height: 50px;
           line-height: 50px;
           border-radius: 0 0 0.5rem 0.5rem;
           padding-left: 3rem;
           .text-icon {
-            margin-right: 3rem;
+            display: inline-block;
+            height: 3rem;
+            line-height: 3rem;
+            padding-right: 3rem;
+            padding-left: 3rem;
+            border-right: 1px solid #ccc;
             user-select: none;
             cursor: pointer;
+            &:first-child {
+              padding-left: 1rem;
+            }
+            &:last-child {
+              border-right: none;
+            }
             &:hover {
               color: #19BE6B;
             }
@@ -176,7 +205,11 @@
 <template>
   <div class="article-list">
     <ul class="single-article">
-      <li class="article-list" v-for="(item,index) in articleDetails" :key="item._id" :value="item.title">
+      <li
+      v-show="item.type === filterType || filterType === 'all'"
+      class="article-list"
+      v-for="(item,index) in articleDetails"
+      :key="item._id" :value="item.title">
         <div class="card">
           <div class="card-header-img">
             <img :src="item.author.avatar">
@@ -184,6 +217,17 @@
           <div class="card-center">
             <div class="article-header">
               <router-link class="user-name" tag="a" :to="'/user/' + item.author._id">{{item.author.username}}</router-link>
+              <Dropdown v-if="item.author._id === userDetails._id" trigger="click" @on-click="moreOperator($event, item._id)">
+                <Icon type="ios-more" />
+                <DropdownMenu slot="list">
+                  <DropdownItem name="edit" v-show="item.type === 'long'" >
+                    编辑
+                  </DropdownItem>
+                  <DropdownItem name="delete">
+                    删除
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
               <div class="article-time">
                 <p><Time :time="Date.parse(item.public_time)" :type="getDateType(item.public_time)"/>发表</p>
               </div>
@@ -198,16 +242,12 @@
                   <h3 class="title"><router-link tag="a" :to="'/view/' + item._id">{{item.title}}</router-link></h3>
                   <p class="tags">
                     <Icon type="md-pricetags" />
-                    <Tag color="default">电影</Tag>
-                    <Tag color="primary">音乐</Tag>
-                    <Tag color="success">四六级</Tag>
-                    <Tag color="error">社团</Tag>
-                    <Tag color="warning">笔记</Tag>
+                    <Tag v-for="(tag, index) in item.tag" :key="index" :color="randomColor()">{{tag}}</Tag>
                   </p>
                 </div>
               </div>
               <!-- 短文 -->
-        			<div class="short-text" v-else>
+        			<div v-else class="short-text">
                 <div class="content-body">
                   {{item.content}}
                 </div>
@@ -221,6 +261,8 @@
               </div>
             </div>
           </div>
+          <!-- <Divider/> -->
+          <div class="divider"></div>
           <div class="card-bottom">
             <!-- 点赞 -->
             <span
@@ -242,6 +284,7 @@
               <Icon type="md-bookmark" />收藏 {{getCollectNum(item)}}
             </span>
           </div>
+          <div class="divider"></div>
         </div>
         <template>
           <comment-panel
@@ -280,10 +323,15 @@ export default {
     },
     userDetails: { // 登录用户信息 localStore不能实时改变
       type: Object
+    },
+    filterType: {
+      type: String,
+      default: 'all'
     }
   },
   data () {
     return {
+      articleDetail: this.articleDetails,
       commentPanel: false,
       showPreviews: false,
       perviewSrc: '',
@@ -313,6 +361,11 @@ export default {
     this.showCommentList = [];
   },
   methods: {
+    randomColor() {
+      const colorList = ['primary', 'success', 'purple', 'error', 'warning'];
+      let index = Math.floor((Math.random() * colorList.length));
+      return colorList[index];
+    },
     getDateType(time) {
       return Date.parse(new Date()) - Date.parse(time) > 86400 * 3 * 1000 ? 'date' : 'relative'
     },
@@ -366,6 +419,24 @@ export default {
       }
       else {
         this.$set(this.showCommentList, index, false);
+      }
+    },
+    // 编辑文章或删除文章
+    moreOperator(name, articleId) {
+      if (name === 'edit') {
+        this.$router.push({ path: `/write/edit/${articleId}` });
+      }
+      else {
+        this.axios.post('/articleDelete', {
+          articleId: articleId
+        })
+        .then(res => {
+          this.$Notice.success({ title: '提示',  desc: '删除成功' });
+          this.$emit('updateOperator');
+        })
+        .catch(err => {
+          this.$Notice.error({ title: '提示',  desc: err.message });
+        })
       }
     },
     /**

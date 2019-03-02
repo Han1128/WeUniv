@@ -138,13 +138,13 @@
         <div class="header-right">
           <Card :bordered="false">
               <p slot="title">写一段话来介绍一下你吧~</p>
-              <p>{{userAuthorDetails.description}}</p>
+              <p>{{authorDetails.description}}</p>
           </Card>
         </div>
         <div class="header-center">
           <div class="userInfo-box">
             <h2>
-              {{userAuthorDetails.username}}
+              {{authorDetails.username}}
               <Button
                 v-if="authorId !== userDetails._id"
                 @click="changFollowShip">{{fllowShip}}</Button>
@@ -154,18 +154,18 @@
               <p>
                 <Icon type="md-mail"/>
                 邮箱
-                <span class="detail-info">{{userAuthorDetails.email}}</span>
+                <span class="detail-info">{{authorDetails.email}}</span>
               </p>
               <p>
                 <Icon type="md-school"/>
                 学校
-                <span class="detail-info" v-if="userAuthorDetails.school">肇庆学院</span>
+                <span class="detail-info" v-if="authorDetails.school">肇庆学院</span>
                 <a class="suppleInfo" href="#" v-else>填写所在学校</a>
               </p>
               <p>
                 <Icon type="md-person"/>
                 身份
-                <span class="detail-info">{{userType[userAuthorDetails.userType]}}</span>
+                <span class="detail-info">{{userType[authorDetails.userType]}}</span>
               </p>
             </div>
             <ul class="followShip">
@@ -173,7 +173,6 @@
                 <router-link tag="a" :to="'/user/' + authorId + '/following'">
                     {{following}}
                 </router-link>
-                <!-- <a href="#">{{following}}</a> -->
                 <div>关注</div>
                 <p class="gap"></p>
               </li>
@@ -181,11 +180,12 @@
                 <router-link tag="a" :to="'/user/' + authorId + '/follower'">
                     {{follower}}
                 </router-link>
-                <!-- <a href="#">{{follower}}</a> -->
                 <div>粉丝</div>
               </li>
               <li>
-                <a href="#">{{articleCount}}</a>
+                <router-link tag="a" :to="'/user/' + authorId">
+                    {{articleCount}}
+                </router-link>
                 <div>文章</div>
               </li>
             </ul>
@@ -194,9 +194,8 @@
       </div>
       <!-- 用户信息主体 -->
       <div class="profile-container">
-        <router-view></router-view>
+        <router-view :key="$route.fullPath"></router-view>
       </div>
-      <!-- 关注 被关注列表查看 -->
       <div class="profile-bottom">
       </div>
     </div>
@@ -213,7 +212,7 @@ export default {
       onload: false,
       authorId: '',
       fllowShip: '关注', // 关注状态
-      userAuthorDetails: {}, // 页面作者
+      authorDetails: {}, // 页面作者
       userDetails: {}, // 登录用户
       userType: {
         student: '学生',
@@ -224,16 +223,16 @@ export default {
   },
   computed: {
     following() {
-      return this.userAuthorDetails.follow ? this.userAuthorDetails.follow.following_num : 0;
+      return this.authorDetails.follow ? this.authorDetails.follow.following_num : 0;
     },
     follower() {
-      return this.userAuthorDetails.follow ? this.userAuthorDetails.follow.follower_num : 0;
+      return this.authorDetails.follow ? this.authorDetails.follow.follower_num : 0;
     },
     articleCount() {
-      return this.userAuthorDetails.article ? this.userAuthorDetails.article.length : 0;
+      return this.authorDetails.article ? this.authorDetails.article.length : 0;
     },
     userAvatar() {
-      return this.userAuthorDetails.avatar ? this.userAuthorDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+      return this.authorDetails.avatar ? this.authorDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
     }
   },
   created() {
@@ -241,8 +240,13 @@ export default {
     this.getAuthorInfo();
     this.getUserInfo();
   },
-  destroyed() {
-    bus.$off('uploadUserData');
+  watch: {
+    '$route' (to, from) {
+      // 对路由变化作出响应...
+      this.authorId = to.params.userid;
+      this.getAuthorInfo();
+      this.getUserInfo();
+    }
   },
   methods: {
     // 获取关注状态
@@ -269,7 +273,7 @@ export default {
           const api = Msg === '关注' ? '/addFllowShip' : '/removeFollowShip';
           this.axios.post(api, {
             userId: this.userDetails._id,
-            followId: this.userAuthorDetails._id
+            followId: this.authorDetails._id
           })
           .then(res => {
             this.$Notice.success({ title: '提示',  desc: '更新状态成功!' });
@@ -290,7 +294,7 @@ export default {
         }
       })
       .then(res => {
-        this.userAuthorDetails = JSON.parse(JSON.stringify(res.data.result));
+        this.authorDetails = JSON.parse(JSON.stringify(res.data.result));
       })
       .catch(err => {
         console.log('err', err)

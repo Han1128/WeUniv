@@ -5,15 +5,21 @@
     <a href="/" class="logo"></a>
     <div class="header-left">
       <ul class="menu">
-        <li><a href="/">首页</a></li>
-        <li> <a href="/">关注</a></li>
-        <li><a href="/">推荐</a></li>
+        <li>
+          <transition name="slide">
+            <router-link tag="a" to="/">首页</router-link>
+          </transition>
+        </li>
+        <li>
+          <transition name="slide">
+            <router-link tag="a" to="/home/follow">关注</router-link>
+          </transition>
+        </li>
       </ul>
     </div>
-    <Input class="header-search__input" placeholder="Enter text">
+    <Input v-model="searchContent" class="header-search__input" placeholder="搜索用户或关键词">
       <Icon type="ios-search" slot="suffix" @click="search"/>
     </Input>
-
     <div class="header-right">
       <ul class="icon-list">
         <li>
@@ -21,11 +27,13 @@
             <Icon type="ios-settings-outline" class="icon-style"/>
             <div slot="content">
               <ul class="list-details">
-                <li
-                  v-for="item in setDetails"
-                  :key="item.value"
-                  :value="item.value"
-                >{{item.label}}</li>
+                <transition name="slide">
+                  <router-link tag="li" to="/usersetting">个人设置</router-link>
+                </transition>
+                <transition name="slide">
+                  <router-link tag="li" to="/home/tag">标签管理</router-link>
+                </transition>
+                <li>关于</li>
               </ul>
             </div>
           </Poptip>
@@ -45,37 +53,53 @@
               @click="mailVisible = !mailVisible"/>
             <div slot="content">
               <ul class="list-details">
-                <li
-                  v-for="item in msgDetails"
-                  :key="item.value"
-                  :value="item.value"
-                  @click="detailOption(item.value)"
-                >{{item.label}}</li>
+                <transition name="slide">
+                    <router-link tag="li" :to="'/message/like' + userId">赞</router-link>
+                  </transition>
+                  <transition name="slide">
+                    <router-link tag="li" to="/message/comment">评论</router-link>
+                  </transition>
+                  <transition name="slide">
+                    <router-link tag="li" to="/message/collect">收藏</router-link>
+                  </transition>
+                  <transition name="slide">
+                    <router-link tag="li" to="/message/unReadMsg">未读通知</router-link>
+                  </transition>
               </ul>
             </div>
           </Poptip>
         </li>
         <li>
           <Poptip placement="bottom-end" v-model="userVisible">
-              <Avatar class="header-avatar">U</Avatar>
+              <Avatar
+                class="header-avatar"
+                :src="getAvatar">
+              </Avatar>
               <div class="api" slot="title">
                 {{username}}
               </div>
               <div slot="content">
                 <ul class="list-details">
-                  <li
-                    v-for="item in userDetails"
-                    :key="item.value"
-                    :value="item.value"
-                    @click="detailOption(item.value)"
-                  >{{item.label}}</li>
+                  <transition name="slide">
+                    <router-link tag="li" :to="'/user/' + userId">我的主页</router-link>
+                  </transition>
+                  <transition name="slide">
+                    <router-link tag="li" :to="'/user/' + userId + '/likeArticle'">我的喜欢</router-link>
+                  </transition>
+                  <transition name="slide">
+                    <router-link tag="li" :to="'/user/' + userId + '/collect'">我的收藏</router-link>
+                  </transition>
+                  <transition name="slide">
+                    <router-link tag="li" :to="'/user/' + userId + '/comment'">我的评论</router-link>
+                  </transition>
+                  <li @click="exit()">退出</li>
                 </ul>
               </div>
           </Poptip>
         </li>
       </ul>
     </div>
-    <Dropdown trigger="click" @on-click="itemClick($event)">
+    <Dropdown trigger="click" @on-click="showShortText($event)">
         <Button>
             创建
             <Icon type="ios-arrow-down"></Icon>
@@ -100,56 +124,45 @@ export default {
   name: 'g-header',
   data () {
     return {
-      userVisible: false,
-      mailVisible: false,
-      settingVisible: false,
+      userVisible: false, // 点击用户头像
+      mailVisible: false, // 点击邮件
+      settingVisible: false, // 点击设置
+      searchContent: '', // 搜索内容
+      userId: '',
       username: '',
-      userDetails: [
-        { label: '我的主页', value: 'me' },
-        { label: '我的喜欢', value: 'like' },
-        { label: '我的收藏', value: 'collect' },
-        { label: '我的评论', value: 'comment' },
-        { label: '个人设置', value: 'setting' },
-        { label: '退出', value: 'exist' }
-      ],
-      msgDetails: [
-        { label: '赞', value: 'likeBy' },
-        { label: '收藏', value: 'collectBy' },
-        { label: '评论', value: 'commentBy' },
-        { label: '未读通知', value: 'unRead' }
-      ],
-      setDetails: [
-        { label: '标签管理', value: 'tagManage' },
-        { label: '关于', value: 'about' },
-      ]
+      userData: {}
     }
   },
   created() {
+    this.userId = localStorage.getItem('userid');
     this.username = localStorage.getItem('username');
+    this.userData = JSON.parse(localStorage.getItem('userData'));
+  },
+  computed: {
+    getAvatar() {
+      if (this.userData) {
+        return this.userData.avatar;
+      }
+      else {
+        return 'https://i.loli.net/2017/08/21/599a521472424.jpg';
+      }
+    },
   },
   methods: {
     search () {
-      alert('search');
+      if(!this.searchContent) {
+        this.$Message.error('请输入搜索内容');
+      }
+      this.$router.push({ path: `/search/${this.searchContent}` });
     },
-    detailOption(value) {
-      if (value === 'exist') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('userid');
-        localStorage.removeItem('userData');
-        this.$router.push({ path: '/login' });
-      }
-      else if (value === 'me') {
-        this.$router.push({ path: `/user/${localStorage.getItem('userid')}`});
-      }
-      else if (value === 'setting') {
-        this.$router.push({ path: '/usersetting'});
-      }
-      else if (value === 'likeBy') {
-        this.$router.push({ path: `/message/likeBy`});
-      }
+    exit() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('userid');
+      localStorage.removeItem('userData');
+      this.$router.push({ path: '/login' });
     },
-    itemClick(name) {
+    showShortText(name) {
       if(name === 'short') {
         bus.$emit('writeShortText');
       }

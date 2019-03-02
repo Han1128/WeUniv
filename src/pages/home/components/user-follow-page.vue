@@ -1,5 +1,5 @@
 <style lang="less" scoped>
-.home-page-content {
+.user-follow-page {
     width: 75%;
     margin: 0 auto;
     margin-top: 5rem;
@@ -123,32 +123,7 @@
       margin-left: 24rem;
       margin-right: 30rem;
       background: #eee;
-      .swiper {
-        padding: 1rem 1rem;
-        .swiper-container {
-          height: 30rem;
-          .swiper-slide {
-            position: relative;
-            img {
-              width: 100%;
-              height: 100%;
-            }
-            .title {
-              width: 100%;
-              height: 5rem ;
-              text-align: center;
-              position: absolute;
-              bottom: 0;
-              color: #fff;
-              line-height: 5rem;
-              font-weight: bold;
-              font-size: 2rem;
-              background: rgba(239,239,239,0.4);
-              cursor: pointer;
-            }
-          }
-        }
-      }
+
       .center-left {
         .time-filter {
           margin: 1rem;
@@ -164,14 +139,23 @@
             overflow: hidden;
             li {
               float: left;
-              padding: 0 2rem;
+              padding: 0 1.5rem;
               margin: 1rem 0;
               cursor: pointer;
               border-right: 1px solid #ccc;
             }
+            & li:last-child {
+              float: right;
+              margin: .5rem 0;
+              padding-right: .5rem;
+              border-right: none;
+            }
             :hover {
               color: #ccc;
               border-right: 1px solid #ccc;
+            }
+            .active {
+              color: #009a61;
             }
           }
         }
@@ -180,17 +164,20 @@
 }
 </style>
 <template>
-  <div class="home-page-content">
+  <div class="user-follow-page">
     <div class="content-left">
       <ul class="hot-topic">
-        <li class="topic-item" style="font-size: 1.5rem">
-          <Icon type="md-flame" />最近热议
+        <li class="topic-item" style="font-size: 1.4rem" @click="getFollowArticle()">
+          <Icon type="ios-aperture" />最近更新
         </li>
-        <li class="topic-item" style="font-size: 1.5rem" @click="getNewestArticle">
-          <Icon type="ios-timer-outline" />近期更新
+        <li class="topic-item" style="font-size: 1.4rem" @click="getLikeArticle('like')">
+          <Icon type="md-flame" />我的点赞
+        </li>
+        <li class="topic-item" style="font-size: 1.4rem" @click="getLikeArticle('collect')">
+          <Icon type="ios-timer-outline" />我的收藏
         </li>
       </ul>
-      <Divider orientation="left">热门话题</Divider>
+      <Divider orientation="left">我的标签</Divider>
       <ul class="hot-topic">
         <li
         class="topic-item"
@@ -202,9 +189,7 @@
           </svg>
           {{item.iconLabel}}
         </li>
-        <transition name="slide">
-          <router-link tag="li" class="topic-item" to="/home/tag"><Icon type="md-pricetags"/>更多标签</router-link>
-        </transition>
+        <li class="topic-item"><Icon type="md-pricetags"/>更多标签</li>
       </ul>
     </div>
     <div class="content-right">
@@ -228,7 +213,7 @@
         </p>
       </div>
       <div class="recommend-info">
-        <h4 class="label">你可能感兴趣的内容</h4>
+        <h4 class="label">你可能感兴趣的人</h4>
         <div class="divider"></div>
           <ul class="recommend-list">
             <li v-for="item in recommendList" :key="item._id">
@@ -254,65 +239,59 @@
       </div>
     </div>
       <div class="content-center">
-        <div class="swiper">
-          <swiper :options="swiperOption" ref="mySwiper">
-            <swiper-slide>
-              <img :src="articleDetails[6].coverBg[0]">
-              <p class="title">这是文章介绍</p>
-            </swiper-slide>
-            <swiper-slide>
-              <img :src="articleDetails[1].coverBg[0]">
-            </swiper-slide>
-            <div class="swiper-pagination" slot="pagination"></div>
-            <div class="swiper-button-prev" slot="button-prev"></div>
-            <div class="swiper-button-next" slot="button-next"></div>
-          </swiper>
-        </div>
+        <short-text-editor @uploadUserData="getFollowArticle"></short-text-editor>
         <div class="center-left">
           <div class="time-filter">
             <ul class="time-filter_list">
-              <li @click="getHomePageArticle()">默认推荐</li>
-              <li @click="getNewestArticle('week')"><Icon type="ios-paper-plane"/>本周热门</li>
-              <li @click="getNewestArticle('month')">本月热门</li>
+              <li :class="{ 'active': filterType === 'all'}" @click="filterArticle('all')">全部</li>
+              <li :class="{ 'active': filterType === 'long'}" @click="filterArticle('long')"><Icon type="ios-paper-plane"/>只看文章</li>
+              <li :class="{ 'active': filterType === 'short'}" @click="filterArticle('short')">只看说说</li>
+              <li>
+                <Input search placeholder="输入搜索文章的关键词" />
+              </li>
             </ul>
           </div>
           <user-article-list
+            :filterType="filterType"
             :articleDetails="articleDetails"
             :userDetails="userDetails"
-            @updateOperator="getHomePageArticle">
+            @updateOperator="getFollowArticle">
           </user-article-list>
         </div>
       </div>
       <g-short-text></g-short-text>
-      <!-- <short-text-editor></short-text-editor> -->
   </div>
 </template>
 <script>
 const R = require('ramda');
 import bus from '@/common/bus.js';
-import 'swiper/dist/css/swiper.css';
-import { swiper, swiperSlide } from 'vue-awesome-swiper';
-import { Swiper_Options } from '../common/index.js'
 import shortTextEditor from '../../article/components/short-text-editor';
 import userArticleList from '../../user/components/article/user-article-list';
 export default {
-  components: { swiper, swiperSlide, shortTextEditor, userArticleList },
+  components: { shortTextEditor, userArticleList },
   data () {
     return {
       userId: '',
-      onlyShort: false,
-      onlyLong: false,
+      filterType: 'all',
       articleDetails: [],
       userDetails: {},
       recommendList: [],
-      tagsList: [],
-      swiperOption: Swiper_Options
+      tagsList: []
     }
   },
+  created() {
+    this.userId = localStorage.getItem('userid');
+    this.getUserInfo();
+    this.getUserTags();
+    // 交互操作更新
+    bus.$on('updateHomeData', () => {
+      this.getFollowArticle();
+    })
+  },
+  destroyed() {
+    bus.$off('updateHomeData');
+  },
   computed: {
-    swiper() {
-      return this.$refs.mySwiper.swiper
-    },
     following_num() {
       return this.userDetails.follow ? this.userDetails.follow.following_num : 0;
     },
@@ -323,22 +302,10 @@ export default {
       return this.userDetails.article ? this.userDetails.article.length : 0;
     },
   },
-  created() {
-    this.userId = localStorage.getItem('userid');
-    this.getHomePageArticle();
-    this.getHotTags();
-    // 交互操作更新
-    bus.$on('updateHomeData', () => {
-      this.getHomePageArticle();
-    })
-  },
-  mounted() {
-    this.swiper.slideTo(3, 1000, false);
-  },
-  destroyed() {
-    bus.$off('updateHomeData');
-  },
   methods: {
+    filterArticle(type) {
+      this.filterType = type;
+    },
     // 通过tag筛选内容
     filtrerByTag(tagLabel) {
       this.axios.get('/getArticleByTag', {
@@ -369,76 +336,49 @@ export default {
       .then(res => {
         localStorage.setItem('userData', JSON.stringify(res.data.result));
         this.userDetails = res.data.result;
-        this.getRecommendArticle();
+        this.getFollowArticle();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 获取热门标签
-    getHotTags() {
-      this.axios.get('/getHotTags', {})
+    // 查询用户标签
+    getUserTags() {
+      this.axios.get('/getUserTags', {
+        params: {
+          userId: this.userId
+        }
+      })
       .then(res => {
-        this.tagsList = res.result;
+        this.tagsList = res.data.result;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 热门新闻查询
-    getHomePageArticle() {
-      this.axios.get('/getHomePageArticle', {})
+    // 获取所有关注用户的文章
+    getFollowArticle() {
+      this.axios.get('/getFollowArticle', {
+        params: {
+          followList: this.userDetails.follow.following.concat(this.userDetails._id)
+        }
+      })
       .then(res => {
         this.articleDetails = res.data.result;
-        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 推荐内容查询
-    getRecommendArticle() {
-      this.axios.get('/getRecommendArticle', {
+    // 获取所有点赞或关注的列表
+    getLikeArticle(type) {
+      this.axios.get('/getLikeArticle', {
         params: {
-          userId: this.userId,
-          tag: this.userDetails.hobby_tags
+          likeList: type === 'like' ? this.userDetails.like_article : this.userDetails.collect
         }
       })
       .then(res => {
-        this.recommendList = res.result;
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
-      })
-    },
-    /**
-     * @param time 查询时间间隔 ''为所有 week month
-     */
-    getNewestArticle(time = '') {
-      let nowDate = new Date();
-      let tranDate = ''
-      if (time === 'week') {
-        tranDate = new Date(nowDate - 7*24*3600*1000);
-      }
-      else if (time === 'month') {
-        tranDate = new Date(nowDate.setMonth(nowDate.getMonth()-1));
-      }
-      else {
-        tranDate = nowDate
-      }
-      this.axios.get('/getNewestArticle', {
-        params: {
-          time: tranDate // 时间间隔
-        }
-      })
-      .then(res => {
-        // this.articleDetails = res.data.result;
-        this.$nextTick(_=> {
-          this.articleDetails.splice(0);
-          for (let item of res.data.result) {
-            this.articleDetails.push(item);
-          }
-        })
+        this.articleDetails = res.data.result;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

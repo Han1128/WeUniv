@@ -22,36 +22,41 @@
           <MenuGroup title="关系管理">
               <MenuItem name="following">
                   <Icon type="md-document" />
-                  我的关注
+                  {{appellation}}的关注
               </MenuItem>
               <MenuItem name="follower">
                   <Icon type="md-chatbubbles" />
-                  我的粉丝
+                  {{appellation}}的粉丝
+              </MenuItem>
+              <MenuItem name="commonfollow" v-show="userId !== authorId">
+                  <Icon type="md-chatbubbles" />
+                  共同关注
               </MenuItem>
           </MenuGroup>
           <MenuGroup class="movement" title="我的动态">
               <Submenu name="like">
                   <template slot="title">
                       <Icon type="md-heart" />
-                      我的点赞
+                      {{appellation}}的点赞
                   </template>
                   <MenuItem name="likeArticle">点赞文章</MenuItem>
                   <MenuItem name="likeComment">点赞评论</MenuItem>
               </Submenu>
               <MenuItem name="collect">
                   <Icon type="md-leaf" />
-                  我的收藏
+                  {{appellation}}的收藏
               </MenuItem>
               <MenuItem name="comment">
                   <Icon type="md-eye" />
-                  我的评论
+                  {{appellation}}的评论
               </MenuItem>
           </MenuGroup>
       </Menu>
     </div>
     <div class="container">
       <user-follow-list
-        v-if="['following', 'follower'].includes(searchOption)"
+        v-if="['following', 'follower', 'commonfollow'].includes(searchOption)"
+        :authorDetails="authorDetails"
         :searchOption="searchOption">
       </user-follow-list>
       <user-movement
@@ -70,16 +75,18 @@ export default {
   components: { userFollowList, userMovement, userComment },
   data () {
     return {
+      userId: '',
       authorId: '',
+      authorDetails: {},
+      appellation: '我', // 称谓
       activeName: '',
-      userAuthorDetails: {}, // 页面作者
-      userDetails: {}, // 登录用户
     }
   },
   created() {
+    this.userId = localStorage.getItem('userid');
     this.authorId = this.$route.params.userid;
+    this.initLabel();
     this.getAuthorInfo();
-    this.getUserInfo();
   },
   computed: {
     searchOption() {
@@ -88,12 +95,24 @@ export default {
     }
   },
   methods: {
+    // 初始化称谓
+    initLabel() {
+      if (this.authorId === this.userId) {
+        this.appellation = '我';
+      }
+      else if (this.authorDetails.gender) {
+        this.appellation = '他';
+      }
+      else {
+        this.appellation = '她';
+      }
+    },
+    // menu选项选择
     selectName(name) {
       this.$router.push({
         path: `/user/${this.authorId}/${name}`
       })
     },
-    // 获取当前页作者的信息 需要展示渲染页面
     getAuthorInfo() {
       this.axios.get('/getUserDetails', {
         params: {
@@ -101,24 +120,10 @@ export default {
         }
       })
       .then(res => {
-        this.userAuthorDetails = JSON.parse(JSON.stringify(res.data.result));
+        this.authorDetails = JSON.parse(JSON.stringify(res.data.result));
       })
       .catch(err => {
-        console.log('err', err)
-      })
-    },
-    // 获取更新登录用户的信息 用于传入子组件用来判断点赞 评论状态
-    getUserInfo() {
-      this.axios.get('/getUserDetails', {
-        params: {
-          id: localStorage.getItem('userid')
-        }
-      })
-      .then(res => {
-        this.userDetails = JSON.parse(JSON.stringify(res.data.result));
-      })
-      .catch(err => {
-        console.log('err', err)
+        this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
   }
