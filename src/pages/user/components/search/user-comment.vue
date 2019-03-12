@@ -1,15 +1,49 @@
 <style lang="less" scoped>
 .user-comment-list {
+  padding: 1rem 0;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: -1px -1px 3px rgba(255, 255, 255, 0.8);
+  .list-header {
+    padding: 1rem;
+  }
+  .ivu-divider {
+    margin: 0;
+    clear: none;
+  }
   .comment-details {
     li {
+      margin: 0 1rem;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      padding: .6rem 1rem;
       overflow: hidden;
-      padding: .5rem 0;
       .list-img {
         float: left;
+        padding: .5rem 0;
+        margin-right: 1.5rem;
+        margin-left: 1rem;
         img {
           height: 4rem;
           border-radius: 4rem;
         }
+      }
+      .list-content {
+        padding: .5rem 0;
+        .content-author {
+          color: #009A61;
+        }
+        .content-article {
+          color: #009A61;
+        }
+        .content-time {
+          float: right;
+          margin-right: 1rem;
+        }
+      }
+      &:hover {
+        border-left: 3px solid #333;
+        background: #eee;
       }
     }
   }
@@ -17,7 +51,8 @@
 </style>
 <template>
   <div class="user-comment-list">
-    <h2>{{getListTitle}}</h2>
+    <h2 class="list-header">{{getListTitle}}</h2>
+    <Divider/>
     <ul class="comment-details">
       <li v-for="item in commentList" :key="item._id">
         <div class="list-img">
@@ -26,10 +61,15 @@
         <div class="list-content">
           <p>{{userAuthorDetails.username}}</p>
           <p>
-            {{item.isReply ? '回复' : '评论'}}了{{item.from_author.username}}的
+            {{item.isReply ? '回复' : '评论'}}了
+            <span class="content-author">{{item.from_author.username}}的</span>
             {{item.isReply ? '评论' : item.from_article.type === 'long' ? '文章' : '说说'}}
-            {{item.isReply ? item.from_comment.content : item.from_article.title || item.from_article.content }}
-            <span style="float: right">{{item.commentTime}}</span>
+            <span class="content-article">
+              {{item.isReply ? item.from_comment.content : item.from_article.title || item.from_article.content }}
+            </span>
+            <span class="content-time">
+              <Time :time="item.commentTime.toString()" type="datetime" />
+            </span>
           </p>
         </div>
       </li>

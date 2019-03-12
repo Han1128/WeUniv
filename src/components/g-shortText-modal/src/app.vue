@@ -164,8 +164,8 @@ export default {
       .then(res => {
         this.$Message.success('提交成功');
         this.modalShow = false;
-        bus.$emit('uploadUserData');
-        bus.$emit('updateHomeData');
+        bus.$emit('updateHomeData'); // 主页更新
+        bus.$emit('updateUserData'); // 用户页更新
       })
       .catch(err => {
         this.$Message.error('提交失败');

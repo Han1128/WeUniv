@@ -1,5 +1,8 @@
 <style lang="less" scoped>
 .comment-panel {
+  border-radius: 0 0 .5rem .5rem;
+  border: 1px solid #dedede;
+  box-shadow: -1px 0 1px rgba(255, 255, 255, 0.8);
   overflow: hidden;
   padding-top: 2rem;
   line-height: 4rem;
@@ -15,9 +18,9 @@
       margin-left: 6rem;
       margin-right: 8rem;
       .ivu-input-wrapper {
-        width: 100%;
+        width: calc(100% - 5rem);
         /deep/.ivu-input {
-          width: calc(100% - 5rem);
+          width: 100%;
           font-size: 1.4rem;
         }
       }
@@ -38,10 +41,6 @@
       float: left;
       border-radius: 4rem;
     }
-    // /deep/.ivu-input {
-    //   width: 50rem;
-    //   font-size: 1.4rem;
-    // }
   }
   .history-comment {
     .comment-list {
@@ -266,8 +265,8 @@ export default {
       }
       this.axios.post('/addCommentLike', data)
       .then(res => {
-        bus.$emit('updateUserData');
-        bus.$emit('updateHomeData');
+        bus.$emit('updateHomeData'); // 主页更新
+        bus.$emit('updateUserData'); // 用户页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -287,7 +286,8 @@ export default {
       }
       this.axios.post('/postReplyComment', data)
       .then(res => {
-        bus.$emit('uploadUserData');
+        bus.$emit('updateHomeData'); // 主页更新
+        bus.$emit('updateUserData'); // 用户页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -310,7 +310,8 @@ export default {
       }
       this.axios.post('/postComment', data)
       .then(res => {
-        bus.$emit('uploadUserData');
+        bus.$emit('updateHomeData'); // 主页更新
+        bus.$emit('updateUserData'); // 用户页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

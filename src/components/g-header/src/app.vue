@@ -17,9 +17,9 @@
         </li>
       </ul>
     </div>
-    <Input v-model="searchContent" class="header-search__input" placeholder="搜索用户或关键词">
+    <i-input v-model="searchContent" class="header-search__input" placeholder="搜索用户或关键词">
       <Icon type="ios-search" slot="suffix" @click="search"/>
-    </Input>
+    </i-input>
     <div class="header-right">
       <ul class="icon-list">
         <li>
@@ -54,17 +54,19 @@
             <div slot="content">
               <ul class="list-details">
                 <transition name="slide">
-                    <router-link tag="li" :to="'/message/like' + userId">赞</router-link>
+                    <router-link tag="li" to="/message/unReadMsg">
+                      未读通知<span class="unread-msg">3</span>
+                    </router-link>
                   </transition>
-                  <transition name="slide">
-                    <router-link tag="li" to="/message/comment">评论</router-link>
-                  </transition>
-                  <transition name="slide">
-                    <router-link tag="li" to="/message/collect">收藏</router-link>
-                  </transition>
-                  <transition name="slide">
-                    <router-link tag="li" to="/message/unReadMsg">未读通知</router-link>
-                  </transition>
+                <transition name="slide">
+                  <router-link tag="li" :to="'/message/likeArticle'">收到点赞</router-link>
+                </transition>
+                <transition name="slide">
+                  <router-link tag="li" to="/message/comment">收到评论</router-link>
+                </transition>
+                <transition name="slide">
+                  <router-link tag="li" to="/message/collect">收到收藏</router-link>
+                </transition>
               </ul>
             </div>
           </Poptip>
@@ -76,7 +78,7 @@
                 :src="getAvatar">
               </Avatar>
               <div class="api" slot="title">
-                {{username}}
+                {{userDetails.username}}
               </div>
               <div slot="content">
                 <ul class="list-details">
@@ -84,13 +86,13 @@
                     <router-link tag="li" :to="'/user/' + userId">我的主页</router-link>
                   </transition>
                   <transition name="slide">
-                    <router-link tag="li" :to="'/user/' + userId + '/likeArticle'">我的喜欢</router-link>
+                    <router-link tag="li" :to="'/user/' + userId + '/search/likeArticle'">我的喜欢</router-link>
                   </transition>
                   <transition name="slide">
-                    <router-link tag="li" :to="'/user/' + userId + '/collect'">我的收藏</router-link>
+                    <router-link tag="li" :to="'/user/' + userId + '/search/collect'">我的收藏</router-link>
                   </transition>
                   <transition name="slide">
-                    <router-link tag="li" :to="'/user/' + userId + '/comment'">我的评论</router-link>
+                    <router-link tag="li" :to="'/user/' + userId + '/search/comment'">我的评论</router-link>
                   </transition>
                   <li @click="exit()">退出</li>
                 </ul>
@@ -129,24 +131,17 @@ export default {
       settingVisible: false, // 点击设置
       searchContent: '', // 搜索内容
       userId: '',
-      username: '',
-      userData: {}
+      userDetails: [],
     }
   },
   created() {
     this.userId = localStorage.getItem('userid');
-    this.username = localStorage.getItem('username');
-    this.userData = JSON.parse(localStorage.getItem('userData'));
+    this.getUserInfo();
   },
   computed: {
     getAvatar() {
-      if (this.userData) {
-        return this.userData.avatar;
-      }
-      else {
-        return 'https://i.loli.net/2017/08/21/599a521472424.jpg';
-      }
-    },
+      return this.userDetails.avatar ? this.userDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+    }
   },
   methods: {
     search () {
@@ -154,6 +149,21 @@ export default {
         this.$Message.error('请输入搜索内容');
       }
       this.$router.push({ path: `/search/${this.searchContent}` });
+    },
+    // 获取用户信息
+    getUserInfo() {
+      this.axios.get('/getUserDetails', {
+        params: {
+          id: this.userId
+        }
+      })
+      .then(res => {
+        localStorage.setItem('userData', JSON.stringify(res.data.result));
+        this.userDetails = res.data.result;
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
     },
     exit() {
       localStorage.removeItem('token');

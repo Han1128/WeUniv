@@ -1,37 +1,86 @@
 <style lang="less" scoped>
 .user-movement-list {
+  min-height: 70rem;
+  margin: 0 2rem;
+  margin-right: 13rem;
+  border-radius: .5rem;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: -1px -1px 3px rgba(255, 255, 255, 0.8);
+  .list-header {
+    padding: 2rem;
+    padding-left: 3rem;
+  }
+  .ivu-divider {
+    width: auto;
+    margin: 0;
+    clear: none;
+    margin: 0 3rem;
+  }
   .collect-list {
+    margin-left: 2rem;
+    margin-right: 2rem;
+    margin-bottom: 2rem;
     li {
+      margin: 0 1rem;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      padding: .6rem 1rem;
       overflow: hidden;
       .list-img {
         float: left;
         padding: .5rem 0;
+        margin-right: 1.5rem;
+        margin-left: 1rem;
         img {
           height: 4rem;
           border-radius: 4rem;
         }
       }
+      .list-content {
+        padding: .5rem 0;
+        .content-author {
+          color: #009A61;
+        }
+        .content-article {
+          color: #009A61;
+        }
+      }
+      &:hover {
+        border-left: 3px solid #333;
+        background: #eee;
+      }
+    }
+    & li:first-child {
+      border-top: none;
     }
   }
 }
 </style>
 <template>
   <div class="user-movement-list">
-    <h2>{{getListTitle}}</h2>
+    <h2 class="list-header">{{getListTitle}}</h2>
+    <Divider/>
     <template v-if="searchOption === 'likeArticle'">
       <ul class="collect-list">
         <li v-for="item in likeList" :key="item._id">
           <div class="list-img">
-            <img :src="item.from_user.avatar">
+            <img :src="item.from_user.avatar || defaultAvatar">
           </div>
           <div class="list-content">
-            <p>
-              {{item.from_user.username}}点赞了你的
+            <p v-if="item.from_article">
+              <span class="content-author">{{item.from_user.username}}</span>
+                点赞了你的
               {{item.from_article.type === 'long' ? '文章' : '说说'}}
-              {{item.from_article.title || item.from_article.content}}
+              <span class="content-article">
+                {{item.from_article.title || item.from_article.content}}
+              </span>
+            </p>
+            <p v-else>
+              <span>该作者文章已被删除</span>
             </p>
             <p>
-              {{item.time}}
+              <Time :time="item.time" type="datetime" />
             </p>
           </div>
         </li>
@@ -45,11 +94,14 @@
           </div>
           <div class="list-content">
            <p>
-              {{item.from_user.username}}点赞了你的评论
-              {{item.from_comment.content}}
+              <span class="content-author">{{item.from_user.username}}</span>
+              点赞了你的评论
+              <span class="content-article">
+                {{item.from_comment.content}}
+              </span>
             </p>
             <p>
-              {{item.time}}
+              <Time :time="item.time" type="datetime" />
             </p>
           </div>
         </li>
@@ -59,13 +111,18 @@
       <ul class="collect-list">
         <li v-for="item in collectList" :key="item._id">
           <div class="list-img">
-            <img :src="item.from_user.avatar">
+            <img :src="item.from_user.avatar || defaultAvatar">
           </div>
           <div class="list-content">
-            <p>
-              {{item.from_user.username}}收藏了你的
-              {{item.from_article.type === 'long' ? '文章' : '说说'}}
-              {{item.from_article.title || item.from_article.content}}
+            <p v-if="item.from_article">
+              <span class="content-author">{{item.from_user.username}}</span>
+              收藏了你的{{item.from_article.type === 'long' ? '文章' : '说说'}}
+              <span class="content-article">
+                {{item.from_article.title || item.from_article.content}}
+              </span>
+            </p>
+            <p v-else>
+              <span>该作者文章已被删除</span>
             </p>
           </div>
         </li>
@@ -84,6 +141,7 @@ export default {
   data () {
     return {
       userId: '',
+      defaultAvatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
       likeList: [],
       collectList: {}
     }
@@ -111,6 +169,9 @@ export default {
     this.userId = localStorage.getItem('userid');
   },
   methods: {
+    getContent (item) {
+      return item.from_article ? item.from_article.title || item.from_article.content : item.from_comment ? item.from_comment.content : '该内容已被删除'
+    },
     getCollectMsg() {
       this.axios.get('/getCollectMsg', {
         params: {

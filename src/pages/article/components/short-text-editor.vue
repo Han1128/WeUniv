@@ -5,6 +5,7 @@
   margin-top: 1rem;
   border-radius: .5rem;
   .box-header {
+    font-weight: bold;
     color: rgb(0, 154, 97);
     text-align: center;
     font-size: 1.6rem;
@@ -107,6 +108,10 @@
   }
   .box-footer {
     margin-bottom: 1rem;
+    .submit-btn {
+      background: #009A61;
+      color: #fff;
+    }
   }
 }
 </style>
@@ -255,7 +260,6 @@ export default {
       }
       this.axios.post('/addShortArticle', data)
       .then(res => {
-        console.log('res', res);
         this.$Message.success('提交成功');
         this.resetFields();
         this.$emit('uploadUserData');

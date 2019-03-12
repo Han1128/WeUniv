@@ -17,9 +17,9 @@
         background: #F6F6F6;
         position: relative;
         .ivu-avatar {
-          width: 20rem;
-          height: 20rem;
-          border-radius: 20rem;
+          width: 17rem;
+          height: 17rem;
+          border-radius: 17rem;
           position: absolute;
           top: 50%;
           left: 50%;
@@ -44,6 +44,7 @@
           left: 50%;
           transform: translate(-50%, -50%);
           h2 {
+            white-space: nowrap;
             font-size: 3.5rem;
             a {
               font-size: 1.5rem;
@@ -53,6 +54,7 @@
             }
           }
           .baseInfo {
+            white-space: nowrap;
             margin-left: .5rem;
             p{
               margin-top: 1rem;
@@ -74,7 +76,7 @@
           .followShip {
             margin: 1.5rem 0;
             overflow: hidden;
-            width: 50%;
+            width: 20rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #D9D9D9;
             li {
@@ -113,13 +115,13 @@
     }
     .profile-container {
       margin-top: 2rem;
-      background: pink;
+      // background: pink;
       overflow: hidden;
     }
     .profile-bottom {
       height: 10rem;
       margin: 2rem 0;
-      background: orange;
+      // background: orange;
     }
   }
 
@@ -170,14 +172,14 @@
             </div>
             <ul class="followShip">
               <li>
-                <router-link tag="a" :to="'/user/' + authorId + '/following'">
+                <router-link tag="a" :to="'/user/' + authorId + '/search/following'">
                     {{following}}
                 </router-link>
                 <div>关注</div>
                 <p class="gap"></p>
               </li>
               <li style="border-left: 1px solid #D9D9D9;border-right: 1px solid #D9D9D9">
-                <router-link tag="a" :to="'/user/' + authorId + '/follower'">
+                <router-link tag="a" :to="'/user/' + authorId + '/search/follower'">
                     {{follower}}
                 </router-link>
                 <div>粉丝</div>

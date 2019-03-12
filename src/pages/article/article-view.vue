@@ -1,5 +1,23 @@
 <style lang="less" scoped>
 .article-view {
+  .sidebar-options {
+    display: none;
+    position: fixed;
+    top: 30rem;
+    left: 20rem;
+    li {
+      font-size: 2.8rem;
+      .ivu-icon {
+        cursor: pointer;
+        &:hover {
+          color: #009A61;
+        }
+      }
+      .like {
+        color: #009A61;
+      }
+    }
+  }
   .article-view-area {
     width: 55%;
     margin: 0 auto;
@@ -7,7 +25,7 @@
     padding: 0 1rem;
     box-sizing: border-box;
     .cover-bg {
-      width: 100%;
+      width: 95%;
     }
     .title {
       font-size: 3.3rem;
@@ -96,11 +114,27 @@
 <template>
   <div class="article-view">
     <g-header></g-header>
+    <BackTop></BackTop>
+    <ul class="sidebar-options">
+      <li @click="addToList('like')">
+        <Icon type="ios-heart" :class="{'like': hasLikeArticle}" />
+      </li>
+      <li @click="addToList('collect')">
+        <Icon type="ios-bookmark" :class="{'like': hasCollectArticle}" />
+      </li>
+      <li @click="scrollToComment">
+        <Icon type="md-chatboxes" />
+      </li>
+      <li v-show="userId === getUserId" @click="turnToEdit">
+        <Icon type="md-create" />
+      </li>
+      <li @click="scrollToTop"><Icon type="ios-arrow-dropup-circle" /></li>
+    </ul>
     <div class="article-view-area" >
       <img class="cover-bg" v-show="articleDetail.coverBg" :src="getArticleImg">
       <h1 class="title">{{articleDetail.title}}</h1>
       <div class="author-info">
-        <img :src="getUserAvatar">
+        <img :src="getAuthorAvatar">
         <div class="info-tags">
           <p>{{getUsername}}</p>
           <p class="public-time">发表于 <Time :time="getPublicTime" type="datetime" /></p>
@@ -108,10 +142,8 @@
       </div>
       <div class="article-content" v-html="articleDetail.content"></div>
       <div class="btn-list">
-        <Button v-if="!hasLikeArticle" icon="ios-heart" @click="addToList('add', 'like')">赞 ｜ {{getLikeLength}}</Button>
-        <Button v-else class="like" icon="ios-heart" @click="addToList('cancel', 'like')">赞 ｜ {{getLikeLength}}</Button>
-        <Button v-if="!hasCollectArticle" icon="ios-bookmark" @click="addToList('add', 'collect')">收藏 ｜ {{getCollectLength}}</Button>
-        <Button v-else class="like" icon="ios-bookmark" @click="addToList('cancel', 'collect')">收藏 ｜ {{getCollectLength}}</Button>
+        <Button :class="{'like': hasLikeArticle}" icon="ios-heart" @click="addToList('like')">赞 ｜ {{getLikeLength}}</Button>
+        <Button :class="{'like': hasCollectArticle}" icon="ios-bookmark" @click="addToList('collect')">收藏 ｜ {{getCollectLength}}</Button>
       </div>
       <comment-panel
         :articleId="articleDetail._id"
@@ -122,6 +154,7 @@
   </div>
 </template>
 <script>
+import $ from 'jquery'
 import commentPanel from '../user/components/article/comment-panel'
 export default {
   components: { commentPanel },
@@ -138,37 +171,79 @@ export default {
     this.userId = localStorage.getItem('userid');
     this.getDesignArticle();
   },
+  mounted () {
+    $(window).scroll(this.handleScroll);
+    // window.addEventListener('scroll', this.handleScroll)
+  },
   computed: {
     getArticleImg() {
       return this.articleDetail.coverBg ? this.articleDetail.coverBg[0] : '#';
     },
-    getUserAvatar() {
+    getAuthorAvatar() {
       return this.articleDetail.author ? this.articleDetail.author.avatar : '#';
     },
+    getUserAvatar() {
+      return JSON.parse(localStorage.getItem('userData')).avatar;
+    },
+    getUserId() {
+      if(JSON.stringify(this.articleDetail) === '{}') return '';
+      return this.articleDetail.author._id;
+    },
     getUsername() {
-      return this.articleDetail.author ? this.articleDetail.author.username : '';
+      if(JSON.stringify(this.articleDetail) === '{}') return '';
+      return this.articleDetail.author.username;
     },
     getPublicTime() {
-      return this.articleDetail.public_time ? this.articleDetail.public_time.toString() : new Date();
+      if(JSON.stringify(this.articleDetail) === '{}') return new Date();
+      return this.articleDetail.public_time.toString();
     },
     getLikeLength() {
-      return this.articleDetail.likeBy ? this.articleDetail.likeBy.length : 0;
+      if(JSON.stringify(this.articleDetail) === '{}') return 0;
+      return this.articleDetail.likeBy.length;
     },
     getCollectLength() {
-      return this.articleDetail.collectBy ? this.articleDetail.collectBy.length : 0;
+      if(JSON.stringify(this.articleDetail) === '{}') return 0;
+      return this.articleDetail.collectBy.lengths;
     },
     hasLikeArticle() {
-      if(!this.articleDetail) return false;
-      return this.articleDetail.likeBy.includes(this.userId) ? true : false;
+      if(JSON.stringify(this.articleDetail) === '{}') return false;
+      return this.articleDetail.likeBy.includes(this.userId);
     },
     hasCollectArticle() {
-      if(!this.articleDetail) return false;
-      return this.articleDetail.collectBy.includes(this.userId) ? true : false;
+      if(JSON.stringify(this.articleDetail) === '{}') return false;
+      return this.articleDetail.collectBy.includes(this.userId);
     },
   },
   methods: {
-    addToList(operator, type) {
+    handleScroll () {
+      // var targetHeight = $(".sidebar-options").offset().top;   // 目标元素到顶部的距离
+      var scrollTop = $(window).scrollTop(); // 页面滚动的距离
+      if (scrollTop >= 200) {
+        $(".sidebar-options").css("display","block");
+      }
+      else {
+        $(".sidebar-options").css("display","none");
+      }
+    },
+    scrollToComment() {
+      $('html').animate({
+        scrollTop: 1000
+      }, 200);//2秒滑动到指定位置
+    },
+    scrollToTop() {
+      $('html').animate({
+        scrollTop: 0
+      }, 200);//2秒滑动到指定位置
+    },
+    addToList(type) {
       // 判断操作文章的id是否是用户自己的文章
+      let operator = ''
+      if (type === 'like') {
+        operator = this.hasLikeArticle ? 'cancel' : 'add';
+      }
+      else {
+        operator = this.hasCollectArticle ? 'cancel' : 'add';
+      }
       const userData = JSON.parse(localStorage.getItem('userData'));
       let data = {
         userId: this.userId,
@@ -185,6 +260,9 @@ export default {
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
+    },
+    turnToEdit() {
+      this.$router.push({ path: `/write/edit/${this.articleId}` });
     },
     getDesignArticle() {
       this.axios.get('/getDesignArticle', {

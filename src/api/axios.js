@@ -44,10 +44,13 @@ instance.interceptors.response.use(
     console.log('响应拦截服务端错误状态码');
     if (err && err.response) {
       switch(err.response.status) {
-        case '400':
+        // case 301: // 用户未授权
+        // err.message = '拒绝访问'
+        //   break;
+        case 400:
           err.message = '错误请求';
           break;
-        case '401':
+        case 401:
           // 清除token信息并转到登录页面
           localStorage.removeItem('token');
           router.replace({
@@ -57,6 +60,9 @@ instance.interceptors.response.use(
           err.message = '未授权,重新登录';
           break;
         case 403:
+          router.replace({
+            path:'/home'
+          })
           err.message = '拒绝访问'
           break;
         case 404:

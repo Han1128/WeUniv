@@ -1,7 +1,7 @@
 <style lang="less" scoped>
 .search-page {
   padding-top: 7rem;
-  background: #F7F7F7;
+  background: #F6F6F6;
   .search-content {
     width: 70%;
     margin: 0 auto;
@@ -24,10 +24,24 @@
     }
     .body {
       margin-top: 2rem;
+      min-height: 70rem;
+      // background: #fff;
+      .ivu-divider {
+        width: auto;
+        margin: 0;
+        clear: none;
+        margin: 1rem 1rem;
+      }
       .body-right {
         float: right;
         width: 33rem;
-        background: #5FC8EB;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: .3rem;
+        padding: 2rem 1.5rem;
+        h2 {
+          font-size: 1.8rem;
+        }
         .more-content {
           float: right;
         }
@@ -57,7 +71,18 @@
       }
       .body-left {
         margin-right: 35rem;
-        background: pink;
+        border: 1px solid #ccc;
+        padding: 0 1rem;
+        background: #fff;
+        h2 {
+          font-size: 1.8rem;
+          padding-top: 2rem;
+          padding-left: 1rem;
+        }
+        a {
+          margin-top: 3rem;
+          margin-right: 1rem;
+        }
         .more-content {
           float: right;
         }
@@ -96,6 +121,7 @@
         <div class="body-right">
           <a class="more-content" href="#">查看更多</a>
           <h2>相关用户</h2>
+          <Divider/>
           <ul class="user-list">
             <li v-for="item in searchUsers" :key="item._id">
               <div class="list-img">
@@ -115,6 +141,7 @@
         <div class="body-left">
           <a class="more-content" href="#">查看更多</a>
           <h2>综合查询结果</h2>
+          <Divider/>
           <user-article-list
             :articleDetails="searchArticles"
             :userDetails="userDetails"

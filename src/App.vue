@@ -5,11 +5,11 @@
 </template>
 <script>
 export default {
-  name: 'App'
+  name: 'App',
 }
 </script>
 
-<style>
+<style lang="less" scoped>
 #app {
 }
 </style>

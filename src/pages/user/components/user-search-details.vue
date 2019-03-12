@@ -2,16 +2,21 @@
 .follow-list {
   .option-menu {
     float: left;
-    margin-top: 2rem;
-    margin-left: 1.5rem;
-    /deep/.movement {
-      padding: 3rem 0;
+    // margin-top: 2rem;
+    margin-left: 1rem;
+    .ivu-menu {
+      z-index: 1;
+      border-radius: .5rem;
+      border: 1.5px solid #dedede;
+      box-shadow: -1px 0 1px rgba(255, 255, 255, 0.8);
+      /deep/.movement {
+        padding: 3rem 0;
+      }
     }
   }
   .container {
     min-height: 50rem;
     margin-left: 27rem;
-    background: yellow;
   }
 }
 </style>
@@ -110,7 +115,7 @@ export default {
     // menu选项选择
     selectName(name) {
       this.$router.push({
-        path: `/user/${this.authorId}/${name}`
+        path: `/user/${this.authorId}/search/${name}`
       })
     },
     getAuthorInfo() {

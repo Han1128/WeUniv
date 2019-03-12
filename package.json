@@ -27,6 +27,7 @@
     "iview": "^3.2.1",
     "jquery": "^3.3.1",
     "less-loader": "^4.1.0",
+    "particles.js": "^2.0.0",
     "quill-image-drop-module": "^1.0.3",
     "quill-image-resize-module": "^3.0.0",
     "ramda": "^0.26.1",

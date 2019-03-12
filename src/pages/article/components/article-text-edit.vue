@@ -75,7 +75,22 @@ export default {
     },
     turnPage(articleid) {
       this.isSave = true;
+      this.getUserInfo(); //更新localStore
       this.$router.push({ path: `/view/${articleid}`});
+    },
+    // 获取用户信息
+    getUserInfo() {
+      this.axios.get('/getUserDetails', {
+        params: {
+          id: localStorage.getItem('userid')
+        }
+      })
+      .then(res => {
+        localStorage.setItem('userData', JSON.stringify(res.data.result));
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
     },
     goBack() {
       this.$router.push({

@@ -119,6 +119,29 @@ const router =  new Router({
       }
     },
     {
+      path: '/admin',
+      name: 'adminPage',
+      meta: {
+        title: '后台管理页',
+        requiresAuth: true
+      },
+      redirect: '/admin/overview',
+      component: (resolve) => {
+        require(['@/pages/admin/AdminBaseFramework'], resolve);
+      },
+      children: [{
+        path: 'overview',
+        name: 'overview',
+        meta: {
+          title: '',
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/admin/components/admin-overview'], resolve);
+        },
+      }]
+    },
+    {
       path: '/user/:userid',
       name: 'userPage',
       redirect: '/user/:userid/home',
@@ -138,7 +161,7 @@ const router =  new Router({
           require(['@/pages/user/components/user-article-details'], resolve);
         }
       }, {
-        path: ':search',
+        path: 'search/:search',
         meta: {
           requiresAuth: true
         },

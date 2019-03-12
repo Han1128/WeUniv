@@ -11,7 +11,12 @@
       float: left;
       padding-top: 2rem;
       margin-top: 1rem;
-      background: #a6b6c6;
+      border-radius: .5rem;
+      box-shadow: 2px 2px 2px rgba(0,0,0,0.3);
+      background: #fff;
+      .ivu-icon {
+        margin-right: 1rem;
+      }
       .hot-topic {
         .topic-item {
           height: 3.5rem;
@@ -22,7 +27,7 @@
           font-size: 1.6rem;
           cursor: pointer;
           &:hover {
-            background: #fff;
+            background: #eee;
           }
         }
       }
@@ -32,12 +37,12 @@
       height: 60rem;
       float: right;
       margin-top: 1rem;
-      background: #d9d9d9;
       .user-info {
         width: auto;
-        height: 15rem;
+        height: 16rem;
         margin: 2rem;
-        background: rgba(189, 91, 120, 0.333);
+        border-radius: .5rem;
+        background: #fff;
         .user-info_header {
           padding: 1rem 2rem;
           padding-top: 2rem;
@@ -48,6 +53,7 @@
           }
         }
         .user-info_follow {
+          padding: .5rem 1rem;
           .follow-list {
             overflow: hidden;
             padding-left: 2rem;
@@ -126,7 +132,7 @@
 
       .center-left {
         .time-filter {
-          margin: 1rem;
+          margin: 1rem 0;
           background: #fff;
           .type-filter {
             float: right;
@@ -139,7 +145,7 @@
             overflow: hidden;
             li {
               float: left;
-              padding: 0 1.5rem;
+              padding: 0 2rem;
               margin: 1rem 0;
               cursor: pointer;
               border-right: 1px solid #ccc;
@@ -166,6 +172,7 @@
 <template>
   <div class="user-follow-page">
     <div class="content-left">
+      <Divider orientation="left">快速选择</Divider>
       <ul class="hot-topic">
         <li class="topic-item" style="font-size: 1.4rem" @click="getFollowArticle()">
           <Icon type="ios-aperture" />最近更新
@@ -184,7 +191,7 @@
         v-for="(item, index) in tagsList"
         :key="index"
         @click="filtrerByTag(item.iconLabel)">
-          <svg class="icon" aria-hidden="true">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
               <use :xlink:href="'#'+item.iconCode"></use>
           </svg>
           {{item.iconLabel}}
@@ -195,7 +202,7 @@
     <div class="content-right">
       <div class="user-info">
         <p class="user-info_header">
-          <img :src="userDetails.avatar">
+          <img :src="getUserAvatar">
           <label>{{userDetails.username}}</label>
         </p>
         <p class="user-info_follow">
@@ -239,12 +246,12 @@
       </div>
     </div>
       <div class="content-center">
-        <short-text-editor @uploadUserData="getFollowArticle"></short-text-editor>
+        <short-text-editor @uploadUserData="getUserInfo"></short-text-editor>
         <div class="center-left">
           <div class="time-filter">
             <ul class="time-filter_list">
               <li :class="{ 'active': filterType === 'all'}" @click="filterArticle('all')">全部</li>
-              <li :class="{ 'active': filterType === 'long'}" @click="filterArticle('long')"><Icon type="ios-paper-plane"/>只看文章</li>
+              <li :class="{ 'active': filterType === 'long'}" @click="filterArticle('long')">只看文章</li>
               <li :class="{ 'active': filterType === 'short'}" @click="filterArticle('short')">只看说说</li>
               <li>
                 <Input search placeholder="输入搜索文章的关键词" />
@@ -255,7 +262,7 @@
             :filterType="filterType"
             :articleDetails="articleDetails"
             :userDetails="userDetails"
-            @updateOperator="getFollowArticle">
+            @updateOperator="getUserInfo">
           </user-article-list>
         </div>
       </div>
@@ -282,6 +289,7 @@ export default {
   created() {
     this.userId = localStorage.getItem('userid');
     this.getUserInfo();
+    // this.getFollowArticle();
     this.getUserTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
@@ -301,6 +309,9 @@ export default {
     articleCount() {
       return this.userDetails.article ? this.userDetails.article.length : 0;
     },
+    getUserAvatar() {
+      return this.userDetails.avatar ? this.userDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+    }
   },
   methods: {
     filterArticle(type) {
@@ -342,7 +353,7 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 查询用户标签
+    // 查询用户关注标签
     getUserTags() {
       this.axios.get('/getUserTags', {
         params: {
@@ -365,6 +376,7 @@ export default {
       })
       .then(res => {
         this.articleDetails = res.data.result;
+        // this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

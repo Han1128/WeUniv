@@ -5,7 +5,7 @@
       width: auto;
       display: block;
       list-style: none;
-      margin: 2rem 1rem;
+      margin: 2rem 0;
       border-radius: .5rem;
       background: #fff;
       &:hover {
@@ -13,6 +13,9 @@
       }
       .card {
         width:100%;
+        border-radius: .5rem;
+        border: 1.5px solid #dedede;
+        box-shadow: -1px 0 1px rgba(255, 255, 255, 0.8);
         .card-header-img {
           width: 8rem;
           height: 6rem;
@@ -37,9 +40,13 @@
               font-size: 2rem;
               font-weight: bold;
             }
+            .ivu-tag {
+              float: right;
+              margin-right: 2rem;
+            }
             .ivu-dropdown {
               float: right;
-              margin-top: .5rem;
+              // margin-top: .5rem;
               margin-right: 2rem;
               cursor: pointer;
               user-select: none;
@@ -206,10 +213,10 @@
   <div class="article-list">
     <ul class="single-article">
       <li
-      v-show="item.type === filterType || filterType === 'all'"
-      class="article-list"
-      v-for="(item,index) in articleDetails"
-      :key="item._id" :value="item.title">
+        v-show="item.type === filterType || filterType === 'all'"
+        class="article-list"
+        v-for="(item,index) in articleDetails"
+        :key="item._id" :value="item.title">
         <div class="card">
           <div class="card-header-img">
             <img :src="item.author.avatar">
@@ -228,6 +235,7 @@
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
+              <Tag color="error" v-if="item.isTop && item.author._id === userDetails._id">置顶</Tag>
               <div class="article-time">
                 <p><Time :time="Date.parse(item.public_time)" :type="getDateType(item.public_time)"/>发表</p>
               </div>
@@ -267,24 +275,24 @@
             <!-- 点赞 -->
             <span
               v-if="!getLikeStatus(item._id)" class="text-icon" @click="addToList('add', 'like', item._id, item.author._id)">
-              <Icon type="ios-thumbs-up"/>点赞 × {{getLikeCount(item)}}
+              <Icon type="ios-thumbs-up"/>点赞 × {{item.like_num}}
             </span>
             <span v-else class="text-icon like" @click="addToList('cancel', 'like', item._id, item.author._id)">
-              <Icon type="ios-thumbs-up"/>点赞 × {{getLikeCount(item)}}
+              <Icon type="ios-thumbs-up"/>点赞 × {{item.like_num}}
             </span>
             <!-- 评论 -->
             <span class="text-icon comment" @click="showComment(index)">
-              <Icon type="md-chatboxes" />评论 {{getCommentNum(item)}}
+              <Icon type="md-chatboxes" />评论 {{item.comment_num}}
             </span>
             <!-- 收藏 -->
             <span v-if="!getCollectStatus(item._id)" class="text-icon" @click="addToList('add', 'collect', item._id, item.author._id)">
-              <Icon type="md-bookmark" />收藏 {{getCollectNum(item)}}
+              <Icon type="md-bookmark" />收藏 {{item.collect_num}}
             </span>
             <span v-else class="text-icon collect" @click="addToList('cancel', 'collect', item._id, item.author._id)">
-              <Icon type="md-bookmark" />收藏 {{getCollectNum(item)}}
+              <Icon type="md-bookmark" />收藏 {{item.collect_num}}
             </span>
           </div>
-          <div class="divider"></div>
+          <!-- <div class="divider"></div> -->
         </div>
         <template>
           <comment-panel
@@ -341,19 +349,18 @@ export default {
     }
   },
   computed: {
-    getLikeCount() {
-      return function (item) {
-        return item.likeBy ?  item.likeBy.length : 0;
+    // 判断用户是否点赞了这篇文章
+    getLikeStatus() {
+      return function (articleId) {
+        if(JSON.stringify(this.userDetails) === '{}') return false;
+        return this.userDetails.like_article.includes(articleId) ? true : false;
       }
     },
-    getCollectNum() {
-      return function (item) {
-        return item.collectBy ?  item.collectBy.length : 0;
-      }
-    },
-    getCommentNum() {
-      return function (item) {
-        return item.commentFrom ?  item.commentFrom.length : 0;
+    // 判断用户是否收藏了这篇文章
+    getCollectStatus() {
+      return function (articleId) {
+        if(!this.userDetails.collect) return false;
+        return this.userDetails.collect.includes(articleId) ? true : false;
       }
     },
   },
@@ -368,16 +375,6 @@ export default {
     },
     getDateType(time) {
       return Date.parse(new Date()) - Date.parse(time) > 86400 * 3 * 1000 ? 'date' : 'relative'
-    },
-    // 判断用户是否点赞了这篇文章
-    getLikeStatus(articleId) {
-      if(!this.userDetails.like_article) return false;
-      return this.userDetails.like_article.includes(articleId) ? true : false;
-    },
-    // 判断用户是否收藏了这篇文章
-    getCollectStatus(articleId) {
-      if(!this.userDetails.collect) return false;
-      return this.userDetails.collect.includes(articleId) ? true : false;
     },
     // 放大图片
     showPreview(allImg, index) {
@@ -427,16 +424,22 @@ export default {
         this.$router.push({ path: `/write/edit/${articleId}` });
       }
       else {
-        this.axios.post('/articleDelete', {
-          articleId: articleId
-        })
-        .then(res => {
-          this.$Notice.success({ title: '提示',  desc: '删除成功' });
-          this.$emit('updateOperator');
-        })
-        .catch(err => {
-          this.$Notice.error({ title: '提示',  desc: err.message });
-        })
+        this.$Modal.confirm({
+          title: '操作提示',
+          content: `<p>删除后不可恢复,是否确认删除该文章?</p>`,
+          onOk: () => {
+            this.axios.post('/articleDelete', {
+              articleId: articleId
+            })
+            .then(res => {
+              this.$Notice.success({ title: '提示',  desc: '删除成功' });
+              this.$emit('updateOperator');
+            })
+            .catch(err => {
+              this.$Notice.error({ title: '提示',  desc: err.message });
+            })
+          }
+        });
       }
     },
     /**

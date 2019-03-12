@@ -1,15 +1,32 @@
 <style lang="less" scoped>
 .user-follow-list {
   .follow-list {
-    margin-right: 27rem;
-    background: cadetblue;
+    margin-right: 26rem;
+    margin-bottom: 2rem;
     height: 80rem;
+    padding: 1rem 0;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    box-shadow: -1px -1px 3px rgba(255, 255, 255, 0.8);
+    .list-header {
+      padding: 1rem;
+    }
+    .ivu-divider {
+      margin: 0;
+      margin-bottom: 1rem;
+      clear: none;
+    }
     .list-item {
       overflow: hidden;
       li {
-        background: #cece;
-        padding: .6rem 0;
+        margin: 0 1rem;
+        border-top: 1px solid #ccc;
         border-bottom: 1px solid #ccc;
+        padding: .6rem 0;
+        &:hover {
+          border-left: 3px solid #333;
+          background: #eee;
+        }
         .avatar {
           float: left;
           margin-left: .5rem;
@@ -20,31 +37,48 @@
         }
         .user-info {
           margin-left: 6rem;
+          p {
+            cursor: pointer;
+          }
           .description {
             font-size: 1.3rem;
           }
         }
         .follow-status {
           float: right;
+          margin-right: 1rem;
+          margin-top: .5rem;
         }
       }
     }
   }
   .recommend-list {
     float: right;
-    width: 25rem;
+    width: 24rem;
     height: 20rem;
-    background: mediumspringgreen;
+    margin-top: 2rem;
+    margin-right: 1rem;
+    background: #fff;
+    .list-header {
+      padding: 1rem;
+      padding-bottom: 0;
+      font-size: 1.6rem;
+    }
+    .ivu-divider {
+      margin: 1rem 0;
+    }
   }
 }
 </style>
 <template>
   <div class="user-follow-list">
     <div class="recommend-list">
-      <h2>推荐用户</h2>
+      <h2 class="list-header">推荐用户</h2>
+      <Divider />
     </div>
     <div class="follow-list">
-      <h2>{{ getListTitle }}</h2>
+      <h2 class="list-header">{{ getListTitle }}</h2>
+      <Divider />
       <ul v-if="searchOption === 'following'" class="list-item">
         <li v-for="item in followinglist" :key="item._id">
           <div class="avatar">
@@ -54,7 +88,12 @@
             <Button>取消关注</Button>
           </div>
           <div class="user-info">
-            <p>{{item.username}}</p>
+            <router-link
+              class="user-name"
+              tag="p"
+              :to="'/user/' + item._id">
+              {{item.username}}
+            </router-link>
             <p class="description">{{item.description}}</p>
           </div>
         </li>
@@ -68,7 +107,12 @@
             <Button>已关注</Button>
           </div>
           <div class="user-info">
-            <p>{{item.username}}</p>
+            <router-link
+              class="user-name"
+              tag="p"
+              :to="'/user/' + item._id">
+              {{item.username}}
+            </router-link>
             <p class="description">{{item.description}}</p>
           </div>
         </li>
@@ -83,7 +127,12 @@
             <Button>已关注</Button>
           </div>
           <div class="user-info">
-            <p>{{item.username}}</p>
+            <router-link
+              class="user-name"
+              tag="p"
+              :to="'/user/' + item._id">
+              {{item.username}}
+            </router-link>
             <p class="description">{{item.description}}</p>
           </div>
         </li>

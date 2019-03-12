@@ -1,23 +1,56 @@
 <style lang="less" scoped>
 .user-movement-list {
+  padding: 1rem 0;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  box-shadow: -1px -1px 3px rgba(255, 255, 255, 0.8);
+  .list-header {
+    padding: 1rem;
+  }
+  .ivu-divider {
+    margin: 0;
+    clear: none;
+  }
   .collect-list {
     li {
+      margin: 0 1rem;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      padding: .6rem 1rem;
       overflow: hidden;
       .list-img {
         float: left;
         padding: .5rem 0;
+        margin-right: 1.5rem;
         img {
           height: 4rem;
           border-radius: 4rem;
         }
       }
+      .list-content {
+        padding: .5rem 0;
+        .content-author {
+          color: #009A61;
+        }
+        .content-article {
+          color: #009A61;
+        }
+      }
+      &:hover {
+        border-left: 3px solid #333;
+        background: #eee;
+      }
+    }
+    & li:first-child {
+      border-top: none;
     }
   }
 }
 </style>
 <template>
   <div class="user-movement-list">
-    <h2>{{getListTitle}}</h2>
+    <h2 class="list-header">{{getListTitle}}</h2>
+    <Divider/>
     <template v-if="searchOption === 'likeArticle'">
       <ul class="collect-list">
         <li v-for="item in likeList" :key="item._id">
@@ -27,9 +60,9 @@
           <div class="list-content">
             <p>{{userAuthorDetails.username}}</p>
             <p>
-              点赞了{{item.author.username}}的
-              {{item.type === 'long' ? '文章' : '说说'}}
-              {{item.title || item.content}}
+              点赞了<span class="content-author">{{item.author.username}}</span>
+              的{{item.type === 'long' ? '文章' : '说说'}}
+              <span class="content-article">{{item.title || item.content}}</span>
             </p>
           </div>
         </li>
@@ -44,7 +77,8 @@
           <div class="list-content">
             <p>{{userAuthorDetails.username}}</p>
             <p>
-              点赞了{{item.from_author.username}}的评论 {{item.content}}
+              点赞了<span class="content-author">{{item.from_author.username}}</span>
+              评论 <span class="content-article">{{item.content}}</span>
             </p>
           </div>
         </li>
@@ -59,9 +93,9 @@
           <div class="list-content">
             <p>{{collectList.username}}</p>
             <p>
-              收藏了{{item.author.username}}的
-              {{item.type === 'long' ? '文章' : '说说'}}
-              {{item.title || item.content}}
+              收藏了<span class="content-author">{{item.author.username}}</span>
+              的{{item.type === 'long' ? '文章' : '说说'}}
+              <span class="content-article">{{item.title || item.content}}</span>
             </p>
           </div>
         </li>
@@ -99,7 +133,7 @@ export default {
       else {
         this.appellation = '她的';
       }
-      return this.appellation.concat(this.searchOption === 'collect' ? '收藏' : '赞');
+      return this.appellation.concat(this.searchOption === 'collect' ? '收藏' : '点赞');
     }
   },
   watch: {
