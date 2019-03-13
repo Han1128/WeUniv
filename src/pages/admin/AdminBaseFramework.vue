@@ -90,8 +90,11 @@
             <Dropdown>
                 <img class="avatar" :src="getAdminAvatar" />
                 <DropdownMenu slot="list">
-                    <DropdownItem>注销</DropdownItem>
-                    <DropdownItem>退出</DropdownItem>
+                  <DropdownItem>
+                    <router-link tag="li" to="/">返回首页</router-link>
+                  </DropdownItem>
+                  <DropdownItem>注销</DropdownItem>
+                  <DropdownItem>退出</DropdownItem>
                 </DropdownMenu>
             </Dropdown>
             <!-- <img class="avatar" :src="getAdminAvatar" /> -->
