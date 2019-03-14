@@ -88,11 +88,12 @@
 </template>
 <script>
 const R = require('ramda');
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 export default {
   data () {
     return {
       userId: '',
-      defaultAvatar: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
+      defaultAvatar: DEFAULT_AVATAR,
       unReadMsg: []
     }
   },

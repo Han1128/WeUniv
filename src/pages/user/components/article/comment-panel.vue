@@ -125,6 +125,7 @@
 </style>
 <template>
   <div class="comment-panel">
+    <!-- 评论输入区 -->
     <div class="submit-area">
       <img :src="avatar">
       <div class="btn-style">
@@ -132,23 +133,26 @@
       </div>
       <div class="comment-box">
         <Icon class="emoji-btn" type="md-happy" v-click-outside="hideEmoji" @click="showEmoji"/>
-        <Input v-model="editorContent" placeholder="Enter something..." ></Input>
+        <i-input v-model="editorContent" placeholder="Enter something..." ></i-input>
         <!-- <input type="text"> -->
       </div>
       <g-emoji v-show="emojiShow" @emojiClick="addEmoji"></g-emoji>
     </div>
+
     <div class="history-comment" v-show="commentList.length !== 0">
       <ul v-for="(item,index) in commentList" :key="item._id">
         <li>
           <div class="comment-list">
             <div class="header">
-              <img :src="item.from_author.avatar">
+              <img :src="item.from_author.avatar || defaultAvatar">
             </div>
             <div class="content">
+              <!-- 非回复评论 -->
               <div class="content-top" v-if="!item.isReply">
                 <router-link class="info-username" tag="a" :to="'/user/' + item.from_author._id">{{item.from_author.username}}</router-link>
                 <span>{{item.content}}</span>
               </div>
+              <!-- 回复评论 -->
               <div v-else class="content-top-reply">
                 <router-link tag="a" :to="'/user/' + item.from_author._id">{{item.from_author.username}}</router-link>
                 <span style="padding-left: 1rem;">回复评论:</span>
@@ -162,6 +166,7 @@
                   </div>
                 </div>
               </div>
+              <!-- 评论底部时间和 '回复' '赞' -->
               <div class="content-bottom">
                 <span class="info-time"><Time :time="Date.parse(item.commentTime)" :type="getDateType(item.commentTime)"/></span>
                 <span class="info-reply">
@@ -176,10 +181,11 @@
               </div>
             </div>
           </div>
+          <!-- 回复评论区 -->
           <div class="reply-panel" v-if="replyShow === index">
             <Icon class="reply-emoji-btn" type="md-happy" v-click-outside="hideReplyEmoji" @click="showReplyEmoji"/>
             <g-emoji v-show="replyEmojiShow" @emojiClick="addReplyEmoji"></g-emoji>
-            <Input v-model="replyContent"></Input>
+            <i-input v-model="replyContent"></i-input>
             <Button @click="confirmReply(item)">评论</Button>
           </div>
         </li>
@@ -189,6 +195,7 @@
 </template>
 <script>
 import bus from '@/common/bus.js';
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import ClickOutside from 'vue-click-outside';
 export default {
   props: {
@@ -216,9 +223,8 @@ export default {
       editorContent: '', // 输入的内容
       emojiShow: false, // emoji表情框显示状态
       replyEmojiShow: false, // 回复emoji表情框显示状态
+      defaultAvatar: DEFAULT_AVATAR
     }
-  },
-  created() {
   },
   methods: {
     addEmoji(emoji) {
@@ -267,6 +273,7 @@ export default {
       .then(res => {
         bus.$emit('updateHomeData'); // 主页更新
         bus.$emit('updateUserData'); // 用户页更新
+        bus.$emit('updateDesignArticle'); // 用户页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -288,6 +295,7 @@ export default {
       .then(res => {
         bus.$emit('updateHomeData'); // 主页更新
         bus.$emit('updateUserData'); // 用户页更新
+        bus.$emit('updateDesignArticle'); // 用户页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -312,6 +320,7 @@ export default {
       .then(res => {
         bus.$emit('updateHomeData'); // 主页更新
         bus.$emit('updateUserData'); // 用户页更新
+        bus.$emit('updateDesignArticle'); // 用户页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

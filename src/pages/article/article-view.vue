@@ -154,8 +154,9 @@
   </div>
 </template>
 <script>
-import $ from 'jquery'
-import commentPanel from '../user/components/article/comment-panel'
+import $ from 'jquery';
+import bus from '@/common/bus.js';
+import commentPanel from '../user/components/article/comment-panel';
 export default {
   components: { commentPanel },
   data () {
@@ -170,10 +171,18 @@ export default {
     this.articleId = this.$route.params.articleid;
     this.userId = localStorage.getItem('userid');
     this.getDesignArticle();
+    // 更新文章
+    bus.$on('updateDesignArticle', () => {
+      debugger
+      this.getDesignArticle();
+    })
   },
   mounted () {
     $(window).scroll(this.handleScroll);
     // window.addEventListener('scroll', this.handleScroll)
+  },
+  destroyed() {
+    bus.$off('updateDesignArticle');
   },
   computed: {
     getArticleImg() {

@@ -300,7 +300,7 @@
             :articleId="item._id"
             :author_id="item.author._id"
             :commentList="item.commentFrom"
-            :avatar="userDetails.avatar">
+            :avatar="userDetails.avatar || defaultAvatar">
           </comment-panel>
         </template>
       </li>
@@ -321,8 +321,8 @@
   </div>
 </template>
 <script>
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import commentPanel from './comment-panel';
-
 export default {
   components: { commentPanel },
   props: {
@@ -345,7 +345,8 @@ export default {
       perviewSrc: '',
       allPerviewImg: [],
       previewIndex: -1,
-      showCommentList: []
+      showCommentList: [],
+      defaultAvatar: DEFAULT_AVATAR
     }
   },
   computed: {

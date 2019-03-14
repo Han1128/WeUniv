@@ -205,6 +205,7 @@
 </template>
 <script>
 import bus from '@/common/bus.js';
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import userArticleDetails from './components/user-article-details';
 import shortTextEditor from '@/pages/article/components/short-text-editor';
 export default {
@@ -234,7 +235,7 @@ export default {
       return this.authorDetails.article ? this.authorDetails.article.length : 0;
     },
     userAvatar() {
-      return this.authorDetails.avatar ? this.authorDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+      return this.authorDetails.avatar ? this.authorDetails.avatar : DEFAULT_AVATAR
     }
   },
   created() {

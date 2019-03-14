@@ -48,7 +48,8 @@
   </div>
 </template>
 <script>
-import imgUpload from '../Img-upload-component'
+import { DEFAULT_AVATAR } from '@/constant/index.js';
+import imgUpload from '../Img-upload-component';
 export default {
   components: {  imgUpload },
   data () {
@@ -62,12 +63,12 @@ export default {
   },
   computed: {
     userAvatar() {
-      return this.userData.avatar ? this.userData.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg';
+      return this.userData.avatar ? this.userData.avatar : DEFAULT_AVATAR;
     }
   },
   methods: {
     confirmUpload(result) {
-      const oldAvatar = this.userAvatar === 'https://i.loli.net/2017/08/21/599a521472424.jpg' ? '' : this.userAvatar;
+      const oldAvatar = this.userAvatar === DEFAULT_AVATAR ? '' : this.userAvatar;
       this.axios.post('/uploadAvatar', {
         userId: localStorage.getItem('userid'),
         imgName: localStorage.getItem('username'),

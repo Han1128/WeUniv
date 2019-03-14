@@ -108,6 +108,7 @@
   </div>
 </template>
 <script>
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 export default {
   data () {
     return {
@@ -121,7 +122,7 @@ export default {
   },
   computed: {
     getAdminAvatar() {
-      return this.adminDetails.avatar ? this.adminDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg';
+      return this.adminDetails.avatar ? this.adminDetails.avatar : DEFAULT_AVATAR;
     }
   },
   methods: {

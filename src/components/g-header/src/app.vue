@@ -121,6 +121,7 @@
 </template>
 <script>
 import bus from '@/common/bus.js';
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import bg from '@/assets/images/WeUniv.png';
 export default {
   name: 'g-header',
@@ -140,7 +141,7 @@ export default {
   },
   computed: {
     getAvatar() {
-      return this.userDetails.avatar ? this.userDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+      return this.userDetails.avatar ? this.userDetails.avatar : DEFAULT_AVATAR;
     }
   },
   methods: {

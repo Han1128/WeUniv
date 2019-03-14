@@ -70,7 +70,7 @@
       }
       .recommend-info {
         width: auto;
-        height: 35rem;
+        // height: 35rem;
         margin: 2rem;
         background: #fff;
         border-radius: .4rem;
@@ -87,7 +87,7 @@
           li {
             border-top: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
-            border-left: 5px solid;
+            // border-left: 5px solid;
             .header {
               float: left;
               height: 100%;
@@ -223,26 +223,34 @@
         <h4 class="label">你可能感兴趣的人</h4>
         <div class="divider"></div>
           <ul class="recommend-list">
-            <li v-for="item in recommendList" :key="item._id">
-              <div class="header">
-                <img :src="item.author.avatar">
-              </div>
-              <div class="body">
-                <p>{{item.title}}</p>
-                <p>
-                  <span class="interaction">
-                    <Icon type="md-thumbs-up"/>{{item.likeBy.length}}
-                  </span>
-                  <span class="interaction">
-                    <Icon type="md-star"/>{{item.collectBy.length}}
-                  </span>
-                  <span class="interaction">
-                    <Icon type="md-chatboxes"/>{{item.commentFrom.length}}
-                  </span>
-                </p>
-              </div>
+            <li>
             </li>
           </ul>
+      </div>
+      <div class="recommend-info">
+        <h4 class="label">你可能感兴趣的内容</h4>
+        <div class="divider"></div>
+        <ul class="recommend-list">
+          <li v-for="item in recommendList" :key="item._id">
+            <div class="header">
+              <img :src="item.author.avatar">
+            </div>
+            <div class="body">
+              <p>{{item.title}}</p>
+              <p>
+                <span class="interaction">
+                  <Icon type="md-thumbs-up"/>{{item.likeBy.length}}
+                </span>
+                <span class="interaction">
+                  <Icon type="md-star"/>{{item.collectBy.length}}
+                </span>
+                <span class="interaction">
+                  <Icon type="md-chatboxes"/>{{item.commentFrom.length}}
+                </span>
+              </p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
       <div class="content-center">
@@ -272,6 +280,7 @@
 <script>
 const R = require('ramda');
 import bus from '@/common/bus.js';
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import shortTextEditor from '../../article/components/short-text-editor';
 import userArticleList from '../../user/components/article/user-article-list';
 export default {
@@ -310,7 +319,7 @@ export default {
       return this.userDetails.article ? this.userDetails.article.length : 0;
     },
     getUserAvatar() {
-      return this.userDetails.avatar ? this.userDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+      return this.userDetails.avatar ? this.userDetails.avatar : DEFAULT_AVATAR;
     }
   },
   methods: {
@@ -348,6 +357,7 @@ export default {
         localStorage.setItem('userData', JSON.stringify(res.data.result));
         this.userDetails = res.data.result;
         this.getFollowArticle();
+        this.getRecommendArticle(); // 获得猜你喜欢文章
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -362,6 +372,21 @@ export default {
       })
       .then(res => {
         this.tagsList = res.data.result;
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    // 推荐内容查询
+    getRecommendArticle() {
+      this.axios.get('/getRecommendArticle', {
+        params: {
+          userId: this.userId,
+          tag: this.userDetails.hobby_tags
+        }
+      })
+      .then(res => {
+        this.recommendList = res.result;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

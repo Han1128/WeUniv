@@ -72,7 +72,6 @@
       }
       .recommend-info {
         width: auto;
-        height: 35rem;
         margin: 2rem;
         background: #fff;
         border-radius: .4rem;
@@ -83,6 +82,24 @@
         .divider {
           height: 1.5px;
           background: #E8EAEC;
+        }
+        .recommend-user {
+          li {
+            overflow: hidden;
+            padding: 1rem;
+            img {
+              width: 4rem;
+              float: left;
+              margin-left: .5rem;
+              border-radius: 5rem;
+            }
+            .recommend-user-details {
+              margin-left: 6rem;
+            }
+            &:hover {
+              background: #eee;
+            }
+          }
         }
         .recommend-list {
           margin-top: 1rem;
@@ -194,10 +211,10 @@
     <div class="content-left">
       <Divider orientation="left">快速选项</Divider>
       <ul class="hot-topic">
-        <li class="topic-item" style="font-size: 1.5rem">
+        <li class="topic-item" style="font-size: 1.5rem" @click="getHotTalk">
           <Icon type="md-flame" />最近热议
         </li>
-        <li class="topic-item" style="font-size: 1.5rem" @click="getHomeNewestArticle">
+        <li class="topic-item" style="font-size: 1.5rem" @click="getNewestArticle">
           <Icon type="ios-timer-outline" />近期更新
         </li>
       </ul>
@@ -207,7 +224,7 @@
           class="topic-item"
           v-for="(item, index) in tagsList"
           :key="index"
-          @click="filtrerByTag(item.iconLabel)">
+          @click="getArticleByTag(item.iconLabel)">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
               <use :xlink:href="'#'+item.iconCode"></use>
           </svg>
@@ -239,41 +256,52 @@
         </p>
       </div>
       <div class="recommend-info">
-        <h4 class="label">你可能感兴趣的内容</h4>
+        <h4 class="label">WeUniv优秀作者</h4>
         <div class="divider"></div>
-          <ul class="recommend-list">
-            <li v-for="item in recommendList" :key="item._id">
-              <div class="header">
-                <img :src="item.author.avatar">
-              </div>
-              <div class="body">
-                <p>{{item.title}}</p>
-                <p>
-                  <span class="interaction">
-                    <Icon type="md-thumbs-up"/>{{item.likeBy.length}}
-                  </span>
-                  <span class="interaction">
-                    <Icon type="md-star"/>{{item.collectBy.length}}
-                  </span>
-                  <span class="interaction">
-                    <Icon type="md-chatboxes"/>{{item.commentFrom.length}}
-                  </span>
-                </p>
-              </div>
-            </li>
-          </ul>
+        <ul class="recommend-user">
+          <li v-for="item in recommendUser" :key="item._id">
+            <img :src="item.avatar || defaultAvatar">
+            <div class="recommend-user-details">
+              <p>
+                <span>{{item.username}}</span>
+                <span>
+                  {{item.userType === 'student' ? '学生' : item.userType === 'teacher' ? '教师' : '机构'}}
+                </span>
+              </p>
+              <p>已经写下{{item.article.length}}篇文章</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="recommend-info">
+        <h4 class="label">校内最新咨询</h4>
+        <div class="divider"></div>
+        <ul class="recommend-list">
+          <li v-for="item in schoolNews" :key="item._id">
+            <div class="body">
+              <p>{{item.title}}</p>
+              <p>
+                <span class="interaction">
+                  <Icon type="md-thumbs-up"/>{{item.likeBy.length}}
+                </span>
+                <span class="interaction">
+                  <Icon type="md-star"/>{{item.collectBy.length}}
+                </span>
+                <span class="interaction">
+                  <Icon type="md-chatboxes"/>{{item.commentFrom.length}}
+                </span>
+              </p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
       <div class="content-center">
         <div class="swiper">
           <swiper :options="swiperOption" ref="mySwiper">
-            <swiper-slide>
-              <img src="http://pmwdq3oa6.bkt.clouddn.com/%E5%82%8D%E6%99%9A%EF%BC%8C%E5%92%8C%E9%9F%B3%E4%B9%901551601441632bg.png">
-              <p class="title">这是文章介绍</p>
-            </swiper-slide>
-            <swiper-slide>
-              <img src="http://pmwdq3oa6.bkt.clouddn.com/%E5%A4%A7%E5%AD%A6%E7%94%9F%E7%8E%A9%E8%BD%AC%E7%A4%BE%E5%9B%A2%E6%8B%9B%E6%96%B01551275555886bg.png">
-              <p class="title">这是文章介绍</p>
+            <swiper-slide v-for="item in swiperList" :key="item._id">
+              <img :src="item.coverBg[0]">
+              <p class="title">{{item.title}}</p>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
             <div class="swiper-button-prev" slot="button-prev"></div>
@@ -285,7 +313,7 @@
             <ul class="time-filter_list">
               <li
                 :class="{ 'active': filterType === 'default'}"
-                @click="getHomePageArticle()">
+                @click="getHomePageDetails()">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon--morendingwei"></use>
                 </svg>
@@ -293,7 +321,7 @@
               </li>
               <li
                 :class="{ 'active': filterType === 'week'}"
-                @click="getNewestArticle('week')">
+                @click="getArticleByRange('week')">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-zhou"></use>
                 </svg>
@@ -301,7 +329,7 @@
               </li>
               <li
                 :class="{ 'active': filterType === 'month'}"
-                @click="getNewestArticle('month')">
+                @click="getArticleByRange('month')">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-yue"></use>
                 </svg>
@@ -324,6 +352,7 @@
 const R = require('ramda');
 import bus from '@/common/bus.js';
 import 'swiper/dist/css/swiper.css';
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import { Swiper_Options } from '../common/index.js'
 import shortTextEditor from '../../article/components/short-text-editor';
@@ -336,11 +365,15 @@ export default {
       filterType: 'default',
       onlyShort: false,
       onlyLong: false,
-      articleDetails: [],
-      userDetails: {},
-      recommendList: [],
-      tagsList: [],
-      swiperOption: Swiper_Options
+      articleDetails: [], // 主页文章显示内容
+      userDetails: {}, // 登录用户信息
+      recommendList: [], // 猜你喜欢
+      tagsList: [], // 标签话题列表
+      swiperList: [], // 轮播图文章
+      recommendUser: [], // 推荐用户
+      schoolNews: [], // 校内咨询
+      swiperOption: Swiper_Options,
+      defaultAvatar: DEFAULT_AVATAR
     }
   },
   computed: {
@@ -357,24 +390,25 @@ export default {
       return this.userDetails.article ? this.userDetails.article.length : 0;
     },
     getUserAvatar() {
-      return this.userDetails.avatar ? this.userDetails.avatar : 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+      return this.userDetails.avatar ? this.userDetails.avatar : DEFAULT_AVATAR
     }
   },
   created() {
     this.userId = localStorage.getItem('userid');
-    this.getHomePageArticle();
+    this.getHomePageDetails();
+    // this.getHomePageDetails();
     this.getHotTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
       debugger
       if (this.filterType === 'week') {
-        this.getNewestArticle('week');
+        this.getArticleByRange('week');
       }
       else if (this.filterType === 'month') {
-        this.getNewestArticle('month');
+        this.getArticleByRange('month');
       }
       else {
-        this.getHomePageArticle();
+        this.getHomePageDetails();
       }
     })
   },
@@ -382,22 +416,40 @@ export default {
     this.swiper.slideTo(3, 1000, false);
   },
   destroyed() {
+    bus.$off('updateHomeData');
     this.filterType = 'default';
   },
   methods: {
     updateOperator() {
       if (this.filterType === 'week') {
-        this.getNewestArticle('week');
+        this.getArticleByRange('week');
       }
       else if (this.filterType === 'month') {
-        this.getNewestArticle('month');
+        this.getArticleByRange('month');
       }
       else {
-        this.getHomePageArticle();
+        this.getHomePageDetails();
       }
     },
-    getHomeNewestArticle() {
-      this.axios.get('/getHomeNewestArticle', {})
+    // 请求主页内容
+    getHomePageDetails() {
+      this.axios.get('/getHomePageDetails', {})
+      .then(res => {
+        this.swiperList = res.data.defaultResult.swiperList; // 轮播图
+        this.articleDetails = res.data.recommendArticle; // 默认推荐
+        this.schoolNews = res.data.schoolNews; // 校内咨询
+        this.recommendUser = res.data.defaultResult.recommendUser; // 推荐用户
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.getUserInfo();
+      })
+    },
+    // 近期更新文章
+    getNewestArticle() {
+      this.axios.get('/getNewestArticle', {})
       .then(res => {
         this.articleDetails = res.data.result;
       })
@@ -405,8 +457,8 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 通过tag筛选内容
-    filtrerByTag(tagLabel) {
+    // 通过tag筛选文章
+    getArticleByTag(tagLabel) {
       this.axios.get('/getArticleByTag', {
         params: {
           tagLabel: tagLabel
@@ -435,7 +487,7 @@ export default {
       .then(res => {
         localStorage.setItem('userData', JSON.stringify(res.data.result));
         this.userDetails = res.data.result;
-        this.getRecommendArticle();
+        // this.getRecommendArticle(); // 获得猜你喜欢文章
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -451,37 +503,36 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 热门新闻查询
-    getHomePageArticle() {
-      this.filterType = 'default';
-      this.axios.get('/getHomePageArticle', {})
+    // 获取最近热议
+    getHotTalk() {
+      this.axios.get('/getHotTalkArticle', {})
       .then(res => {
         this.articleDetails = res.data.result;
-        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
     // 推荐内容查询
-    getRecommendArticle() {
-      this.axios.get('/getRecommendArticle', {
-        params: {
-          userId: this.userId,
-          tag: this.userDetails.hobby_tags
-        }
-      })
-      .then(res => {
-        this.recommendList = res.result;
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
-      })
-    },
+    // getRecommendArticle() {
+    //   this.axios.get('/getRecommendArticle', {
+    //     params: {
+    //       userId: this.userId,
+    //       tag: this.userDetails.hobby_tags
+    //     }
+    //   })
+    //   .then(res => {
+    //     this.recommendList = res.result;
+    //   })
+    //   .catch(err => {
+    //     this.$Notice.error({ title: '提示',  desc: err.message });
+    //   })
+    // },
     /**
+     * 按时间查询文章
      * @param time 查询时间间隔 ''为所有 week month
      */
-    getNewestArticle(time) {
+    getArticleByRange(time) {
       this.filterType = time;
       let nowDate = new Date();
       let tranDate = ''
@@ -494,7 +545,7 @@ export default {
       else {
         tranDate = nowDate
       }
-      this.axios.get('/getNewestArticle', {
+      this.axios.get('/getArticleByRange', {
         params: {
           time: tranDate // 时间间隔
         }
