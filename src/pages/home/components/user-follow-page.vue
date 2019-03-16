@@ -222,10 +222,7 @@
       <div class="recommend-info">
         <h4 class="label">你可能感兴趣的人</h4>
         <div class="divider"></div>
-          <ul class="recommend-list">
-            <li>
-            </li>
-          </ul>
+          <g-recommend-user :recommendUser="recommendUser"></g-recommend-user>
       </div>
       <div class="recommend-info">
         <h4 class="label">你可能感兴趣的内容</h4>
@@ -292,6 +289,7 @@ export default {
       articleDetails: [],
       userDetails: {},
       recommendList: [],
+      recommendUser: [],
       tagsList: []
     }
   },
@@ -358,6 +356,7 @@ export default {
         this.userDetails = res.data.result;
         this.getFollowArticle();
         this.getRecommendArticle(); // 获得猜你喜欢文章
+        this.getRecommendUser(); // 猜你喜欢用户
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -372,6 +371,22 @@ export default {
       })
       .then(res => {
         this.tagsList = res.data.result;
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    getRecommendUser() {
+      let excludeList = this.userDetails.follow.following.concat(this.userId);
+      this.axios.get('/getRecommendUser', {
+        params: {
+          tag: this.userDetails.hobby_tags,
+          excludeList,
+          noFollowing: this.userDetails.follow.following_num === 0 //是否暂无关注
+        }
+      })
+      .then(res => {
+        this.recommendUser = res.result;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

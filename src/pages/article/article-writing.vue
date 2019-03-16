@@ -41,11 +41,13 @@
   </div>
 </template>
 <script>
+import bus from './common/bus.js'
 import quillEditor from './components/quill-editor'
 import tinyEditor from './components/tiny-editor'
 import wangEditor from './components/wang-editor'
-import bus from './common/bus.js'
+import mixins from './common/mixins.js'
 export default {
+  mixins: [mixins],
   components: { quillEditor, tinyEditor, wangEditor },
   data () {
     return {
@@ -53,8 +55,6 @@ export default {
       showDrawer: false,
       isSave: false,
     }
-  },
-  computed: {
   },
   beforeRouteLeave(to, from, next) {
     if (!this.isSave) {
@@ -73,6 +73,7 @@ export default {
   methods: {
     turnPage(articleid) {
       this.isSave = true;
+      this.getUserInfo(); //更新localStore
       this.$router.push({ path: `/view/${articleid}`});
     },
     submitForm() {

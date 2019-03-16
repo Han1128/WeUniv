@@ -32,7 +32,9 @@
 <script>
 const R = require('ramda');
 import wangEditor from './wang-editor';
+import mixins from '../common/mixins.js'
 export default {
+  mixins: [mixins],
   components: { wangEditor },
   data () {
     return {
@@ -62,7 +64,8 @@ export default {
     getArticleContent() {
       this.axios.get('/getDesignArticle', {
         params: {
-          articleId: this.articleId
+          articleId: this.articleId,
+          addView: true
         }
       })
       .then(res => {
@@ -77,20 +80,6 @@ export default {
       this.isSave = true;
       this.getUserInfo(); //更新localStore
       this.$router.push({ path: `/view/${articleid}`});
-    },
-    // 获取用户信息
-    getUserInfo() {
-      this.axios.get('/getUserDetails', {
-        params: {
-          id: localStorage.getItem('userid')
-        }
-      })
-      .then(res => {
-        localStorage.setItem('userData', JSON.stringify(res.data.result));
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
-      })
     },
     goBack() {
       this.$router.push({

@@ -75,6 +75,7 @@
     <div class="recommend-list">
       <h2 class="list-header">推荐用户</h2>
       <Divider />
+      <g-recommend-user :recommendUser="recommendUser"></g-recommend-user>
     </div>
     <div class="follow-list">
       <h2 class="list-header">{{ getListTitle }}</h2>
@@ -159,6 +160,7 @@ export default {
       userDetails: {}, // 登录用户
       followinglist: [],
       followerlist: [],
+      recommendUser: [],
       commonFollowlist: []
     }
   },
@@ -197,6 +199,7 @@ export default {
     this.getUserInfo();
   },
   methods: {
+    // 获取关注列表
     getFollowingList() {
       this.axios.get('/getFollowingList', {
         params: {
@@ -210,6 +213,7 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
+    // 获取粉丝列表
     getFollowerList() {
       this.axios.get('/getFollowerList', {
         params: {
@@ -223,6 +227,7 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
+    // 共同关注
     getCommonFollowList() {
       if (!this.authorDetails.follow || !this.userDetails.follow) return;
       let authorFollowList = this.authorDetails.follow.following; // 当前页作者关注对象
@@ -236,6 +241,23 @@ export default {
       })
       .then(res => {
         this.commonFollowlist = res.result;
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    // 获取推荐列表
+    getRecommendUser() {
+      let excludeList = this.userDetails.follow.following.concat(this.userId);
+      this.axios.get('/getRecommendUser', {
+        params: {
+          tag: this.userDetails.hobby_tags,
+          excludeList,
+          noFollowing: this.userDetails.follow.following_num === 0 //是否暂无关注
+        }
+      })
+      .then(res => {
+        this.recommendUser = res.result;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -255,6 +277,7 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
       .finally(_=> {
+        this.getRecommendUser();
         if (this.searchOption === 'commonfollow') {
           this.getCommonFollowList();
         }

@@ -97,12 +97,10 @@ export default {
         label: label
       })
       .then(res => {
-        debugger
         this.$Notice.success({ title: '提示',  desc: res.message });
         this.getAllTags();
       })
       .catch(err => {
-        debugger
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },

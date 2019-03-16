@@ -232,3 +232,80 @@ export function getWeekDate() {
   }
   return weekDate;
 }
+
+export const ARTICLE_MAP = [
+  {
+      title: '标题',
+      key: 'title',
+      width: 200,
+      align: 'center'
+  },
+  {
+      title: '作者',
+      slot: 'author',
+      align: 'center'
+  },
+  {
+      title: '类型',
+      slot: 'type',
+      width: 100,
+      align: 'center'
+  },
+  {
+      title: '状态',
+      slot: 'status',
+      align: 'center'
+  },
+  {
+      title: '置顶',
+      slot: 'isTop',
+      align: 'center'
+  },
+  {
+      title: '标签',
+      width: 200,
+      slot: 'tag',
+      align: 'center'
+  },
+  {
+      title: '操作',
+      slot: 'action',
+      width: 300,
+      align: 'center'
+  }
+]
+
+export const USER_MAP = [
+  {
+    title: '用户名',
+    key: 'username'
+  },
+  {
+    title: '邮箱',
+    key: 'email'
+  },
+  {
+    title: '用户类型',
+    key: 'userType'
+  },
+  {
+    title: '状态',
+    slot: 'status'
+  },
+  {
+    title: '文章数量',
+    slot: 'article'
+  },
+  {
+    title: '兴趣',
+    slot: 'tag'
+  },
+  {
+    title: '操作',
+    slot: 'action',
+    width: 200,
+    align: 'center'
+  }
+]
+
+export const TAG_MAP = []

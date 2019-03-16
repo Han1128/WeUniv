@@ -163,12 +163,14 @@ export default {
     return {
       articleDetail: {},
       articleId: '',
-      userId: ''
+      userId: '',
+      userData: {}
     }
   },
   created() {
     //用户信息和文章信息通过props分开传
     this.articleId = this.$route.params.articleid;
+    this.userData = JSON.parse(localStorage.getItem('userData'));
     this.userId = localStorage.getItem('userid');
     this.getDesignArticle();
     // 更新文章
@@ -192,7 +194,7 @@ export default {
       return this.articleDetail.author ? this.articleDetail.author.avatar : '#';
     },
     getUserAvatar() {
-      return JSON.parse(localStorage.getItem('userData')).avatar;
+      return this.userData.avatar;
     },
     getUserId() {
       if(JSON.stringify(this.articleDetail) === '{}') return '';
@@ -244,6 +246,7 @@ export default {
         scrollTop: 0
       }, 200);//2秒滑动到指定位置
     },
+    // 点赞或收藏文章
     addToList(type) {
       // 判断操作文章的id是否是用户自己的文章
       let operator = ''
@@ -253,13 +256,12 @@ export default {
       else {
         operator = this.hasCollectArticle ? 'cancel' : 'add';
       }
-      const userData = JSON.parse(localStorage.getItem('userData'));
       let data = {
         userId: this.userId,
         username: localStorage.getItem('username'),
         articleId: this.articleDetail._id,
         type: operator, // 是点赞还是取消点赞
-        ownOperator: userData.article.includes(this.articleDetail._id) // 是否是自己操作
+        ownOperator: this.userData.article.includes(this.articleDetail._id) // 是否是自己操作
       }
       let api = type === 'like' ? '/addLike' : '/addCollect';
       this.axios.post(api, data)
@@ -270,12 +272,15 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
+    // 转到编辑页面
     turnToEdit() {
       this.$router.push({ path: `/write/edit/${this.articleId}` });
     },
+    // 请求文章相关数据的同时要更新阅读数量
     getDesignArticle() {
       this.axios.get('/getDesignArticle', {
         params: {
+          addView: this.userData.article.includes(this.articleId),
           articleId: this.articleId
         }
       })

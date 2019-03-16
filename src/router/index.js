@@ -139,6 +139,36 @@ const router =  new Router({
         component: (resolve) => {
           require(['@/pages/admin/components/admin-overview'], resolve);
         },
+      }, {
+        path: 'articleManage',
+        name: 'articleManage',
+        meta: {
+          title: '',
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/admin/components/admin-article-manage.vue'], resolve);
+        },
+      }, {
+        path: 'userManage',
+        name: 'userManage',
+        meta: {
+          title: '',
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/admin/components/admin-user-manage.vue'], resolve);
+        },
+      }, {
+        path: 'tagManage',
+        name: 'tagManage',
+        meta: {
+          title: '',
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/admin/components/admin-tag-manage.vue'], resolve);
+        },
       }]
     },
     {

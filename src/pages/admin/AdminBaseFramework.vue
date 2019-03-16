@@ -40,47 +40,37 @@
   <div class="admin-base-framework">
 
     <div class="admin-sidebar">
-      <Menu :theme="'dark'" active-name="1" :open-names="['2', '3', '4', '5']">
+      <Menu :theme="'dark'" active-name="1" :open-names="['3', '4', '5']">
         <MenuItem name="1">
-          <router-link tag="li" to="admin/overview">
+          <router-link tag="li" to="/admin/overview">
             <Icon type="ios-paper" />
             概况看板
           </router-link>
         </MenuItem>
-          <Submenu name="2">
-              <template slot="title">
-                  <Icon type="ios-paper" />
-                  文章管理
-              </template>
-              <MenuItem name="2-1">文章管理</MenuItem>
-              <MenuItem name="2-2">评论管理</MenuItem>
-          </Submenu>
-          <Submenu name="3">
-              <template slot="title">
-                  <Icon type="ios-paper" />
-                  标签管理
-              </template>
-              <MenuItem name="3-1">文章管理</MenuItem>
-              <MenuItem name="3-2">评论管理</MenuItem>
-          </Submenu>
-          <Submenu name="4">
-              <template slot="title">
-                  <Icon type="ios-people" />
-                  用户管理
-              </template>
-              <MenuItem name="4-1">新增用户</MenuItem>
-              <MenuItem name="4-2">编辑用户</MenuItem>
-              <MenuItem name="4-3">用户反馈</MenuItem>
-          </Submenu>
-          <Submenu name="5">
-              <template slot="title">
-                  <Icon type="ios-stats" />
-                  统计分析
-              </template>
-              <MenuItem name="5-1">新增和启动</MenuItem>
-              <MenuItem name="5-2">活跃分析</MenuItem>
-              <MenuItem name="5-3">时段分析</MenuItem>
-          </Submenu>
+        <MenuItem name="2">
+          <router-link tag="li" to="/admin/articleManage">
+            <Icon type="ios-paper" />
+            文章管理
+          </router-link>
+        </MenuItem>
+        <MenuItem name="3">
+          <router-link tag="li" to="/admin/userManage">
+            <Icon type="ios-paper" />
+            用户管理
+          </router-link>
+        </MenuItem>
+        <MenuItem name="4">
+          <router-link tag="li" to="/admin/tagManage">
+            <Icon type="ios-paper" />
+            用户管理
+          </router-link>
+        </MenuItem>
+        <MenuItem name="5">
+          <router-link tag="li" to="/admin">
+            <Icon type="ios-paper" />
+            数据统计
+          </router-link>
+        </MenuItem>
       </Menu>
     </div>
     <div class="admin-body">
@@ -113,7 +103,7 @@ export default {
   data () {
     return {
       adminId: '',
-      adminDetails: {}
+      adminDetails: {},
     }
   },
   created() {
@@ -129,7 +119,7 @@ export default {
     getAdminInfo() {
       this.axios.get('/getAdminInfo', {
         params: {
-          adminId: this.adminId
+          adminId: this.adminId,
         }
       })
       .then(res => {

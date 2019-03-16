@@ -160,8 +160,7 @@
         v-model="editorTags"
         placeholder="请选择或输入想要添加的标签(用,号分隔)按回车添加"
         @on-focus="tagsPanelShow = true"
-        @keyup.enter.native="addTagsHandle"
-        >
+        @keyup.enter.native="addTagsHandle">
           <span slot="prepend">
             <span v-for="(item,index) in chooseTagsList" :key="item">
               <Tag color="success" closable @on-close="removeTags(index)">{{item}}</Tag>
@@ -175,7 +174,7 @@
               class="tags-list-item"
               v-for="item in tagsList"
               :key="item.iconCode">
-              <Tag :color="randomColor()" @click.native="choseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
+              <Tag :color="randomColor()" @click.native="chooseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
             </li>
           </ul>
           <p class="close-panel" @click="tagsPanelShow = false">收起</p>
@@ -305,12 +304,13 @@ export default {
     cropperSuccess(result) {
       this.articleCoverBg = result;
     },
-    choseTags(item) {
+    chooseTags(item) {
       if (this.chooseTagsList.length === 5) {
         this.$Message.error('最多只能添加5个标签~');
         return;
       }
       else if (!this.chooseTagsList.includes(item)) {
+        this.tagsPanelShow = false;
         this.chooseTagsList.push(item);
       }
     },

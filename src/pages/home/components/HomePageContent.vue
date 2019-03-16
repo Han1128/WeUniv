@@ -83,24 +83,6 @@
           height: 1.5px;
           background: #E8EAEC;
         }
-        .recommend-user {
-          li {
-            overflow: hidden;
-            padding: 1rem;
-            img {
-              width: 4rem;
-              float: left;
-              margin-left: .5rem;
-              border-radius: 5rem;
-            }
-            .recommend-user-details {
-              margin-left: 6rem;
-            }
-            &:hover {
-              background: #eee;
-            }
-          }
-        }
         .recommend-list {
           margin-top: 1rem;
           li {
@@ -258,20 +240,7 @@
       <div class="recommend-info">
         <h4 class="label">WeUniv优秀作者</h4>
         <div class="divider"></div>
-        <ul class="recommend-user">
-          <li v-for="item in recommendUser" :key="item._id">
-            <img :src="item.avatar || defaultAvatar">
-            <div class="recommend-user-details">
-              <p>
-                <span>{{item.username}}</span>
-                <span>
-                  {{item.userType === 'student' ? '学生' : item.userType === 'teacher' ? '教师' : '机构'}}
-                </span>
-              </p>
-              <p>已经写下{{item.article.length}}篇文章</p>
-            </div>
-          </li>
-        </ul>
+        <g-recommend-user :recommendUser="recommendUser"></g-recommend-user>
       </div>
       <div class="recommend-info">
         <h4 class="label">校内最新咨询</h4>
@@ -337,6 +306,12 @@
               </li>
             </ul>
           </div>
+          <vue-loading
+            v-show="loading"
+            type="bars"
+            color="#009a61"
+            :size="{ width: '50px', height: '50px' }">
+          </vue-loading>
           <user-article-list
             :articleDetails="articleDetails"
             :userDetails="userDetails"
@@ -344,6 +319,7 @@
           </user-article-list>
         </div>
       </div>
+      <!-- <g-bgcover></g-bgcover> -->
       <g-short-text></g-short-text>
       <!-- <short-text-editor></short-text-editor> -->
   </div>
@@ -352,16 +328,18 @@
 const R = require('ramda');
 import bus from '@/common/bus.js';
 import 'swiper/dist/css/swiper.css';
+import { VueLoading } from 'vue-loading-template'
 import { DEFAULT_AVATAR } from '@/constant/index.js';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import { Swiper_Options } from '../common/index.js'
 import shortTextEditor from '../../article/components/short-text-editor';
 import userArticleList from '../../user/components/article/user-article-list';
 export default {
-  components: { swiper, swiperSlide, shortTextEditor, userArticleList },
+  components: { swiper, swiperSlide, shortTextEditor, userArticleList, VueLoading },
   data () {
     return {
       userId: '',
+      loading: false,
       filterType: 'default',
       onlyShort: false,
       onlyLong: false,
@@ -433,6 +411,7 @@ export default {
     },
     // 请求主页内容
     getHomePageDetails() {
+      this.loading = true;
       this.axios.get('/getHomePageDetails', {})
       .then(res => {
         this.swiperList = res.data.defaultResult.swiperList; // 轮播图
@@ -444,6 +423,7 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
       .finally(_ => {
+        this.loading = false;
         this.getUserInfo();
       })
     },
@@ -513,21 +493,6 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 推荐内容查询
-    // getRecommendArticle() {
-    //   this.axios.get('/getRecommendArticle', {
-    //     params: {
-    //       userId: this.userId,
-    //       tag: this.userDetails.hobby_tags
-    //     }
-    //   })
-    //   .then(res => {
-    //     this.recommendList = res.result;
-    //   })
-    //   .catch(err => {
-    //     this.$Notice.error({ title: '提示',  desc: err.message });
-    //   })
-    // },
     /**
      * 按时间查询文章
      * @param time 查询时间间隔 ''为所有 week month
