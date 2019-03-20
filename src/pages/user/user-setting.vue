@@ -25,11 +25,10 @@
       }
     }
     .panel-right {
-      height: 120rem;
+      // height: 120rem;
       margin-left: 0;
       margin-bottom: 8rem;
-      overflow: auto;
-      background: #F6F6F6;
+      overflow: hidden;
       border-radius: 1rem;
     }
   }
@@ -55,25 +54,19 @@
                 <Icon type="md-chatbubbles" />
                 安全设置
             </MenuItem>
-            <MenuItem name="uploadImg">
-                <Icon type="md-heart" />
-                上传图片
-            </MenuItem>
           </Menu>
         </Card>
       </div>
       <div class="panel-right">
         <general-set v-if="['generalSet', 'securitySet', 'schoolInfoSet'].includes(activeItem)" :settingType="activeItem"></general-set>
-        <uoload-img v-if="activeItem === 'uploadImg'"></uoload-img>
       </div>
     </div>
   </div>
 </template>
 <script>
 import generalSet from './components/setting/general-set';
-import uoloadImg from './components/setting/upload-img';
 export default {
-  components: { generalSet, uoloadImg },
+  components: { generalSet },
   data () {
     return {
       activeItem: "generalSet",

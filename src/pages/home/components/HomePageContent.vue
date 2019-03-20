@@ -34,7 +34,7 @@
       }
     }
     .content-right {
-      width: 28rem;
+      width: 30rem;
       height: 60rem;
       float: right;
       margin-top: 1rem;
@@ -47,6 +47,11 @@
         .user-info_header {
           padding: 1rem 2rem;
           padding-top: 2rem;
+          .label {
+            font-size: 2rem;
+            font-weight: bolder;
+            margin-left: 1.5rem;
+          }
           img {
             width: 6rem;
             border-radius: 6rem;
@@ -76,37 +81,44 @@
         background: #fff;
         border-radius: .4rem;
         .label {
-          padding: .8rem 1.2rem;
-          padding-top: 1.2rem;
+          padding: 1.5rem 1.2rem;
+          font-size: 1.8rem;
         }
         .divider {
           height: 1.5px;
           background: #E8EAEC;
         }
-        .recommend-list {
-          margin-top: 1rem;
+        .school-news-list {
           li {
-            border-top: 1px solid #ccc;
-            border-bottom: 1px solid #ccc;
-            border-left: 5px solid;
-            .header {
+            .list-index {
               float: left;
-              height: 100%;
-              margin: .5rem .5rem;
-              img {
-                width: 4rem;
-                height: 4rem;
-                border-radius: 4rem;
-                margin-top: .5rem;
-              }
+              width: 5rem;
+              font-size: 3.4rem;
+              text-align: center;
+              margin: 2rem 0;
+              margin-left: .6rem;
+              color: rgba(0,0,0,.15);
             }
-            .body {
+            .list-body {
+              margin-left: 5rem;
               padding: 1rem;
+              padding-left: 1.5rem;
+              padding-right: 2.5rem;
+              h2 {
+                font-size: 1.5rem;
+                margin-top: 1rem;
+                margin-bottom: .2rem;
+              }
+              a {
+                color: rgba(0, 0, 0, 0.5);
+                font-size: 1.3rem;
+              }
               p {
                 cursor: pointer;
               }
               & p:last-child {
                 font-size: 1.3rem;
+                color: rgba(0,0,0,.45);
                 .interaction {
                   margin-right: .8rem;
                   font-weight: bold;
@@ -245,19 +257,23 @@
       <div class="recommend-info">
         <h4 class="label">校内最新咨询</h4>
         <div class="divider"></div>
-        <ul class="recommend-list">
-          <li v-for="item in schoolNews" :key="item._id">
-            <div class="body">
-              <p>{{item.title}}</p>
+        <ul class="school-news-list">
+          <li v-for="(item, index) in schoolNews" :key="item._id">
+            <div class="list-index">
+              {{'0' + (index + 1)}}
+            </div>
+            <div class="list-body">
+              <h2>{{item.title}}</h2>
+              <a class="body-author" href="#">{{item.author.username}}</a>
               <p>
                 <span class="interaction">
-                  <Icon type="md-thumbs-up"/>{{item.likeBy.length}}
+                  <Icon type="md-thumbs-up"/>{{item.like_num}}
                 </span>
                 <span class="interaction">
-                  <Icon type="md-star"/>{{item.collectBy.length}}
+                  <Icon type="md-star"/>{{item.collect_num}}
                 </span>
                 <span class="interaction">
-                  <Icon type="md-chatboxes"/>{{item.commentFrom.length}}
+                  <Icon type="md-chatboxes"/>{{item.comment_num}}
                 </span>
               </p>
             </div>
@@ -266,8 +282,14 @@
       </div>
     </div>
       <div class="content-center">
-        <div class="swiper">
-          <swiper :options="swiperOption" ref="mySwiper">
+        <div  class="swiper">
+          <vue-loading
+            v-if="loading"
+            type="spin"
+            color="#009a61"
+            :size="{ width: '50px', height: '50px' }">
+          </vue-loading>
+          <swiper v-else :options="swiperOption" ref="mySwiper">
             <swiper-slide v-for="item in swiperList" :key="item._id">
               <img :src="item.coverBg[0]">
               <p class="title">{{item.title}}</p>
@@ -319,7 +341,6 @@
           </user-article-list>
         </div>
       </div>
-      <!-- <g-bgcover></g-bgcover> -->
       <g-short-text></g-short-text>
       <!-- <short-text-editor></short-text-editor> -->
   </div>

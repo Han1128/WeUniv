@@ -11,52 +11,21 @@
     margin: 20px;
     background: #d9d9d9;
   }
-  .ivu-form {
-    width: 75%;
-    margin: 0 auto;
-    /deep/.ivu-form-item-label {
-      width: 100px;
-      font-size: 1.4rem;
-      font-weight: bolder;
-    }
-  }
-  .common-setting {
-    li {
-      margin: 1rem 0;
-      .set-item {
-        margin-left: 5rem;
-        .item-label {
-          width: 20rem;
-          display: inline-block;
-          font-size: 1.5rem;
-          font-weight: bold;
-          text-align: right;
-          padding-right: 4rem;
-          vertical-align: text-top;
-        }
-        .item-content {
-          font-size: 1.5rem;
-          font-weight: bold;
-          vertical-align: text-top;
-        }
-        .change-edit {
-          float: right;
-          margin-right: 10rem;
-        }
+  .set-item {
+    margin-left: 5rem;
+    .set-item-detail {
+      margin-bottom: 2rem;
+      /deep/.ivu-input-wrapper {
+        width: 40rem;
       }
-      .ivu-input-wrapper {
-        width: 45rem;
-        margin: 1rem 0;
+      .item-label {
+        width: 15rem;
+        display: inline-block;
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding-right: 4rem;
+        vertical-align: text-top;
       }
-    }
-  }
-  .security-set {
-    .ivu-input-wrapper {
-      width: 50rem;
-      margin: 1rem 2rem;
-    }
-    .set-item {
-      margin-left: 5rem;
     }
   }
 }
@@ -67,19 +36,19 @@
     <h2 class="datail-title">邮箱修改</h2>
       <Divider />
       <div class="set-item">
-        <div>
-          <span>邮箱</span>
+        <div class="set-item-detail">
+          <span class="item-label">邮箱</span>
           <i-input v-model="resetEmail.email" placeholder="输入修改新邮箱"></i-input>
-          <div>
-            <a href="#" v-if="!resetEmail.isActiveClick" @click="activeEmail('resetEmail')">{{resetEmail.timeOut === 0 ? '重新发送' : '发送验证邮件'}}</a>
+          <span>
+            <a href="#" v-if="!resetEmail.isActiveClick" style="margin-left: 2rem;font-size: 1.3rem;" @click="activeEmail('resetEmail')">{{resetEmail.timeOut === 0 ? '重新发送' : '发送验证邮件'}}</a>
             <span v-else>{{resetEmail.timeOut}} s</span>
-          </div>
+          </span>
         </div>
-        <div>
-          <span>输入验证码</span>
+        <div class="set-item-detail">
+          <span class="item-label">输入验证码</span>
           <i-input v-model="resetEmail.code" placeholder="输入验证码"></i-input>
+          <Button @click="submitEmailReset()">提交更改</Button>
         </div>
-        <Button @click="submitEmailReset()">提交更改</Button>
       </div>
 
       <!-- 密码修改 -->
@@ -87,41 +56,51 @@
       <Divider />
       <div>
         <div class="set-item">
-          <span>原密码</span>
-          <i-input
-            type="password"
-            v-model="modifyPwd.oldPwd"
-            @on-blur="verificatePwd"
-            placeholder="输入账号密码">
-          </i-input>
+          <div class="set-item-detail">
+            <span class="item-label">原密码</span>
+            <i-input
+              type="password"
+              v-model="modifyPwd.oldPwd"
+              @on-blur="verificatePwd"
+              placeholder="输入账号密码">
+            </i-input>
+          </div>
         </div>
         <div class="set-item">
-          <span>新密码</span>
-          <i-input type="password" v-model="modifyPwd.newPwd" placeholder="确认密码输入"></i-input>
+          <div class="set-item-detail">
+            <span class="item-label">新密码</span>
+            <i-input type="password" v-model="modifyPwd.newPwd" placeholder="确认密码输入"></i-input>
+            <i-button style="margin-left: 2rem;" @click="submitPwdModify">提交修改</i-button>
+          </div>
         </div>
-        <i-button @click="submitPwdModify">提交修改</i-button>
       </div>
 
       <!-- 密码重置 -->
       <h2 class="datail-title">密码重置</h2>
       <Divider />
       <div class="set-item">
-        <span>邮箱</span>
-        <i-input v-model="resetPwd.email" placeholder="请输入验证邮箱"></i-input>
-        <div>
-          <a href="#" v-if="!resetPwd.isActiveClick" @click="activeEmail('resetPwd')">{{resetPwd.timeOut === 0 ? '重新发送' : '发送验证邮件'}}</a>
-          <span v-else>{{resetPwd.timeOut}} s</span>
+        <div class="set-item-detail">
+          <span class="item-label">邮箱</span>
+          <i-input v-model="resetPwd.email" placeholder="请输入验证邮箱"></i-input>
+          <span>
+            <a href="#" v-if="!resetPwd.isActiveClick" style="margin-left: 2rem;font-size: 1.3rem;" @click="activeEmail('resetPwd')">{{resetPwd.timeOut === 0 ? '重新发送' : '发送验证邮件'}}</a>
+            <span v-else>{{resetPwd.timeOut}} s</span>
+          </span>
         </div>
       </div>
       <div class="set-item">
-        <span>验证码</span>
-        <i-input v-model="resetPwd.code" placeholder="请输入邮箱验证码"></i-input>
+        <div class="set-item-detail">
+          <span class="item-label">验证码</span>
+          <i-input v-model="resetPwd.code" placeholder="请输入邮箱验证码"></i-input>
+        </div>
       </div>
       <div class="set-item">
-        <span>新密码</span>
-        <i-input type="password" v-model="resetPwd.newPwd" placeholder="请输入新密码"></i-input>
+        <div class="set-item-detail">
+          <span class="item-label">新密码</span>
+          <i-input type="password" v-model="resetPwd.newPwd" placeholder="请输入新密码"></i-input>
+          <i-button style="margin-left: 2rem;" @click="resetUserPwd">提交修改</i-button>
+        </div>
       </div>
-      <i-button @click="resetUserPwd">提交修改</i-button>
   </div>
 </template>
 <script>

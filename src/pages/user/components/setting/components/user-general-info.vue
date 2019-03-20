@@ -12,12 +12,23 @@
     background: #d9d9d9;
   }
   .ivu-form {
-    width: 75%;
+    width: 100%;
     margin: 0 auto;
-    /deep/.ivu-form-item-label {
-      width: 100px;
-      font-size: 1.4rem;
-      font-weight: bolder;
+    padding: 0 3rem;
+    .ivu-form-item {
+      padding: 1rem 2rem;
+      border-bottom: 1px dashed rgba(0,0,0,.15);
+      /deep/.ivu-form-item-label {
+        width: 100px;
+        font-size: 1.4rem;
+        font-weight: bolder;
+      }
+      /deep/.ivu-form-item-content {
+        margin-left: 20rem;
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding-left: 5rem;
+      }
     }
   }
   .common-setting {
@@ -25,12 +36,14 @@
       margin: 1rem 0;
       .set-item {
         margin-left: 5rem;
+        padding: 2rem;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.15);
         .item-label {
           width: 20rem;
           display: inline-block;
           font-size: 1.5rem;
           font-weight: bold;
-          text-align: right;
+          text-align: left;
           padding-right: 4rem;
           vertical-align: text-top;
         }
@@ -39,9 +52,16 @@
           font-weight: bold;
           vertical-align: text-top;
         }
+        .ivu-input-wrapper {
+          margin: 0;
+        }
         .change-edit {
           float: right;
           margin-right: 10rem;
+        }
+        .avatar {
+          float: left;
+          padding-top: 4rem;
         }
       }
       .ivu-input-wrapper {
@@ -66,7 +86,7 @@
     <!-- 常规修改 -->
       <h2 class="datail-title">常规信息</h2>
       <Divider/>
-      <Form :model="userBaseInfo" label-position="left" :label-width="120">
+      <Form :model="userBaseInfo" label-position="left" :label-width="200">
           <FormItem label="用户名">
               {{userBaseInfo.username}}
           </FormItem>
@@ -85,7 +105,14 @@
       </Form>
       <h2 class="datail-title">常规修改</h2>
       <Divider />
+
       <ul class="common-setting">
+        <li>
+          <div class="set-item">
+            <div class="item-label avatar">头像更改</div>
+            <upload-img></upload-img>
+          </div>
+        </li>
         <li>
           <div class="set-item">
             <div class="item-label">出生日期</div>
@@ -134,7 +161,7 @@
       </ul>
       <h2 class="datail-title">爱好标签</h2>
       <Divider/>
-      <div>
+      <div style="margin-left: 5rem;">
         <Tag
           :color="randomColor()"
           v-for="item in userBaseInfo.hobby_tags"
@@ -150,6 +177,7 @@
 </template>
 <script>
 import bus from '@/common/bus.js';
+import uploadImg from '../upload-img'
 import { UN_MODIFY_INFO, USER_COMMON_LIST, USER_SCHOOL_INFO, day_option } from '../common/index.js'
 export default {
   props: {
@@ -157,6 +185,7 @@ export default {
       type: Object
     }
   },
+  components: {uploadImg},
   data () {
     return {
       commonSetIndex: -1, // 常规设置显示编辑

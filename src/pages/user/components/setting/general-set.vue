@@ -1,5 +1,5 @@
 <style lang="less" scoped>
-.detail-info {
+.general-set {
   .datail-title {
     height: 6rem;
     font-size: 2rem;
@@ -11,13 +11,13 @@
     margin: 20px;
     background: #d9d9d9;
   }
-  .ivu-form {
-    width: 75%;
+  /deep/.ivu-form {
+    width: 100%;
     margin: 0 auto;
     /deep/.ivu-form-item-label {
-      width: 100px;
-      font-size: 1.4rem;
-      font-weight: bolder;
+      width: 20rem;
+      font-size: 1.5rem;
+      margin-left: 4rem;
     }
   }
   .common-setting {
@@ -62,7 +62,7 @@
 }
 </style>
 <template>
-  <div class="detail-info">
+  <div class="general-set">
     <!-- 常规修改 -->
     <div v-if="settingType === 'generalSet'">
       <user-general-info :userBaseInfo="userBaseInfo" @submitUpdate="submitUpdate"></user-general-info>

@@ -1,10 +1,12 @@
 <style lang="less" scoped>
 .admin-overview {
-  margin: 4rem;
-  margin-top: 6rem;
+  padding: 4rem;
+  padding-top: 6rem;
   .overview-icon {
     overflow: hidden;
     margin: 2rem;
+    margin-top: 0;
+    // margin-top: 5rem;
     & div:last-child {
       margin-right: 0;
     }
@@ -15,45 +17,80 @@
       margin-right: 4rem;
       background: #fff;
       overflow: hidden;
+      cursor: pointer;
       position: relative;
       border: 1px solid rgba(0,0,0,0.1);
       border-radius: .5rem;
       box-shadow: 4px 4px 40px rgba(0,0,0,.05);
+      &:hover {
+        background: #fdf9f9;
+        .icon-large {
+          width: 5rem;
+        }
+      }
       .icon-large {
         float: left;
         position: absolute;
         top: 50%;
-        left: 2rem;
+        left: 3rem;
         transform: translateY(-50%);
       }
       .icon-right {
         float: right;
         position: absolute;
         top: 50%;
-        right: 2rem;
+        right: 3rem;
         transform: translateY(-50%);
+        h2 {
+          font-size: 1.6rem;
+          color: #8C8C8C;
+          font-family: sans-serif;
+        }
+        p {
+          font-size: 3rem;
+          color: #666666;
+          font-weight: bold;
+        }
       }
     }
   }
   .line-list {
-    margin-top: 10rem;
+    margin-top: 5rem;
     overflow: hidden;
+    background: #fff;
+    padding: 2rem 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
     .line-style {
       width: 100%;
       height: 60rem;
+      /deep/canvas {
+        height: 60rem !important;
+        padding: 2rem !important;
+      }
     }
   }
   .pie-list {
-    margin-top: 10rem;
+    margin-top: 5rem;
     overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
     .pie-style {
       width: 40rem;
       height: 40rem;
       float: left;
       margin-left: 13rem;
+      margin-bottom: 4rem;
+      padding-top: 4rem;
+      /deep/canvas {
+        height: 40rem !important;
+        padding-bottom: 2rem !important;
+      }
     }
   }
-
 }
 </style>
 <template>
@@ -79,7 +116,8 @@
   </div>
 </template>
 <script>
-import { PIE_CHART_OPTIONS, PIE_CHARTS, PIE_CHARTS_OPTIONS, LINE_OPTIONS, getWeekDate } from '../common/index.js';
+import { PIE_CHART_OPTIONS, PIE_CHARTS_OPTIONS, LINE_OPTIONS, getWeekDate } from '../common/index.js';
+import mixins from '../common/mixins.js'
 const R = require('ramda');
 let echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/bar');
@@ -90,6 +128,7 @@ require('echarts/lib/component/toolbox');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 export default {
+  mixins: [mixins],
   components: {},
   data () {
     return {
@@ -99,12 +138,6 @@ export default {
       interPieOptions: PIE_CHARTS_OPTIONS,
       articlePieOptions: PIE_CHARTS_OPTIONS,
       interLineOptions: LINE_OPTIONS,
-      lineTemplate: {
-        name:'',
-        type:'line',
-        smooth: true,
-        data:[]
-      },
       iconPanel: [
         {
           label: '用户数量',
@@ -167,9 +200,6 @@ export default {
     this.adminId = localStorage.getItem('userid');
     this.getDataCount();
   },
-  mounted() {
-    // echarts.init(this.$refs.interPieCharts).setOption(this.interPieOptions)
-  },
   methods: {
     getDataCount() {
       this.axios.get('/getDataCount', {
@@ -207,24 +237,9 @@ export default {
       this.interLineOptions.series.push(commentOptions);
 
       this.interLineOptions.xAxis.data = getWeekDate();
+      this.interLineOptions.title.text = '交互数据折线图';
       echarts.init(this.$refs.interLineCharts).setOption(this.interLineOptions);
       this.interLineOptions = JSON.parse(JSON.stringify(LINE_OPTIONS));
-    },
-    // 动态配置选项
-    getSignOptions(name, seriesData) {
-      let date = getWeekDate();
-      let options = JSON.parse(JSON.stringify(this.lineTemplate));
-      for (let item of date) {
-        let index = R.pluck('_id')(seriesData).indexOf(item);
-        options.name = name;
-        if (index!== -1) {
-          options.data.push(seriesData[index].count);
-        }
-        else {
-          options.data.push(0)
-        }
-      }
-      return options;
     },
     setInterActionPie() {
       let interactionObj = [];
@@ -249,10 +264,12 @@ export default {
           })
         }
       })(this.dataCount);
+      this.interPieOptions.title.text = '交互类型占比';
       this.interPieOptions.series[0].data = interactionObj;
       this.interPieOptions.legend.data = R.pluck('name')(interactionObj);
       echarts.init(this.$refs.interPieCharts).setOption(this.interPieOptions);
 
+      this.articlePieOptions.title.text = '文章类型占比';
       this.articlePieOptions.series[0].data = articleObj;
       this.articlePieOptions.legend.data = R.pluck('name')(articleObj);
       echarts.init(this.$refs.articlePieCharts).setOption(this.articlePieOptions);

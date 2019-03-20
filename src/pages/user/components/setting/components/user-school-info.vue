@@ -25,12 +25,14 @@
       margin: 1rem 0;
       .set-item {
         margin-left: 5rem;
+        padding: 2rem;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.15);
         .item-label {
           width: 20rem;
           display: inline-block;
+          text-align: left;
           font-size: 1.5rem;
           font-weight: bold;
-          text-align: right;
           padding-right: 4rem;
           vertical-align: text-top;
         }
@@ -38,6 +40,9 @@
           font-size: 1.5rem;
           font-weight: bold;
           vertical-align: text-top;
+        }
+        .ivu-input-wrapper {
+          margin: 0;
         }
         .change-edit {
           float: right;

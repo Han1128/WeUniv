@@ -160,6 +160,16 @@ const router =  new Router({
           require(['@/pages/admin/components/admin-user-manage.vue'], resolve);
         },
       }, {
+        path: 'commentManage',
+        name: 'commentManage',
+        meta: {
+          title: '',
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/admin/components/admin-comment-manage.vue'], resolve);
+        },
+      }, {
         path: 'tagManage',
         name: 'tagManage',
         meta: {
@@ -168,6 +178,16 @@ const router =  new Router({
         },
         component: (resolve) => {
           require(['@/pages/admin/components/admin-tag-manage.vue'], resolve);
+        },
+      }, {
+        path: 'statistics',
+        name: 'statistics',
+        meta: {
+          title: '',
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/admin/components/admin-statistics'], resolve);
         },
       }]
     },

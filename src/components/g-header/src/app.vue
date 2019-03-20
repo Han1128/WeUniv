@@ -15,6 +15,11 @@
             <router-link tag="a" to="/home/follow">关注</router-link>
           </transition>
         </li>
+        <li>
+          <transition name="slide">
+            <router-link tag="a" to="/home/follow">话题</router-link>
+          </transition>
+        </li>
       </ul>
     </div>
     <i-input v-model="searchContent" class="header-search__input" placeholder="搜索用户或关键词">
@@ -138,6 +143,12 @@ export default {
   created() {
     this.userId = localStorage.getItem('userid');
     this.getUserInfo();
+    bus.$on('updateUserInfo', () => {
+      this.getUserInfo();
+    })
+  },
+  beforeDestroy() {
+    bus.$off('updateUserInfo');
   },
   computed: {
     getAvatar() {

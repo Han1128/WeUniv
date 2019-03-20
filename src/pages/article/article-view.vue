@@ -228,7 +228,7 @@ export default {
   methods: {
     handleScroll () {
       // var targetHeight = $(".sidebar-options").offset().top;   // 目标元素到顶部的距离
-      var scrollTop = $(window).scrollTop(); // 页面滚动的距离
+      let scrollTop = $(window).scrollTop(); // 页面滚动的距离
       if (scrollTop >= 200) {
         $(".sidebar-options").css("display","block");
       }
@@ -237,14 +237,15 @@ export default {
       }
     },
     scrollToComment() {
+      let targetHeight = $(".comment-panel").offset().top;
       $('html').animate({
-        scrollTop: 1000
-      }, 200);//2秒滑动到指定位置
+        scrollTop: targetHeight
+      }, 250);//2秒滑动到指定位置
     },
     scrollToTop() {
       $('html').animate({
         scrollTop: 0
-      }, 200);//2秒滑动到指定位置
+      }, 250);//2.5秒滑动到指定位置
     },
     // 点赞或收藏文章
     addToList(type) {

@@ -73,7 +73,8 @@ export const PIE_CHART_OPTIONS = {
 
 export const PIE_CHARTS_OPTIONS = {
   title : {
-      x:'center'
+    text: '折线图堆叠',
+    x:'center'
   },
   tooltip : {
       trigger: 'item',
@@ -235,8 +236,12 @@ export function getWeekDate() {
 
 export const ARTICLE_MAP = [
   {
+    title: '序号',
+    slot: 'index'
+  },
+  {
       title: '标题',
-      key: 'title',
+      slot: 'title',
       width: 200,
       align: 'center'
   },
@@ -277,6 +282,10 @@ export const ARTICLE_MAP = [
 
 export const USER_MAP = [
   {
+    title: '序号',
+    slot: 'index'
+  },
+  {
     title: '用户名',
     key: 'username'
   },
@@ -308,4 +317,111 @@ export const USER_MAP = [
   }
 ]
 
-export const TAG_MAP = []
+export const MOST_READ_MAP = [
+  {
+    title: '用户名',
+    key: 'title'
+  },
+  {
+    title: '作者',
+    slot: 'author'
+  },
+  {
+    title: '阅读次数',
+    key: 'viewsTime'
+  }
+]
+
+export const MOST_LIKE_MAP = [
+  {
+    title: '标题',
+    key: 'title'
+  },
+  {
+    title: '点赞数',
+    key: 'like_num'
+  }
+]
+
+export const MOST_COLLECT_MAP = [
+  {
+    title: '标题',
+    key: 'title'
+  },
+  {
+    title: '收藏数',
+    key: 'collect_num'
+  }
+]
+
+export const COMMENT_MAP = [
+  {
+    title: '序号',
+    slot: 'index'
+  },
+  {
+    title: '评论者',
+    slot: 'from_author',
+    width: 120
+  },
+  {
+    title: '评论文章',
+    slot: 'from_article',
+    width: 220,
+  },
+  {
+    title: '内容',
+    key: 'content',
+  },
+  {
+    title: '点赞',
+    slot: 'likeBy',
+    width: 80,
+  },
+  {
+    title: '是否有效',
+    slot: 'isEffect',
+    width: 100,
+  },
+  {
+    title: '是否回复',
+    slot: 'isReply',
+    width: 100,
+  },
+  {
+    title: '评论时间',
+    slot: 'commentTime',
+    width: 150,
+  },
+  {
+      title: '操作',
+      slot: 'action',
+      width: 100,
+      align: 'center'
+  }
+]
+
+export const TAG_MAP = [
+  {
+    title: '序号',
+    slot: 'index'
+  },
+  {
+    title: 'iconFont编码',
+    key: 'iconCode'
+  },
+  {
+    title: '话题名称',
+    key: 'iconLabel'
+  },
+  {
+    title: '关注人数',
+    key: 'follower_num'
+  },
+  {
+      title: '操作',
+      slot: 'action',
+      width: 300,
+      align: 'center'
+  }
+]

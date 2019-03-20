@@ -156,7 +156,7 @@
         <span>是否置顶:</span>
         <i-switch v-model="isTop" @on-change="setArticleTop"/>
       </div>
-      <Input
+      <i-input
         v-model="editorTags"
         placeholder="请选择或输入想要添加的标签(用,号分隔)按回车添加"
         @on-focus="tagsPanelShow = true"
@@ -166,7 +166,7 @@
               <Tag color="success" closable @on-close="removeTags(index)">{{item}}</Tag>
             </span>
           </span>
-      </Input>
+      </i-input>
       <transition name="fade" mode="in-out">
         <div v-show="tagsPanelShow" class="tags-panel">
           <ul class="tags-list">

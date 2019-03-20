@@ -170,6 +170,11 @@
             </img-upload>
           </li>
           <li>
+            <div>
+              <Icon type="ios-pricetags"/>话题
+            </div>
+          </li>
+          <li>
             <span class="article-top">
               是否置顶
               <i-switch v-model="isTop" @on-change="setArticleTop"></i-switch>
