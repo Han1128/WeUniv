@@ -19,12 +19,19 @@
           .label {
             font-size: 1.8rem;
             font-weight: bold;
+            cursor: pointer;
           }
           .follower {
             font-size: 1.4rem;
           }
           .btn-list {
-
+            /deep/span {
+              font-size: 1.3rem;
+            }
+            .active {
+              background: #009a61;
+              color: #fff;
+            }
           }
         }
       }
@@ -49,12 +56,13 @@
                 <use :xlink:href="'#'+item.iconCode"></use>
             </svg>
             <div class="item-right">
-              <p class="label">{{item.iconLabel}}</p>
-              <p class="follower">{{item.follower_num}}关注</p>
+              <p class="label" @click="searchTag(item)">{{item.iconLabel}}</p>
+              <p class="follower">{{item.follower_num}} 人关注</p>
               <p class="btn-list">
                 <Button
                   v-if="item.follower.includes(userId)"
                   icon="ios-checkmark"
+                  class="active"
                   @click="removeFollowTag(item.iconLabel)">已关注</Button>
                 <Button
                   v-else
@@ -81,6 +89,16 @@ export default {
     this.getAllTags();
   },
   methods: {
+    // 跳转指定页面
+    searchTag(tag) {
+      this.$router.push({
+        name: 'tagSearch',
+        params: {
+          tagId: tag._id,
+          tagName: tag.iconLabel
+        }
+      })
+    },
     // 获取全部标签
     getAllTags() {
       this.axios.get('/getAllTags', {})
@@ -105,18 +123,17 @@ export default {
       })
     },
     removeFollowTag(label) {
-      debugger
-      // this.axios.post('/removeFollowTag', {
-      //   userId: this.userId,
-      //   label: label
-      // })
-      // .then(res => {
-      //   this.$Notice.success({ title: '提示',  desc: err.message });
-      //   this.getAllTags();
-      // })
-      // .catch(err => {
-      //   this.$Notice.error({ title: '提示',  desc: err.message });
-      // })
+      this.axios.post('/removeFollowTag', {
+        userId: this.userId,
+        label: label
+      })
+      .then(res => {
+        this.$Notice.success({ title: '提示',  desc: err.message });
+        this.getAllTags();
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
     }
   }
 }

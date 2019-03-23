@@ -89,6 +89,11 @@
   }
   /deep/.w-e-text-container {
     z-index: 1 !important;
+    .w-e-text {
+      p {
+        font-size: 1.5rem;
+      }
+    }
   }
   .upload-label {
     font-size: 1.5rem;

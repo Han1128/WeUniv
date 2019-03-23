@@ -7,9 +7,9 @@
     overflow: hidden;
     .content-left {
       width: 22rem;
-      height: 60rem;
+      min-height: 60rem;
       float: left;
-      padding-top: 2rem;
+      padding: 1rem 0;
       margin-top: 1rem;
       background: #a6b6c6;
       border-radius: .5rem;
@@ -17,6 +17,11 @@
       background: #fff;
       .ivu-icon {
         margin-right: 1rem;
+      }
+      .ivu-divider {
+        font-size: 15px;
+        font-family: serif;
+        font-weight: bolder;
       }
       .hot-topic {
         .topic-item {
@@ -27,15 +32,19 @@
           padding-left: 1.5rem;
           font-size: 1.6rem;
           cursor: pointer;
-          &:hover {
-            background: #eee;
-          }
+          // &:hover {
+          //   background: #eee;
+          // }
+        }
+        .active {
+          background: #009a61;
+          color: #fff;
         }
       }
     }
     .content-right {
       width: 30rem;
-      height: 60rem;
+      // height: 60rem;
       float: right;
       margin-top: 1rem;
       .user-info {
@@ -45,12 +54,17 @@
         border-radius: .5rem;
         background: #fff;
         .user-info_header {
-          padding: 1rem 2rem;
+          padding: 1rem 3rem;
           padding-top: 2rem;
-          .label {
+          label {
             font-size: 2rem;
             font-weight: bolder;
             margin-left: 1.5rem;
+            font-family: sans-serif;
+            cursor: pointer;
+            &:hover {
+              color: #a8a8a8;
+            }
           }
           img {
             width: 6rem;
@@ -81,8 +95,8 @@
         background: #fff;
         border-radius: .4rem;
         .label {
-          padding: 1.5rem 1.2rem;
-          font-size: 1.8rem;
+          padding: 1.2rem 1.5rem;
+          font-size: 1.5rem;
         }
         .divider {
           height: 1.5px;
@@ -108,6 +122,7 @@
                 font-size: 1.5rem;
                 margin-top: 1rem;
                 margin-bottom: .2rem;
+                cursor: pointer;
               }
               a {
                 color: rgba(0, 0, 0, 0.5);
@@ -205,18 +220,24 @@
     <div class="content-left">
       <Divider orientation="left">快速选项</Divider>
       <ul class="hot-topic">
-        <li class="topic-item" style="font-size: 1.5rem" @click="getHotTalk">
-          <Icon type="md-flame" />最近热议
+        <li :class="[{'active': filterType === 'hotTalk'}, 'topic-item']" style="font-size: 1.5rem" @click="getHotTalk">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem;color: #F46267;">
+              <use xlink:href="#icon-chaojihuati-remendianjitai"></use>
+          </svg>
+          最近热议
         </li>
-        <li class="topic-item" style="font-size: 1.5rem" @click="getNewestArticle">
-          <Icon type="ios-timer-outline" />近期更新
+        <li :class="[{'active': filterType === 'newest'}, 'topic-item']" style="font-size: 1.5rem" @click="getNewestArticle">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
+              <use xlink:href="#icon-shijian"></use>
+          </svg>
+          近期更新
         </li>
       </ul>
       <Divider orientation="left">热门话题</Divider>
       <ul class="hot-topic">
         <li
-          class="topic-item"
           v-for="(item, index) in tagsList"
+          :class="[{'active': filterType === item.iconLabel}, 'topic-item']"
           :key="index"
           @click="getArticleByTag(item.iconLabel)">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
@@ -233,7 +254,7 @@
       <div class="user-info">
         <p class="user-info_header">
           <img :src="getUserAvatar">
-          <label>{{userDetails.username}}</label>
+          <router-link tag="label" :to="'/user/' + userDetails._id">{{userDetails.username}}</router-link>
         </p>
         <p class="user-info_follow">
           <ul class="follow-list">
@@ -250,12 +271,22 @@
         </p>
       </div>
       <div class="recommend-info">
-        <h4 class="label">WeUniv优秀作者</h4>
+        <h4 class="label">
+          <svg class="icon-mid" aria-hidden="true" style="margin-right: 1rem">
+              <use xlink:href="#icon-zuozhe"></use>
+          </svg>
+          WeUniv优秀作者
+        </h4>
         <div class="divider"></div>
         <g-recommend-user :recommendUser="recommendUser"></g-recommend-user>
       </div>
       <div class="recommend-info">
-        <h4 class="label">校内最新咨询</h4>
+        <h4 class="label">
+          <svg class="icon-mid" aria-hidden="true" style="margin-right: 1rem">
+              <use xlink:href="#icon-xuexiao"></use>
+          </svg>
+          校内最新咨询
+        </h4>
         <div class="divider"></div>
         <ul class="school-news-list">
           <li v-for="(item, index) in schoolNews" :key="item._id">
@@ -263,7 +294,7 @@
               {{'0' + (index + 1)}}
             </div>
             <div class="list-body">
-              <h2>{{item.title}}</h2>
+              <router-link tag="h2" :to="'/view/' + item._id">{{item.title}}</router-link>
               <a class="body-author" href="#">{{item.author.username}}</a>
               <p>
                 <span class="interaction">
@@ -292,7 +323,7 @@
           <swiper v-else :options="swiperOption" ref="mySwiper">
             <swiper-slide v-for="item in swiperList" :key="item._id">
               <img :src="item.coverBg[0]">
-              <p class="title">{{item.title}}</p>
+              <router-link class="title" tag="p" :to="'/view/' + item._id">{{item.title}}</router-link>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
             <div class="swiper-button-prev" slot="button-prev"></div>
@@ -348,8 +379,9 @@
 <script>
 const R = require('ramda');
 import bus from '@/common/bus.js';
+import mixins from '../common/mixins.js';
 import 'swiper/dist/css/swiper.css';
-import { VueLoading } from 'vue-loading-template'
+import { VueLoading } from 'vue-loading-template';
 import { DEFAULT_AVATAR } from '@/constant/index.js';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import { Swiper_Options } from '../common/index.js'
@@ -357,6 +389,7 @@ import shortTextEditor from '../../article/components/short-text-editor';
 import userArticleList from '../../user/components/article/user-article-list';
 export default {
   components: { swiper, swiperSlide, shortTextEditor, userArticleList, VueLoading },
+  mixins: [mixins],
   data () {
     return {
       userId: '',
@@ -394,21 +427,13 @@ export default {
   },
   created() {
     this.userId = localStorage.getItem('userid');
+    this.loading = true;
     this.getHomePageDetails();
     // this.getHomePageDetails();
     this.getHotTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
-      debugger
-      if (this.filterType === 'week') {
-        this.getArticleByRange('week');
-      }
-      else if (this.filterType === 'month') {
-        this.getArticleByRange('month');
-      }
-      else {
-        this.getHomePageDetails();
-      }
+      this.updateOperator();
     })
   },
   mounted() {
@@ -421,38 +446,49 @@ export default {
   methods: {
     updateOperator() {
       if (this.filterType === 'week') {
-        this.getArticleByRange('week');
+        this.getArticleByRange('week'); // 按周
       }
       else if (this.filterType === 'month') {
-        this.getArticleByRange('month');
+        this.getArticleByRange('month'); // 按月
+      }
+      else if (this.filterType === 'newest') {
+        this.getNewestArticle(); // 最新
+      }
+      else if (this.filterType === 'hotTalk') {
+        this.getHotTalk(); // 热议
+      }
+      else if (this.filterType === 'default') {
+        this.getHomePageDetails(); // 默认
       }
       else {
-        this.getHomePageDetails();
+        this.getArticleByTag(this.filterType);
       }
     },
     // 请求主页内容
     getHomePageDetails() {
-      this.loading = true;
+      this.filterType = 'default';
       this.axios.get('/getHomePageDetails', {})
       .then(res => {
         this.swiperList = res.data.defaultResult.swiperList; // 轮播图
         this.articleDetails = res.data.recommendArticle; // 默认推荐
         this.schoolNews = res.data.schoolNews; // 校内咨询
         this.recommendUser = res.data.defaultResult.recommendUser; // 推荐用户
+        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
       .finally(_ => {
         this.loading = false;
-        this.getUserInfo();
       })
     },
     // 近期更新文章
     getNewestArticle() {
+      this.filterType = 'newest';
       this.axios.get('/getNewestArticle', {})
       .then(res => {
         this.articleDetails = res.data.result;
+        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -460,25 +496,21 @@ export default {
     },
     // 通过tag筛选文章
     getArticleByTag(tagLabel) {
+      this.filterType = tagLabel;
       this.axios.get('/getArticleByTag', {
         params: {
           tagLabel: tagLabel
         }
       })
       .then(res => {
-        // 不能直接 = [] 来赋值无法更新视图
-        this.$nextTick(_=> {
-          this.articleDetails.splice(0);
-          for (let item of res.data.result) {
-            this.articleDetails.push(item);
-          }
-        })
+        this.articleDetails = res.data.result;
+        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    // 获取用户信息
+    // 获取最新用户信息
     getUserInfo() {
       this.axios.get('/getUserDetails', {
         params: {
@@ -488,7 +520,6 @@ export default {
       .then(res => {
         localStorage.setItem('userData', JSON.stringify(res.data.result));
         this.userDetails = res.data.result;
-        // this.getRecommendArticle(); // 获得猜你喜欢文章
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -499,6 +530,7 @@ export default {
       this.axios.get('/getHotTags', {})
       .then(res => {
         this.tagsList = res.result;
+        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -506,9 +538,11 @@ export default {
     },
     // 获取最近热议
     getHotTalk() {
+      this.filterType = 'hotTalk';
       this.axios.get('/getHotTalkArticle', {})
       .then(res => {
         this.articleDetails = res.data.result;
+        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
@@ -537,13 +571,13 @@ export default {
         }
       })
       .then(res => {
-        // this.articleDetails = res.data.result;
-        this.$nextTick(_=> {
-          this.articleDetails.splice(0);
-          for (let item of res.data.result) {
-            this.articleDetails.push(item);
-          }
-        })
+        this.articleDetails = res.data.result;
+        // this.$nextTick(_=> {
+        //   this.articleDetails.splice(0);
+        //   for (let item of res.data.result) {
+        //     this.articleDetails.push(item);
+        //   }
+        // })
         this.getUserInfo();
       })
       .catch(err => {

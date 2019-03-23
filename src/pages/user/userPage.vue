@@ -161,8 +161,8 @@
               <p>
                 <Icon type="md-school"/>
                 学校
-                <span class="detail-info" v-if="authorDetails.school">肇庆学院</span>
-                <a class="suppleInfo" href="#" v-else>填写所在学校</a>
+                <span class="detail-info" v-if="userSchoolName">{{userSchoolName}}</span>
+                <a class="suppleInfo" href="#" v-else @click="redirectToSetting('schoolInfoSet')">填写所在学校</a>
               </p>
               <p>
                 <Icon type="md-person"/>
@@ -236,6 +236,9 @@ export default {
     },
     userAvatar() {
       return this.authorDetails.avatar ? this.authorDetails.avatar : DEFAULT_AVATAR
+    },
+    userSchoolName() {
+      return this.authorDetails.schoolData ? this.authorDetails.schoolData.schoolName : '';
     }
   },
   created() {
@@ -252,6 +255,15 @@ export default {
     }
   },
   methods: {
+    // 跳转设置
+    redirectToSetting(type) {
+      this.$router.push({
+        name: 'userSetting',
+        params: {
+          type
+        }
+       });
+    },
     // 获取关注状态
     getFollowStatus() {
       // 四种状态 互相关注 被关注 关注 无关系

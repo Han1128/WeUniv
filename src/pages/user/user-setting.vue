@@ -58,7 +58,7 @@
         </Card>
       </div>
       <div class="panel-right">
-        <general-set v-if="['generalSet', 'securitySet', 'schoolInfoSet'].includes(activeItem)" :settingType="activeItem"></general-set>
+        <general-set :settingType="activeItem"></general-set>
       </div>
     </div>
   </div>
@@ -66,6 +66,7 @@
 <script>
 import generalSet from './components/setting/general-set';
 export default {
+  name: 'userSetting',
   components: { generalSet },
   data () {
     return {
@@ -73,6 +74,9 @@ export default {
     }
   },
   created() {
+    if (this.$route.params.type) {
+      this.activeItem = this.$route.params.type;
+    }
   },
   methods: {
     menuItemSelect(name) {

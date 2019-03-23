@@ -1,8 +1,21 @@
-.icon {
+.icon-min {
   width: 1em; height: 1em;
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
+}
+.icon {
+  width: 1.2em; height: 1.2em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+.icon-mid  {
+  width: 1.5em; height: 1.5em;
+  /* vertical-align: -0.15em; */
+  fill: currentColor;
+  overflow: hidden;
+  vertical-align: middle;
 }
 .icon-large  {
   width: 4em; height: 4em;

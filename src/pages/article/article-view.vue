@@ -13,9 +13,13 @@
           color: #009A61;
         }
       }
-      .like {
-        color: #009A61;
-      }
+    }
+    span {
+      font-size: 1.5rem;
+      margin-left: -.5rem;
+    }
+    .like {
+      color: #009A61;
     }
   }
   .article-view-area {
@@ -24,6 +28,14 @@
     margin-top: 6rem;
     padding: 0 1rem;
     box-sizing: border-box;
+    .loading-style {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      fill: rgb(0, 154, 97);
+      width: 8rem;
+      height: 8rem;
+    }
     .cover-bg {
       width: 95%;
     }
@@ -59,6 +71,7 @@
       p {
         font-size: 1.6rem;
         line-height: 2.8rem;
+        padding: .8rem 1rem;
       }
       ol {
         margin: 10px 0 10px 20px;
@@ -88,8 +101,14 @@
         color: #333;
       }
     }
+    .comment-column {
+      font-size: 1.8rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.09);
+    }
     .btn-list {
       text-align: center;
+      margin-top: 5rem;
       button {
         height: 5rem;
         font-size: 1.6rem;
@@ -108,6 +127,14 @@
         border-bottom: 1px solid #eee;
       }
     }
+    .comment-panel {
+      border: none;
+      /deep/.comment-list {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-left: none;
+        border-right: none;
+      }
+    }
   }
 }
 </style>
@@ -116,11 +143,13 @@
     <g-header></g-header>
     <BackTop></BackTop>
     <ul class="sidebar-options">
-      <li @click="addToList('like')">
-        <Icon type="ios-heart" :class="{'like': hasLikeArticle}" />
+      <li @click="addToList('like')" :class="{'like': hasLikeArticle}">
+        <Icon type="ios-heart" />
+        <span>{{getLikeLength}}</span>
       </li>
-      <li @click="addToList('collect')">
-        <Icon type="ios-bookmark" :class="{'like': hasCollectArticle}" />
+      <li @click="addToList('collect')" :class="{'like': hasCollectArticle}">
+        <Icon type="ios-bookmark" />
+        <span>{{getCollectLength}}</span>
       </li>
       <li @click="scrollToComment">
         <Icon type="md-chatboxes" />
@@ -130,22 +159,34 @@
       </li>
       <li @click="scrollToTop"><Icon type="ios-arrow-dropup-circle" /></li>
     </ul>
+
     <div class="article-view-area" >
       <img class="cover-bg" v-show="articleDetail.coverBg" :src="getArticleImg">
       <h1 class="title">{{articleDetail.title}}</h1>
-      <div class="author-info">
+      <div class="author-info" v-show="!loading">
         <img :src="getAuthorAvatar">
         <div class="info-tags">
           <p>{{getUsername}}</p>
           <p class="public-time">发表于 <Time :time="getPublicTime" type="datetime" /></p>
         </div>
       </div>
+      <vue-loading
+        v-show="loading"
+        type="bars"
+        color="#009a61"
+        class="loading-style"
+        :size="{ width: '50px', height: '50px' }">
+      </vue-loading>
       <div class="article-content" v-html="articleDetail.content"></div>
-      <div class="btn-list">
+      <div class="btn-list" v-show="!loading">
         <Button :class="{'like': hasLikeArticle}" icon="ios-heart" @click="addToList('like')">赞 ｜ {{getLikeLength}}</Button>
         <Button :class="{'like': hasCollectArticle}" icon="ios-bookmark" @click="addToList('collect')">收藏 ｜ {{getCollectLength}}</Button>
       </div>
+      <div class="comment-column" v-show="!loading">
+        <strong>{{articleDetail.comment_num + '条评论'}}</strong>
+      </div>
       <comment-panel
+        v-show="!loading"
         :articleId="articleDetail._id"
         :commentList="articleDetail.commentFrom || []"
         :avatar="getUserAvatar">
@@ -156,11 +197,13 @@
 <script>
 import $ from 'jquery';
 import bus from '@/common/bus.js';
+import { VueLoading } from 'vue-loading-template';
 import commentPanel from '../user/components/article/comment-panel';
 export default {
-  components: { commentPanel },
+  components: { commentPanel, VueLoading },
   data () {
     return {
+      loading: false,
       articleDetail: {},
       articleId: '',
       userId: '',
@@ -175,7 +218,6 @@ export default {
     this.getDesignArticle();
     // 更新文章
     bus.$on('updateDesignArticle', () => {
-      debugger
       this.getDesignArticle();
     })
   },
@@ -214,7 +256,7 @@ export default {
     },
     getCollectLength() {
       if(JSON.stringify(this.articleDetail) === '{}') return 0;
-      return this.articleDetail.collectBy.lengths;
+      return this.articleDetail.collectBy.length;
     },
     hasLikeArticle() {
       if(JSON.stringify(this.articleDetail) === '{}') return false;
@@ -279,6 +321,7 @@ export default {
     },
     // 请求文章相关数据的同时要更新阅读数量
     getDesignArticle() {
+      this.loading = true;
       this.axios.get('/getDesignArticle', {
         params: {
           addView: this.userData.article.includes(this.articleId),
@@ -290,6 +333,9 @@ export default {
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_=> {
+        this.loading = false;
       })
     }
   }

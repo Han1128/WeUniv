@@ -18,7 +18,7 @@
 <template>
   <div class="home">
     <g-header></g-header>
-    <g-bgcover></g-bgcover>
+    <!-- <g-bgcover></g-bgcover> -->
     <!-- <div id="particles-js" class="page-bg"></div> -->
     <router-view></router-view>
     <div class="footer">footer</div>

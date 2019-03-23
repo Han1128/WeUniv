@@ -153,6 +153,13 @@
           </ul>
         </div>
       </div>
+      <div class="select-tags-list">
+        <span slot="prepend">
+          <span v-for="(item,index) in selectTags" :key="item">
+            <Tag color="success" :closable="tagProp.length === 0" @on-close="removeTags(index)">{{item}}</Tag>
+          </span>
+        </span>
+      </div>
       <div class="box-option">
         <ul class="btn-list">
           <li @click="showEmoji" v-click-outside="hideEmoji">
@@ -169,9 +176,24 @@
               </div>
             </img-upload>
           </li>
-          <li>
+          <li v-if="tagProp.length === 0">
             <div>
-              <Icon type="ios-pricetags"/>话题
+              <Poptip word-wrap width="400" placement="bottom">
+                <svg class="icon-min" aria-hidden="true">
+                    <use xlink:href="#icon-huati"></use>
+                </svg>
+                话题
+                <div slot="content">
+                  <ul class="tags-list">
+                    <li
+                      class="tags-list-item"
+                      v-for="item in tagsList"
+                      :key="item.iconCode">
+                      <Tag color="success" @click.native="chooseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
+                    </li>
+                  </ul>
+                </div>
+              </Poptip>
             </div>
           </li>
           <li>
@@ -199,6 +221,12 @@ export default {
   directives: {
     ClickOutside
   },
+  props: {
+    tagProp: {
+      type: Array,
+      default: _ => []
+    }
+  },
   data () {
     return {
       isTop: false,
@@ -206,10 +234,18 @@ export default {
       imgList: [], // 图片组合
       editorContent: '', // 输入的内容
       emojiShow: false, // emoji表情框显示状态
+      tagsList: [],
+      selectTags: []
     }
   },
   created() {
     this.topId = JSON.parse(localStorage.getItem('userData')).topArticle;
+    if (this.tagProp.length !== 0) {
+      this.selectTags = this.tagProp;
+    }
+    else {
+      this.getAllTags();
+    }
   },
   methods: {
     addEmoji(emoji) {
@@ -240,6 +276,30 @@ export default {
         });
       }
     },
+    // 选择标签
+    chooseTags(iconLabel) {
+      if (this.selectTags.length === 5) {
+        this.$Message.error('最多只能添加5个标签~');
+        return;
+      }
+      else if (!this.selectTags.includes(iconLabel)) {
+        this.selectTags.push(iconLabel);
+      }
+    },
+    // 移除标签
+    removeTags(index) {
+      this.selectTags.splice(index, 1);
+    },
+    // 获取全部标签
+    getAllTags() {
+      this.axios.get('/getAllTags', {})
+      .then(res => {
+        this.tagsList = res.result;
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
     setArticleTop(status) {
       if (this.topId && status === true) {
         this.$Modal.confirm({
@@ -260,6 +320,7 @@ export default {
         username: localStorage.getItem('username'),
         content: this.editorContent,
         coverBg: this.imgList,
+        tags: this.selectTags,
         isTop: this.isTop, // 是否置顶
         topId: this.topId, // 置顶文章id
       }
@@ -272,6 +333,9 @@ export default {
       .catch(err => {
         console.error('err', err);
         this.$Message.error('提交失败');
+      })
+      .finally(_=> {
+        this.selectTags = [];
       })
     }
   }

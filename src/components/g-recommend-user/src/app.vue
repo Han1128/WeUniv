@@ -12,6 +12,18 @@
       }
       .recommend-user-details {
         margin-left: 6rem;
+        span {
+          cursor: pointer;
+        }
+        .user-name {
+          font-size: 1.5rem;
+          font-weight: bolder;
+        }
+        .user-type {
+          font-size: 1.3rem;
+          margin-left: .5rem;
+          color: #009A61;
+        }
       }
       &:hover {
         background: #eee;
@@ -27,8 +39,8 @@
         <img :src="item.avatar || defaultAvatar">
         <div class="recommend-user-details">
           <p>
-            <span>{{item.username}}</span>
-            <span>
+            <router-link class="user-name" tag="span" :to="'/user/' + item._id">{{item.username}}</router-link>
+            <span class="user-type">
               {{item.userType === 'student' ? '学生' : item.userType === 'teacher' ? '教师' : '机构'}}
             </span>
           </p>

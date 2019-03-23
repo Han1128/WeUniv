@@ -211,7 +211,8 @@
 </style>
 <template>
   <div class="article-list">
-    <ul class="single-article">
+    <img :src="emptyImg" v-if="!articleDetails.length" style="width: 100%;border: 1px solid #d9d9d9;">
+    <ul class="single-article" v-else>
       <li
         v-show="item.type === filterType || filterType === 'all'"
         class="article-list"
@@ -274,7 +275,7 @@
           <div class="card-bottom">
             <!-- 点赞 -->
             <span
-              v-if="!getLikeStatus(item._id)" class="text-icon" @click="addToList('add', 'like', item._id, item.author._id)">
+              v-if="!item.likeBy.includes(userDetails._id)" class="text-icon" @click="addToList('add', 'like', item._id, item.author._id)">
               <Icon type="ios-thumbs-up"/>点赞 × {{item.like_num}}
             </span>
             <span v-else class="text-icon like" @click="addToList('cancel', 'like', item._id, item.author._id)">
@@ -285,7 +286,7 @@
               <Icon type="md-chatboxes" />评论 {{item.comment_num}}
             </span>
             <!-- 收藏 -->
-            <span v-if="!getCollectStatus(item._id)" class="text-icon" @click="addToList('add', 'collect', item._id, item.author._id)">
+            <span v-if="!item.collectBy.includes(userDetails._id)" class="text-icon" @click="addToList('add', 'collect', item._id, item.author._id)">
               <Icon type="md-bookmark" />收藏 {{item.collect_num}}
             </span>
             <span v-else class="text-icon collect" @click="addToList('cancel', 'collect', item._id, item.author._id)">
@@ -321,7 +322,7 @@
   </div>
 </template>
 <script>
-import { DEFAULT_AVATAR } from '@/constant/index.js';
+import { DEFAULT_AVATAR, EMPTY } from '@/constant/index.js';
 import commentPanel from './comment-panel';
 export default {
   components: { commentPanel },
@@ -346,24 +347,9 @@ export default {
       allPerviewImg: [],
       previewIndex: -1,
       showCommentList: [],
-      defaultAvatar: DEFAULT_AVATAR
+      defaultAvatar: DEFAULT_AVATAR,
+      emptyImg: EMPTY
     }
-  },
-  computed: {
-    // 判断用户是否点赞了这篇文章
-    getLikeStatus() {
-      return function (articleId) {
-        if(JSON.stringify(this.userDetails) === '{}') return false;
-        return this.userDetails.like_article.includes(articleId) ? true : false;
-      }
-    },
-    // 判断用户是否收藏了这篇文章
-    getCollectStatus() {
-      return function (articleId) {
-        if(!this.userDetails.collect) return false;
-        return this.userDetails.collect.includes(articleId) ? true : false;
-      }
-    },
   },
   created() {
     this.showCommentList = [];

@@ -112,7 +112,7 @@
         padding-left: 2rem;
       }
       .ivu-form {
-        margin-top: 3rem;
+        margin-top: 2rem;
         .ivu-form-item {
           /deep/.ivu-form-item-content {
               margin-right: 7rem;
@@ -130,7 +130,7 @@
       .panel-bottom {
         .panel-bottom__label {
           text-align: center;
-          margin-top: 2.5rem;
+          margin-top: 1.5rem;
           p {
             display: inline;
           }

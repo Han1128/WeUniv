@@ -76,7 +76,16 @@ const router =  new Router({
         },
         component: (resolve) => {
           require(['@/pages/home/components/user-tags-manage'], resolve);
-        }
+        },
+      }, {
+        path: 'tagSearch',
+        name: 'tagSearch',
+        meta: {
+          requiresAuth: true
+        },
+        component: (resolve) => {
+          require(['@/pages/home/components/tag-search-page'], resolve);
+        },
       }],
     },
     {

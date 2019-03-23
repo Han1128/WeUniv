@@ -27,7 +27,7 @@
     // height: 60rem;
     // background: pink;
     .gallery {
-      // height: 30rem;
+      min-height: 30rem;
       background: #fff;
       border: 1px solid #d9dd99;
       box-shadow: 1px 1px 12px rgba(0,0,0,0.2);

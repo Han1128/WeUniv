@@ -2,7 +2,7 @@
 </style>
 <template>
   <div class="g-header">
-    <a href="/" class="logo"></a>
+    <a href="/" class="logo">WeUniv</a>
     <div class="header-left">
       <ul class="menu">
         <li>
@@ -17,7 +17,7 @@
         </li>
         <li>
           <transition name="slide">
-            <router-link tag="a" to="/home/follow">话题</router-link>
+            <router-link tag="a" to="/home/tag">话题</router-link>
           </transition>
         </li>
       </ul>
@@ -60,7 +60,7 @@
               <ul class="list-details">
                 <transition name="slide">
                     <router-link tag="li" to="/message/unReadMsg">
-                      未读通知<span class="unread-msg">3</span>
+                      未读通知
                     </router-link>
                   </transition>
                 <transition name="slide">

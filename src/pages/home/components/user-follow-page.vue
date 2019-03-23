@@ -26,15 +26,19 @@
           padding-left: 1.5rem;
           font-size: 1.6rem;
           cursor: pointer;
-          &:hover {
-            background: #eee;
-          }
+          // &:hover {
+          //   background: #eee;
+          // }
+        }
+        .active {
+          background: #009a61;
+          color: #fff;
         }
       }
     }
     .content-right {
-      width: 28rem;
-      height: 60rem;
+      width: 30rem;
+      // height: 60rem;
       float: right;
       margin-top: 1rem;
       .user-info {
@@ -46,6 +50,16 @@
         .user-info_header {
           padding: 1rem 2rem;
           padding-top: 2rem;
+          label {
+            font-size: 2rem;
+            font-weight: bolder;
+            margin-left: 1.5rem;
+            font-family: sans-serif;
+            cursor: pointer;
+            &:hover {
+              color: #a8a8a8;
+            }
+          }
           img {
             width: 6rem;
             border-radius: 6rem;
@@ -71,6 +85,7 @@
       .recommend-info {
         width: auto;
         // height: 35rem;
+        padding: 0 1rem;
         margin: 2rem;
         background: #fff;
         border-radius: .4rem;
@@ -83,9 +98,9 @@
           background: #E8EAEC;
         }
         .recommend-list {
-          margin-top: 1rem;
+          // margin-top: 1rem;
           li {
-            border-top: 1px solid #ccc;
+            // border-top: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
             // border-left: 5px solid;
             .header {
@@ -128,8 +143,7 @@
       width: auto;
       margin-left: 24rem;
       margin-right: 30rem;
-      background: #eee;
-
+      // background: #eee;
       .center-left {
         .time-filter {
           margin: 1rem 0;
@@ -174,36 +188,56 @@
     <div class="content-left">
       <Divider orientation="left">快速选择</Divider>
       <ul class="hot-topic">
-        <li class="topic-item" style="font-size: 1.4rem" @click="getFollowArticle()">
-          <Icon type="ios-aperture" />最近更新
+        <li
+          :class="[{'active': selectType === 'newest'}, 'topic-item']"
+          style="font-size: 1.4rem"
+          @click="selectType = 'newest';getFollowArticle()">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
+              <use xlink:href="#icon-icon--gengxin"></use>
+          </svg>
+          最近更新
         </li>
-        <li class="topic-item" style="font-size: 1.4rem" @click="getLikeArticle('like')">
-          <Icon type="md-flame" />我的点赞
+        <li
+          :class="[{'active': selectType === 'like'}, 'topic-item']"
+          style="font-size: 1.4rem"
+          @click="selectType = 'like';getLikeArticle('like')">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
+              <use xlink:href="#icon-SOCIALMEDIA"></use>
+          </svg>
+          我的点赞
         </li>
-        <li class="topic-item" style="font-size: 1.4rem" @click="getLikeArticle('collect')">
-          <Icon type="ios-timer-outline" />我的收藏
+        <li
+          :class="[{'active': selectType === 'collect'}, 'topic-item']"
+          style="font-size: 1.4rem"
+          @click="selectType = 'collect';getLikeArticle('collect')">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
+              <use xlink:href="#icon-star"></use>
+          </svg>
+          我的收藏
         </li>
       </ul>
       <Divider orientation="left">我的标签</Divider>
       <ul class="hot-topic">
         <li
-        class="topic-item"
-        v-for="(item, index) in tagsList"
-        :key="index"
-        @click="filtrerByTag(item.iconLabel)">
-          <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
-              <use :xlink:href="'#'+item.iconCode"></use>
-          </svg>
-          {{item.iconLabel}}
+          v-for="(item, index) in userTagsList"
+          :class="[{'active': selectType === item.iconLabel}, 'topic-item']"
+          :key="index"
+          @click="filtrerByTag(item.iconLabel)">
+            <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
+                <use :xlink:href="'#'+item.iconCode"></use>
+            </svg>
+            {{item.iconLabel}}
         </li>
-        <li class="topic-item"><Icon type="md-pricetags"/>更多标签</li>
+        <transition name="slide">
+          <router-link tag="li" class="topic-item" to="/home/tag"><Icon type="md-pricetags"/>更多标签</router-link>
+        </transition>
       </ul>
     </div>
     <div class="content-right">
       <div class="user-info">
         <p class="user-info_header">
           <img :src="getUserAvatar">
-          <label>{{userDetails.username}}</label>
+          <router-link tag="label" :to="'/user/' + userDetails._id">{{userDetails.username}}</router-link>
         </p>
         <p class="user-info_follow">
           <ul class="follow-list">
@@ -219,13 +253,24 @@
           </ul>
         </p>
       </div>
+
       <div class="recommend-info">
-        <h4 class="label">你可能感兴趣的人</h4>
+        <h4 class="label">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem;color:#FE4541">
+              <use xlink:href="#icon-tubiao303"></use>
+          </svg>
+          你可能感兴趣的人
+        </h4>
         <div class="divider"></div>
           <g-recommend-user :recommendUser="recommendUser"></g-recommend-user>
       </div>
       <div class="recommend-info">
-        <h4 class="label">你可能感兴趣的内容</h4>
+        <h4 class="label">
+          <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
+            <use xlink:href="#icon-ganxingquchenggong"></use>
+          </svg>
+          你可能感兴趣的内容
+        </h4>
         <div class="divider"></div>
         <ul class="recommend-list">
           <li v-for="item in recommendList" :key="item._id">
@@ -250,53 +295,56 @@
         </ul>
       </div>
     </div>
-      <div class="content-center">
-        <short-text-editor @uploadUserData="getUserInfo"></short-text-editor>
-        <div class="center-left">
-          <div class="time-filter">
-            <ul class="time-filter_list">
-              <li :class="{ 'active': filterType === 'all'}" @click="filterArticle('all')">全部</li>
-              <li :class="{ 'active': filterType === 'long'}" @click="filterArticle('long')">只看文章</li>
-              <li :class="{ 'active': filterType === 'short'}" @click="filterArticle('short')">只看说说</li>
-              <li>
-                <Input search placeholder="输入搜索文章的关键词" />
-              </li>
-            </ul>
-          </div>
-          <user-article-list
-            :filterType="filterType"
-            :articleDetails="articleDetails"
-            :userDetails="userDetails"
-            @updateOperator="getUserInfo">
-          </user-article-list>
+
+    <div class="content-center">
+      <short-text-editor @uploadUserData="getUserInfo"></short-text-editor>
+      <div class="center-left">
+        <div class="time-filter">
+          <ul class="time-filter_list">
+            <li :class="{ 'active': filterType === 'all'}" @click="filterType = 'all'">全部</li>
+            <li :class="{ 'active': filterType === 'long'}" @click="filterType = 'long'">只看文章</li>
+            <li :class="{ 'active': filterType === 'short'}" @click="filterType = 'short'">只看说说</li>
+            <li>
+              <Input search placeholder="输入搜索文章的关键词" />
+            </li>
+          </ul>
         </div>
+        <user-article-list
+          :filterType="filterType"
+          :articleDetails="articleDetails"
+          :userDetails="userDetails"
+          @updateOperator="getUserInfo">
+        </user-article-list>
       </div>
-      <g-short-text></g-short-text>
+    </div>
+    <g-short-text></g-short-text>
   </div>
 </template>
 <script>
 const R = require('ramda');
 import bus from '@/common/bus.js';
+import mixins from '../common/mixins.js';
 import { DEFAULT_AVATAR } from '@/constant/index.js';
 import shortTextEditor from '../../article/components/short-text-editor';
 import userArticleList from '../../user/components/article/user-article-list';
 export default {
   components: { shortTextEditor, userArticleList },
+  mixins: [mixins],
   data () {
     return {
       userId: '',
       filterType: 'all',
+      selectType: '',
       articleDetails: [],
       userDetails: {},
       recommendList: [],
       recommendUser: [],
-      tagsList: []
+      userTagsList: []
     }
   },
   created() {
     this.userId = localStorage.getItem('userid');
     this.getUserInfo();
-    // this.getFollowArticle();
     this.getUserTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
@@ -321,11 +369,9 @@ export default {
     }
   },
   methods: {
-    filterArticle(type) {
-      this.filterType = type;
-    },
     // 通过tag筛选内容
     filtrerByTag(tagLabel) {
+      this.selectType = tagLabel;
       this.axios.get('/getArticleByTag', {
         params: {
           tagLabel: tagLabel
@@ -370,7 +416,7 @@ export default {
         }
       })
       .then(res => {
-        this.tagsList = res.data.result;
+        this.userTagsList = res.data.userTags;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
