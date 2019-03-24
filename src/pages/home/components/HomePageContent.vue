@@ -220,13 +220,13 @@
     <div class="content-left">
       <Divider orientation="left">快速选项</Divider>
       <ul class="hot-topic">
-        <li :class="[{'active': filterType === 'hotTalk'}, 'topic-item']" style="font-size: 1.5rem" @click="getHotTalk">
+        <li :class="[{'active': filterType === 'hotTalk'}, 'topic-item']" style="font-size: 1.5rem" @click="handleLoadMore('hotTalk')">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem;color: #F46267;">
               <use xlink:href="#icon-chaojihuati-remendianjitai"></use>
           </svg>
           最近热议
         </li>
-        <li :class="[{'active': filterType === 'newest'}, 'topic-item']" style="font-size: 1.5rem" @click="getNewestArticle">
+        <li :class="[{'active': filterType === 'newest'}, 'topic-item']" style="font-size: 1.5rem" @click="handleLoadMore('newest')">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
               <use xlink:href="#icon-shijian"></use>
           </svg>
@@ -239,7 +239,7 @@
           v-for="(item, index) in tagsList"
           :class="[{'active': filterType === item.iconLabel}, 'topic-item']"
           :key="index"
-          @click="getArticleByTag(item.iconLabel)">
+          @click="handleLoadMore(item.iconLabel)">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
               <use :xlink:href="'#'+item.iconCode"></use>
           </svg>
@@ -313,14 +313,14 @@
       </div>
     </div>
       <div class="content-center">
-        <div  class="swiper">
-          <vue-loading
+        <div class="swiper">
+          <!-- <vue-loading
             v-if="loading"
             type="spin"
             color="#009a61"
             :size="{ width: '50px', height: '50px' }">
-          </vue-loading>
-          <swiper v-else :options="swiperOption" ref="mySwiper">
+          </vue-loading> -->
+          <swiper :options="swiperOption" ref="mySwiper">
             <swiper-slide v-for="item in swiperList" :key="item._id">
               <img :src="item.coverBg[0]">
               <router-link class="title" tag="p" :to="'/view/' + item._id">{{item.title}}</router-link>
@@ -335,7 +335,7 @@
             <ul class="time-filter_list">
               <li
                 :class="{ 'active': filterType === 'default'}"
-                @click="getHomePageDetails()">
+                @click="handleLoadMore('default')">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon--morendingwei"></use>
                 </svg>
@@ -343,7 +343,7 @@
               </li>
               <li
                 :class="{ 'active': filterType === 'week'}"
-                @click="getArticleByRange('week')">
+                @click="handleLoadMore('week')">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-zhou"></use>
                 </svg>
@@ -351,7 +351,7 @@
               </li>
               <li
                 :class="{ 'active': filterType === 'month'}"
-                @click="getArticleByRange('month')">
+                @click="handleLoadMore('month')">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-yue"></use>
                 </svg>
@@ -359,17 +359,18 @@
               </li>
             </ul>
           </div>
+
+          <user-article-list
+            :articleDetails="articleDetails"
+            :userDetails="userDetails"
+            @updateOperator="handleUpdate">
+          </user-article-list>
           <vue-loading
-            v-show="loading"
+            v-if="loading"
             type="bars"
             color="#009a61"
             :size="{ width: '50px', height: '50px' }">
           </vue-loading>
-          <user-article-list
-            :articleDetails="articleDetails"
-            :userDetails="userDetails"
-            @updateOperator="updateOperator">
-          </user-article-list>
         </div>
       </div>
       <g-short-text></g-short-text>
@@ -377,6 +378,7 @@
   </div>
 </template>
 <script>
+import $ from 'jquery';
 const R = require('ramda');
 import bus from '@/common/bus.js';
 import mixins from '../common/mixins.js';
@@ -392,6 +394,10 @@ export default {
   mixins: [mixins],
   data () {
     return {
+      loadType: 'add', // 滚动加载还是异步更新
+      skip: 0,
+      limit: 5,
+      bottom: false,// 是否到达底部
       userId: '',
       loading: false,
       filterType: 'default',
@@ -429,21 +435,51 @@ export default {
     this.userId = localStorage.getItem('userid');
     this.loading = true;
     this.getHomePageDetails();
-    // this.getHomePageDetails();
     this.getHotTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
-      this.updateOperator();
+      this.handleUpdate()
     })
   },
   mounted() {
-    this.swiper.slideTo(3, 1000, false);
+    window.addEventListener("beforeunload", () => {
+      window.scrollTo(0,0);
+    });
+    $(window).scroll(this.handleScroll);
   },
   destroyed() {
     bus.$off('updateHomeData');
     this.filterType = 'default';
+    $(window).off("scroll");
   },
   methods: {
+    handleUpdate() {
+      this.loadType = 'update';
+      this.updateOperator();
+    },
+    // 切换挑选条件
+    handleLoadMore(type) {
+      if (this.filterType === type) return;
+      this.articleDetails = [];
+      this.filterType = type;
+      this.skip = 0;
+      this.limit = 5;
+      this.bottom = false;
+      this.updateOperator();
+    },
+    handleScroll() {
+      let scrollTop = $(document).scrollTop(); // 页面滚动的距离
+      let scrollHeight = $(document).height();
+      let windowHeight = $(window).height();
+      if(Math.round(scrollTop) + windowHeight == scrollHeight) {
+        if (!this.loading && !this.bottom) {
+          // 只有加载完成才可继续加载,避免连续触发
+          this.loading = true;
+          this.skip = this.skip + 5;
+          this.updateOperator();
+        }
+      }
+    },
     updateOperator() {
       if (this.filterType === 'week') {
         this.getArticleByRange('week'); // 按周
@@ -466,13 +502,26 @@ export default {
     },
     // 请求主页内容
     getHomePageDetails() {
-      this.filterType = 'default';
-      this.axios.get('/getHomePageDetails', {})
+      this.axios.get('/getHomePageDetails', {
+        params: {
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
+        }
+      })
       .then(res => {
         this.swiperList = res.data.defaultResult.swiperList; // 轮播图
-        this.articleDetails = res.data.recommendArticle; // 默认推荐
         this.schoolNews = res.data.schoolNews; // 校内咨询
         this.recommendUser = res.data.defaultResult.recommendUser; // 推荐用户
+        if (res.data.recommendArticle.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.recommendArticle); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.recommendArticle; // 默认推荐
+        }
         this.getUserInfo();
       })
       .catch(err => {
@@ -480,34 +529,145 @@ export default {
       })
       .finally(_ => {
         this.loading = false;
+        this.loadType = 'add';
       })
     },
     // 近期更新文章
     getNewestArticle() {
-      this.filterType = 'newest';
-      this.axios.get('/getNewestArticle', {})
+      this.axios.get('/getNewestArticle', {
+        params: {
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
+        }
+      })
       .then(res => {
-        this.articleDetails = res.data.result;
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
         this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
       })
     },
     // 通过tag筛选文章
     getArticleByTag(tagLabel) {
-      this.filterType = tagLabel;
       this.axios.get('/getArticleByTag', {
         params: {
-          tagLabel: tagLabel
+          tagLabel: tagLabel,
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
         }
       })
       .then(res => {
-        this.articleDetails = res.data.result;
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
         this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
+      })
+    },
+    // 获取最近热议
+    getHotTalk() {
+      this.axios.get('/getHotTalkArticle', {
+        params: {
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
+        }
+      })
+      .then(res => {
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
+        this.getUserInfo();
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
+      })
+    },
+    /**
+     * 按时间查询文章
+     * @param time 查询时间间隔 ''为所有 week month
+     */
+    getArticleByRange(time) {
+      let nowDate = new Date();
+      let tranDate = ''
+      if (time === 'week') {
+        tranDate = new Date(nowDate - 7*24*3600*1000);
+      }
+      else if (time === 'month') {
+        tranDate = new Date(nowDate.setMonth(nowDate.getMonth()-1));
+      }
+      else {
+        tranDate = nowDate
+      }
+      this.axios.get('/getArticleByRange', {
+        params: {
+          time: tranDate, // 时间间隔
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
+        }
+      })
+      .then(res => {
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
+        // this.$nextTick(_=> {
+        //   this.articleDetails.splice(0);
+        //   for (let item of res.data.result) {
+        //     this.articleDetails.push(item);
+        //   }
+        // })
+        this.getUserInfo();
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
       })
     },
     // 获取最新用户信息
@@ -535,53 +695,9 @@ export default {
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
-    },
-    // 获取最近热议
-    getHotTalk() {
-      this.filterType = 'hotTalk';
-      this.axios.get('/getHotTalkArticle', {})
-      .then(res => {
-        this.articleDetails = res.data.result;
-        this.getUserInfo();
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
-      })
-    },
-    /**
-     * 按时间查询文章
-     * @param time 查询时间间隔 ''为所有 week month
-     */
-    getArticleByRange(time) {
-      this.filterType = time;
-      let nowDate = new Date();
-      let tranDate = ''
-      if (time === 'week') {
-        tranDate = new Date(nowDate - 7*24*3600*1000);
-      }
-      else if (time === 'month') {
-        tranDate = new Date(nowDate.setMonth(nowDate.getMonth()-1));
-      }
-      else {
-        tranDate = nowDate
-      }
-      this.axios.get('/getArticleByRange', {
-        params: {
-          time: tranDate // 时间间隔
-        }
-      })
-      .then(res => {
-        this.articleDetails = res.data.result;
-        // this.$nextTick(_=> {
-        //   this.articleDetails.splice(0);
-        //   for (let item of res.data.result) {
-        //     this.articleDetails.push(item);
-        //   }
-        // })
-        this.getUserInfo();
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
       })
     },
   }

@@ -1,7 +1,7 @@
 <style lang="less" scoped>
 .article-list {
   .single-article {
-    .article-list {
+    .article-list-details {
       width: auto;
       display: block;
       list-style: none;
@@ -175,6 +175,14 @@
           }
         }
       }
+      .ivu-page {
+        border-radius: 0 0 0.5rem 0.5rem;
+        text-align: center;
+        border: 1.5px solid #dedede;
+        border-top: none;
+        padding: 1.5rem;
+        padding-top: .5rem;
+      }
     }
   }
   .preview {
@@ -215,7 +223,7 @@
     <ul class="single-article" v-else>
       <li
         v-show="item.type === filterType || filterType === 'all'"
-        class="article-list"
+        class="article-list-details"
         v-for="(item,index) in articleDetails"
         :key="item._id" :value="item.title">
         <div class="card">
@@ -300,9 +308,10 @@
             v-if="showCommentList[index]"
             :articleId="item._id"
             :author_id="item.author._id"
-            :commentList="item.commentFrom"
+            :commentList="item.commentFrom.slice(currentPage - 1, currentPage + 2)"
             :avatar="userDetails.avatar || defaultAvatar">
           </comment-panel>
+          <Page v-if="showCommentList[index]" :total="item.commentFrom.length" :current.sync="currentPage" :page-size="3" show-elevator/>
         </template>
       </li>
     </ul>
@@ -340,6 +349,7 @@ export default {
   },
   data () {
     return {
+      currentPage: 1,
       articleDetail: this.articleDetails,
       commentPanel: false,
       showPreviews: false,

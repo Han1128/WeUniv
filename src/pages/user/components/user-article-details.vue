@@ -21,6 +21,9 @@
         transform: translate(0,-50%);
       }
     }
+    /deep/.ivu-page {
+      text-align: center;
+    }
   }
   .container-right {
     margin-left: 71rem;
@@ -59,6 +62,7 @@
 </style>
 <template>
   <div class="article-details">
+
     <div class="container-left">
       <div class="panel-top">
         <Menu mode="horizontal" :active-name="activeName" @on-select="selectName">
@@ -95,7 +99,11 @@
         </user-article-list>
         <article-gallery-list v-else :galleryList="galleryList"></article-gallery-list>
       </div>
+      <div style="margin: 2rem 0">
+        <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getArticleDetails"/>
+      </div>
     </div>
+
     <div class="container-right">
       <div class="gallery">
         <h3>相册<a href="#" class="more" @click="pushToGallery">查看更多</a></h3>
@@ -125,6 +133,8 @@ export default {
   components: { userArticleList, articleGalleryList },
   data () {
     return {
+      totalNums: 0,
+      currentPage: 1,
       activeName: 'all',
       authorId: '',
       articleDetails: [],
@@ -158,7 +168,9 @@ export default {
     getArticleDetails() {
       this.axios.get('/getUserArticles', {
         params: {
-          userid: this.authorId
+          userid: this.authorId,
+          limit: 10,
+          skip: (this.currentPage - 1) * 10
         }
       })
       .then(res => {
@@ -192,6 +204,7 @@ export default {
       })
       .then(res => {
         this.userDetails = JSON.parse(JSON.stringify(res.data.result));
+        this.totalNums = this.userDetails.article.length;
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

@@ -26,6 +26,11 @@
         padding-right: 4rem;
         vertical-align: text-top;
       }
+      .btn-style {
+        margin-left: 2rem;
+        background: #009A61;
+        color: #fff;
+      }
     }
   }
 }
@@ -47,7 +52,7 @@
         <div class="set-item-detail">
           <span class="item-label">输入验证码</span>
           <i-input v-model="resetEmail.code" placeholder="输入验证码"></i-input>
-          <Button @click="submitEmailReset()">提交更改</Button>
+          <Button class="btn-style" @click="submitEmailReset()">提交更改</Button>
         </div>
       </div>
 
@@ -70,7 +75,7 @@
           <div class="set-item-detail">
             <span class="item-label">新密码</span>
             <i-input type="password" v-model="modifyPwd.newPwd" placeholder="确认密码输入"></i-input>
-            <i-button style="margin-left: 2rem;" @click="submitPwdModify">提交修改</i-button>
+            <i-button class="btn-style" @click="submitPwdModify">提交修改</i-button>
           </div>
         </div>
       </div>
@@ -98,7 +103,7 @@
         <div class="set-item-detail">
           <span class="item-label">新密码</span>
           <i-input type="password" v-model="resetPwd.newPwd" placeholder="请输入新密码"></i-input>
-          <i-button style="margin-left: 2rem;" @click="resetUserPwd">提交修改</i-button>
+          <i-button class="btn-style" @click="resetUserPwd">提交修改</i-button>
         </div>
       </div>
   </div>

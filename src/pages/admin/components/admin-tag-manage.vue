@@ -22,24 +22,36 @@
           <strong>{{ (currentPage - 1)* 10 + index + 1 }}</strong>
       </template>
       <template slot-scope="{ row, index }" slot="action">
-          <i-button type="primary" size="small" style="margin-right: 5px" @click="show(index)">编辑</i-button>
-          <i-button type="error" size="small" style="margin-right: 5px" @click="show(index)">删除</i-button>
+          <i-button type="primary" size="small" style="margin-right: 5px" @click="showDetails(index)">编辑</i-button>
+          <!-- <i-button type="error" size="small" style="margin-right: 5px">删除</i-button> -->
       </template>
     </i-table>
     <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getAdminTagsList"/>
+
+    <Modal
+        title="信息修改"
+        v-model="tagsModal"
+        :mask-closable="false"
+        @on-ok="onSave"
+        @on-cancel="tagsModal = false">
+        <admin-tag-modify ref="tagModify" :tagDetails="tagsList[editIndex]" @success="getAdminTagsList"></admin-tag-modify>
+    </Modal>
   </div>
 </template>
 <script>
-import { TAG_MAP } from '../common/index.js'
+import { TAG_MAP } from '../common/index.js';
+import AdminTagModify from './details/admin-tag-modify'
 export default {
-  components: {},
+  components: {AdminTagModify},
   data () {
     return {
+      tagsModal: false,
       currentPage: 1,
       totalNums: 0,
       adminId: '',
       tagMap: TAG_MAP,
-      tagsList: []
+      tagsList: [],
+      editIndex: -1,
     }
   },
   created() {
@@ -47,6 +59,13 @@ export default {
     this.getAdminTagsList();
   },
   methods: {
+    onSave() {
+      this.$refs.tagModify.confirm();
+    },
+    showDetails(index) {
+      this.editIndex = index;
+      this.tagsModal = true;
+    },
     getAdminTagsList() {
       this.axios.get('/getAdminTagsList', {
         params: {

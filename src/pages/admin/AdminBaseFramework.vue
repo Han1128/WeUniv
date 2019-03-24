@@ -8,22 +8,25 @@
     height: 5rem;
     position: fixed;
     top: 0;
+    background: #fafafa;
+    border-top: .3rem solid #009a61;
+    box-shadow: 0 0 .1rem 0 rgba(0,0,0,0.3), 0 0 .6rem .2rem rgba(0,0,0,0.15);
     z-index: 100;
-    background: #2d8cf0;
     .header-left {
+      display: block;
       float: left;
-      font-family: -webkit-pictograph;
-      font-size: 2.8rem;
-      line-height: 5rem;
-      margin-left: 5rem;
-      color: #fff;
+      margin-left: 3rem;
+      font-size: 2.5rem;
+      font-weight: bolder;
+      font-family: Comic Sans MS, Comic Sans, cursive;
+      color: #009A61;
     }
     .header-right {
       float: right;
       line-height: 5rem;
       margin-right: 5rem;
       margin-top: .2rem;
-      color: #fff;
+      // color: #fff;
       font-size: 1.5rem;
     }
   }
@@ -159,7 +162,7 @@ export default {
     }
   },
   methods: {
-    selectIndex(index) {
+    selectItem(index) {
       this.selectIndex = index;
     },
     getAdminInfo() {

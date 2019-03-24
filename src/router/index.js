@@ -275,7 +275,15 @@ const router =  new Router({
         require(['@/pages/article/article-view'], resolve);
       }
     }
-  ]
+  ],
+  scrollBehavior (to, from, savedPosition) {
+      //判断如果滚动条的位置存在直接返回到当前位置，否者返回到起点
+      if (savedPosition) {
+        return savedPosition
+      } else {
+        return { x: 0, y: 0 }
+      }
+  },
 })
 // 导航守卫 实现 路由拦截
 router.beforeEach((to, from, next) => {

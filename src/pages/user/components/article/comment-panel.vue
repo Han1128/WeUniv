@@ -1,7 +1,9 @@
 <style lang="less" scoped>
 .comment-panel {
-  border-radius: 0 0 .5rem .5rem;
-  border: 1px solid #dedede;
+  margin-top: -.3rem;
+  border: 1.5px solid #dedede;
+  border-top: none;
+  border-bottom: none;
   box-shadow: -1px 0 1px rgba(255, 255, 255, 0.8);
   overflow: hidden;
   padding-top: 2rem;

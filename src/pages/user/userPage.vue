@@ -118,11 +118,6 @@
       // background: pink;
       overflow: hidden;
     }
-    .profile-bottom {
-      height: 10rem;
-      margin: 2rem 0;
-      // background: orange;
-    }
   }
 
 }
@@ -198,8 +193,8 @@
       <div class="profile-container">
         <router-view :key="$route.fullPath"></router-view>
       </div>
-      <div class="profile-bottom">
-      </div>
+      <!-- <div class="profile-bottom">
+      </div> -->
     </div>
   </div>
 </template>

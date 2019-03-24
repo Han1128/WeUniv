@@ -200,6 +200,12 @@ import bus from '@/common/bus.js';
 import { VueLoading } from 'vue-loading-template';
 import commentPanel from '../user/components/article/comment-panel';
 export default {
+  props: {
+    id: {
+      type: String,
+      default: ''
+    }
+  },
   components: { commentPanel, VueLoading },
   data () {
     return {
@@ -212,7 +218,12 @@ export default {
   },
   created() {
     //用户信息和文章信息通过props分开传
-    this.articleId = this.$route.params.articleid;
+    if (this.id) {
+      this.articleId = this.id;
+    }
+    else {
+      this.articleId = this.$route.params.articleid;
+    }
     this.userData = JSON.parse(localStorage.getItem('userData'));
     this.userId = localStorage.getItem('userid');
     this.getDesignArticle();
@@ -220,6 +231,14 @@ export default {
     bus.$on('updateDesignArticle', () => {
       this.getDesignArticle();
     })
+  },
+  watch: {
+    id(val) {
+      if (val !== undefined) {
+        this.articleId = this.id;
+        this.getDesignArticle();
+      }
+    }
   },
   mounted () {
     $(window).scroll(this.handleScroll);
@@ -321,6 +340,7 @@ export default {
     },
     // 请求文章相关数据的同时要更新阅读数量
     getDesignArticle() {
+      if (!this.articleId) return;
       this.loading = true;
       this.axios.get('/getDesignArticle', {
         params: {
@@ -332,7 +352,7 @@ export default {
         this.articleDetail = res.data.result;
       })
       .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
+        this.$Notice.error({ title: '1提示',  desc: err.message });
       })
       .finally(_=> {
         this.loading = false;

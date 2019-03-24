@@ -191,7 +191,7 @@
         <li
           :class="[{'active': selectType === 'newest'}, 'topic-item']"
           style="font-size: 1.4rem"
-          @click="selectType = 'newest';getFollowArticle()">
+          @click="handleLoadMore('newest')">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
               <use xlink:href="#icon-icon--gengxin"></use>
           </svg>
@@ -200,7 +200,7 @@
         <li
           :class="[{'active': selectType === 'like'}, 'topic-item']"
           style="font-size: 1.4rem"
-          @click="selectType = 'like';getLikeArticle('like')">
+          @click="handleLoadMore('like')">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
               <use xlink:href="#icon-SOCIALMEDIA"></use>
           </svg>
@@ -209,7 +209,7 @@
         <li
           :class="[{'active': selectType === 'collect'}, 'topic-item']"
           style="font-size: 1.4rem"
-          @click="selectType = 'collect';getLikeArticle('collect')">
+          @click="handleLoadMore('collect')">
           <svg class="icon" aria-hidden="true" style="margin-right: 1rem">
               <use xlink:href="#icon-star"></use>
           </svg>
@@ -222,7 +222,7 @@
           v-for="(item, index) in userTagsList"
           :class="[{'active': selectType === item.iconLabel}, 'topic-item']"
           :key="index"
-          @click="filtrerByTag(item.iconLabel)">
+          @click="handleLoadMore(item.iconLabel)">
             <svg class="icon" aria-hidden="true" style="margin-right: 1rem;">
                 <use :xlink:href="'#'+item.iconCode"></use>
             </svg>
@@ -233,6 +233,7 @@
         </transition>
       </ul>
     </div>
+
     <div class="content-right">
       <div class="user-info">
         <p class="user-info_header">
@@ -313,28 +314,42 @@
           :filterType="filterType"
           :articleDetails="articleDetails"
           :userDetails="userDetails"
-          @updateOperator="getUserInfo">
+          @updateOperator="handleUpdate">
         </user-article-list>
+        <vue-loading
+            v-if="loading"
+            type="bars"
+            color="#009a61"
+            :size="{ width: '50px', height: '50px' }">
+          </vue-loading>
       </div>
     </div>
     <g-short-text></g-short-text>
   </div>
 </template>
 <script>
+import $ from 'jquery';
 const R = require('ramda');
 import bus from '@/common/bus.js';
 import mixins from '../common/mixins.js';
+import { VueLoading } from 'vue-loading-template';
 import { DEFAULT_AVATAR } from '@/constant/index.js';
 import shortTextEditor from '../../article/components/short-text-editor';
 import userArticleList from '../../user/components/article/user-article-list';
 export default {
-  components: { shortTextEditor, userArticleList },
+  components: { shortTextEditor, userArticleList, VueLoading },
   mixins: [mixins],
   data () {
     return {
+      loadType: 'add',
+      loading: false,
+      bottom: false,
+      skip: 0,
+      limit: 5,
+
       userId: '',
       filterType: 'all',
-      selectType: '',
+      selectType: 'newest',
       articleDetails: [],
       userDetails: {},
       recommendList: [],
@@ -344,15 +359,26 @@ export default {
   },
   created() {
     this.userId = localStorage.getItem('userid');
-    this.getUserInfo();
+    this.userDetails = JSON.parse(localStorage.getItem('userData'));
+    // 推荐内容长期不变
+    this.getRecommendUser();
+    this.getRecommendArticle();
+    this.getFollowArticle();
     this.getUserTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
-      this.getFollowArticle();
+      this.handleUpdate();
     })
+  },
+  mounted() {
+    window.addEventListener("beforeunload", () => {
+      window.scrollTo(0,0);
+    });
+    $(window).scroll(this.handleScroll);
   },
   destroyed() {
     bus.$off('updateHomeData');
+    $(window).off("scroll");
   },
   computed: {
     following_num() {
@@ -369,44 +395,46 @@ export default {
     }
   },
   methods: {
-    // 通过tag筛选内容
-    filtrerByTag(tagLabel) {
-      this.selectType = tagLabel;
-      this.axios.get('/getArticleByTag', {
-        params: {
-          tagLabel: tagLabel
+    handleScroll() {
+      let scrollTop = $(document).scrollTop(); // 页面滚动的距离
+      let scrollHeight = $(document).height();
+      let windowHeight = $(window).height();
+      if(Math.round(scrollTop) + windowHeight == scrollHeight) {
+        if (!this.loading && !this.bottom) {
+          // 只有加载完成才可继续加载,避免连续触发
+          this.loading = true;
+          this.skip = this.skip + 5;
+          this.updateOperator();
         }
-      })
-      .then(res => {
-        // 不能直接 = [] 来赋值无法更新视图
-        this.$nextTick(_=> {
-          this.articleDetails.splice(0);
-          for (let item of res.data.result) {
-            this.articleDetails.push(item);
-          }
-        })
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
-      })
+      }
     },
-    // 获取用户信息
-    getUserInfo() {
-      this.axios.get('/getUserDetails', {
-        params: {
-          id: this.userId
-        }
-      })
-      .then(res => {
-        localStorage.setItem('userData', JSON.stringify(res.data.result));
-        this.userDetails = res.data.result;
-        this.getFollowArticle();
-        this.getRecommendArticle(); // 获得猜你喜欢文章
-        this.getRecommendUser(); // 猜你喜欢用户
-      })
-      .catch(err => {
-        this.$Notice.error({ title: '提示',  desc: err.message });
-      })
+    handleUpdate() {
+      this.loadType = 'update';
+      this.updateOperator();
+    },
+    // 切换挑选条件
+    handleLoadMore(type) {
+      if (this.selectType === type) return;
+      this.articleDetails = [];
+      this.selectType = type;
+      this.skip = 0;
+      this.limit = 5;
+      this.bottom = false;
+      this.updateOperator();
+    },
+    updateOperator() {
+      if (this.selectType === 'newest') {
+        this.getFollowArticle()
+      }
+      else if (this.selectType === 'like') {
+        this.getLikeArticle('like')
+      }
+      else if (this.selectType === 'collect') {
+        this.getLikeArticle('collect')
+      }
+      else {
+        this.filtrerByTag(this.selectType);
+      }
     },
     // 查询用户关注标签
     getUserTags() {
@@ -422,6 +450,22 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
+    // 获取用户信息
+    getUserInfo() {
+      this.axios.get('/getUserDetails', {
+        params: {
+          id: this.userId
+        }
+      })
+      .then(res => {
+        localStorage.setItem('userData', JSON.stringify(res.data.result));
+        this.userDetails = res.data.result;
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    // 推荐用户
     getRecommendUser() {
       let excludeList = this.userDetails.follow.following.concat(this.userId);
       this.axios.get('/getRecommendUser', {
@@ -457,29 +501,97 @@ export default {
     getFollowArticle() {
       this.axios.get('/getFollowArticle', {
         params: {
-          followList: this.userDetails.follow.following.concat(this.userDetails._id)
+          followList: this.userDetails.follow.following.concat(this.userDetails._id),
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
         }
       })
       .then(res => {
-        this.articleDetails = res.data.result;
-        // this.getUserInfo();
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
+        this.getUserInfo();
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
+      })
+    },
+    // 通过tag筛选内容
+    filtrerByTag(tagLabel) {
+      this.axios.get('/getArticleByTag', {
+        params: {
+          tagLabel: tagLabel,
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
+        }
+      })
+      .then(res => {
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
+        this.getUserInfo();
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
       })
     },
     // 获取所有点赞或关注的列表
-    getLikeArticle(type) {
+    async getLikeArticle(type) {
+      const res = await this.axios.get('/getUserDetails', {
+        params: {
+          id: this.userId
+        }
+      });
+      localStorage.setItem('userData', JSON.stringify(res.data.result));
+      this.userDetails = res.data.result;
+
       this.axios.get('/getLikeArticle', {
         params: {
-          likeList: type === 'like' ? this.userDetails.like_article : this.userDetails.collect
+          likeList: type === 'like' ? this.userDetails.like_article : this.userDetails.collect,
+          skip: this.loadType === 'add' ? this.skip : 0,
+          limit: this.loadType === 'add' ? this.limit : Number(this.skip + this.limit)
         }
       })
       .then(res => {
-        this.articleDetails = res.data.result;
+        if (res.data.result.length < 5) {
+          // 说明到底了
+          this.bottom = true;
+        }
+        if (this.loadType === 'add') {
+          this.articleDetails = this.articleDetails.concat(res.data.result); // 默认推荐
+        }
+        else {
+          this.articleDetails = res.data.result; // 默认推荐
+        }
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.loading = false;
+        this.loadType = 'add';
       })
     }
   }

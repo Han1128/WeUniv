@@ -39,7 +39,8 @@
         <strong>{{row.article.length}}</strong>
       </template>
       <template slot-scope="{ row, index }" slot="action">
-          <i-button type="primary" size="small" @click="showDetails(index)">详情</i-button>
+          <i-button type="primary" size="small" @click="showDetails(index, 'detailsModal')">详情</i-button>
+          <i-button type="success" size="small" @click="showDetails(index, 'modifyModal')">修改</i-button>
           <i-button
             v-show="!recommendList.recommendUser.includes(row._id)"
             type="error"
@@ -50,19 +51,31 @@
       </template>
     </i-table>
     <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getUserData"/>
+
     <Modal
         title="详细信息"
-        v-model="showModal"
+        v-model="detailsModal"
         :mask-closable="false"
-        @on-ok="showModal = false"
-        @on-cancel="showModal = false">
-
+        @on-ok="detailsModal = false"
+        @on-cancel="detailsModal = false">
+        <user-details :userDetails="userData[editIndex]"></user-details>
+    </Modal>
+    <Modal
+        title="私密信息修改"
+        v-model="modifyModal"
+        :mask-closable="false"
+        @on-ok="confirm"
+        @on-cancel="modifyModal = false">
+        <admin-user-modify ref="userModify" :userDetails="userData[editIndex]" @success="getUserData"></admin-user-modify>
     </Modal>
   </div>
 </template>
 <script>
 import { USER_MAP } from '../common/index.js'
+import UserDetails from './details/user-details';
+import AdminUserModify from './details/admin-user-modify';
 export default {
+  components: {UserDetails, AdminUserModify},
   data () {
     return {
       adminId: '',
@@ -71,7 +84,8 @@ export default {
       recommendList: {},
       currentPage: 1,
       totalNums: 0,
-      showModal: false,
+      detailsModal: false,
+      modifyModal: false,
       editIndex: -1
     }
   },
@@ -80,6 +94,9 @@ export default {
     this.getUserData();
   },
   methods: {
+    confirm() {
+      this.$refs.userModify.confirm()
+    },
     getUserData() {
       this.axios.get('/getAdminMenuList', {
         params: {
@@ -97,9 +114,9 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    showDetails(index) {
+    showDetails(index, modal) {
       this.editIndex = index;
-      this.showModal = true;
+      this[modal] = true;
     },
     setRecommend (index) {
       this.$Modal.confirm({

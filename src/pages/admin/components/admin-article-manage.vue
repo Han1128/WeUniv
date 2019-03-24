@@ -27,7 +27,7 @@
       </template>
       <!-- 作者 -->
       <template slot-scope="{ row }" slot="title">
-          <strong>{{ row.title || '说说无标题' }}</strong>
+          <strong>{{ row.type ==='long' ? row.title : row.content }}</strong>
       </template>
       <!-- 作者 -->
       <template slot-scope="{ row }" slot="author">
@@ -56,16 +56,28 @@
         </Tag>
       </template>
       <template slot-scope="{ row, index }" slot="action">
-          <i-button type="primary" size="small" @click="showDetails(index)">详情</i-button>
+          <i-button
+            v-show="row.type === 'long'"
+           type="primary"
+           size="small"
+           @click="showDetails(index)">
+           详情
+          </i-button>
+          <i-button
+            type="error"
+            size="small"
+            @click="deleteItem(index)">
+            修改状态
+          </i-button>
           <i-button
             v-show="!recommendList.swiperList.includes(row._id) && row.type === 'long' && row.coverBg[0]"
-            type="error" size="small"
+            type="success" size="small"
             @click="setToRecommend(index, 'swiper')">
             设为轮播
           </i-button>
           <i-button
             v-show="!recommendList.recommendList.includes(row._id) && row.type === 'long'"
-            type="error"
+            type="warning"
             size="small"
             @click="setToRecommend(index, 'recommend')">
             设为推荐
@@ -73,13 +85,26 @@
       </template>
     </i-table>
     <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getArticleData"/>
+    <Modal
+        class="article-modal"
+        title="私密信息修改"
+        v-model="articleModal"
+        :mask-closable="false"
+        @on-ok="articleModal = false"
+        @on-cancel="articleModal = false">
+        <article-view :id="getArticleId"></article-view>
+    </Modal>
   </div>
 </template>
 <script>
+import ArticleView from '@/pages/article/article-view';
 import { ARTICLE_MAP } from '../common/index.js'
 export default {
+  components: {ArticleView},
   data () {
     return {
+      articleModal: false,
+      editIndex: -1,
       adminId: '',
       articleMap: ARTICLE_MAP,
       articleData: [],
@@ -92,8 +117,14 @@ export default {
     this.adminId = localStorage.getItem('userid');
     this.getArticleData();
   },
+  computed: {
+    getArticleId() {
+      return this.articleModal ? this.articleData[this.editIndex]['_id'] : '';
+    }
+  },
   methods: {
     getArticleData() {
+      this.editIndex !== -1
       this.axios.get('/getAdminMenuList', {
         params: {
           adminId: this.adminId,
@@ -110,8 +141,29 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    showDetails() {
-
+    deleteItem(index) {
+      this.$Modal.confirm({
+        title: '操作提示',
+        content: `<p>是否确实设置文章为失效?</p>`,
+        onOk: () => {
+          this.axios.post('/deleteArticle', {
+            adminId: this.adminId,
+            articleId: this.articleData[index]._id,
+            status: this.articleData[index].status ? 0 : 1
+          })
+          .then(res => {
+            this.$Notice.success({ title: '提示',  desc: '修改成功!' });
+            this.getArticleData();
+          })
+          .catch(err => {
+            this.$Notice.error({ title: '提示',  desc: err.message });
+          })
+        }
+      });
+    },
+    showDetails(index) {
+      this.articleModal = true;
+      this.editIndex = index;
     },
     setToRecommend(index, type) {
       let msg = type === 'swiper'
