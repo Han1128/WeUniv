@@ -314,6 +314,7 @@
           :filterType="filterType"
           :articleDetails="articleDetails"
           :userDetails="userDetails"
+          :page="'follow'"
           @updateOperator="handleUpdate">
         </user-article-list>
         <vue-loading
@@ -366,7 +367,8 @@ export default {
     this.getFollowArticle();
     this.getUserTags();
     // 交互操作更新
-    bus.$on('updateHomeData', () => {
+    bus.$on('updateFollowData', () => {
+      debugger
       this.handleUpdate();
     })
   },
@@ -377,7 +379,7 @@ export default {
     $(window).scroll(this.handleScroll);
   },
   destroyed() {
-    bus.$off('updateHomeData');
+    bus.$off('updateFollowData');
     $(window).off("scroll");
   },
   computed: {

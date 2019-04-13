@@ -84,8 +84,8 @@
               <Icon type="ios-paper" />
               照片墙
           </MenuItem>
-          <i-input placeholder="Enter text" style="width: auto">
-              <Icon type="ios-search" slot="suffix" />
+          <i-input v-model="searchContent" placeholder="Enter text" style="width: auto">
+              <Icon type="ios-search" slot="suffix" @click="getArticleSearch"/>
           </i-input>
         </Menu>
       </div>
@@ -95,12 +95,17 @@
           :filterType="activeName"
           :articleDetails="articleDetails"
           :userDetails="userDetails"
-          @updateOperator="getArticleDetails">
+          @updateOperator="getUpdateArticle">
         </user-article-list>
         <article-gallery-list v-else :galleryList="galleryList"></article-gallery-list>
       </div>
       <div style="margin: 2rem 0">
-        <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getArticleDetails"/>
+        <Page
+          v-show="activeName !== 'gallery' && searchContent === ''"
+          :total="totalNums"
+          :current.sync="currentPage"
+          show-elevator
+          @on-change="getUpdateArticle"/>
       </div>
     </div>
 
@@ -137,6 +142,7 @@ export default {
       currentPage: 1,
       activeName: 'all',
       authorId: '',
+      searchContent: '',
       articleDetails: [],
       userDetails: {},
       galleryList: [],
@@ -150,7 +156,7 @@ export default {
     this.getArticleDetails();
     this.getUserGallery();
     bus.$on('updateUserData', () => {
-      this.getArticleDetails();
+      this.getUpdateArticle();
       this.getUserGallery();
     })
   },
@@ -160,9 +166,21 @@ export default {
   methods: {
     selectName(name) {
       this.activeName = name;
+      if (name === 'all') {
+        this.searchContent = '';
+        this.getArticleDetails();
+      }
     },
     pushToGallery() {
       this.activeName = 'gallery';
+    },
+    getUpdateArticle() {
+      if (this.searchContent !== '') {
+        this.getArticleSearch()
+      }
+      else {
+        this.getArticleDetails()
+      }
     },
     // 获取当前作者所有文章信息 用于当前页面渲染
     getArticleDetails() {
@@ -174,6 +192,26 @@ export default {
         }
       })
       .then(res => {
+        this.articleDetails = res.data.result;
+        this.getUserInfo();
+      })
+      .catch(err => {
+        this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    // 文章搜索
+    getArticleSearch() {
+      if (!this.searchContent) return this.$Notice.error({ title: '提示',  desc: '请输入查询条件' })
+      this.axios.get('/getSearchArticles', {
+        params: {
+          userid: this.authorId,
+          search: this.searchContent,
+          limit: 10,
+          skip: (this.currentPage - 1) * 10
+        }
+      })
+      .then(res => {
+        // this.activeName = '';
         this.articleDetails = res.data.result;
         this.getUserInfo();
       })
@@ -227,7 +265,7 @@ export default {
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
-    }
+    },
   }
 }
 </script>

@@ -56,21 +56,29 @@
               style="margin-bottom: .7rem"
               v-show="mailVisible"
               @click="mailVisible = !mailVisible"/>
+              <div class="badge"></div>
             <div slot="content">
               <ul class="list-details">
                 <transition name="slide">
                     <router-link tag="li" to="/message/unReadMsg">
-                      未读通知
+                      <span class="tip">15</span>
+                      <span class="content">未读通知</span>
                     </router-link>
                   </transition>
                 <transition name="slide">
-                  <router-link tag="li" :to="'/message/likeArticle'">收到点赞</router-link>
+                  <router-link tag="li" :to="'/message/likeArticle'">
+                    <span class="content">收到点赞</span>
+                  </router-link>
                 </transition>
                 <transition name="slide">
-                  <router-link tag="li" to="/message/comment">收到评论</router-link>
+                  <router-link tag="li" to="/message/comment">
+                    <span class="content">收到评论</span>
+                  </router-link>
                 </transition>
                 <transition name="slide">
-                  <router-link tag="li" to="/message/collect">收到收藏</router-link>
+                  <router-link tag="li" to="/message/collect">
+                    <span class="content">收到收藏</span>
+                  </router-link>
                 </transition>
               </ul>
             </div>

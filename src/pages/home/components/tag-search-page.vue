@@ -146,7 +146,7 @@
         </div>
         <ul>
           <li class="follower-list-item" v-for="(item, index) in tagInfo.follower" :key="index">
-            <img :src="item.avatar">
+            <img :src="item.avatar || defaultAvatar">
             <p>{{item.username}}</p>
           </li>
         </ul>
@@ -197,6 +197,7 @@ export default {
       articleDetails: [],
       userDetails: {},
       filterType: 'all',
+      defaultAvatar: DEFAULT_AVATAR
     }
   },
   created() {

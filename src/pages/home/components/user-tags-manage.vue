@@ -50,8 +50,7 @@
           <li
           class="topic-item"
           v-for="(item, index) in tagsList"
-          :key="index"
-          @click="filtrerByTag(item.iconLabel)">
+          :key="index">
             <svg class="icon-large icon-style" aria-hidden="true">
                 <use :xlink:href="'#'+item.iconCode"></use>
             </svg>

@@ -116,6 +116,16 @@
         .ivu-form-item {
           /deep/.ivu-form-item-content {
               margin-right: 7rem;
+              /deep/.error {
+                .ivu-input {
+                  border-color: red;
+                }
+              }
+              /deep/.success {
+                .ivu-input {
+                  border-color: green;
+                }
+              }
               .ivu-date-picker {
                 width: 100%;
               }
@@ -176,8 +186,14 @@
         </Steps>
         <Form :model="registerForm" label-position="right" :label-width="100">
           <div v-show="currentStep === 0">
-            <FormItem label="用户名">
-                <i-input v-model="registerForm.username" placeholder="请输入用户名"></i-input>
+            <FormItem label="用户名" style="margin-bottom: 1rem">
+              <i-input
+                v-model="registerForm.username"
+                placeholder="请输入用户名"
+                :class="{'error': nameErrMsg !== '','success': nameErrMsg === '' && registerForm.username}"
+                @on-blur="checkInput('username')">
+              </i-input>
+              <p v-show="nameErrMsg" style="color: red;line-height: 2rem;height: 2rem;">{{nameErrMsg}}</p>
             </FormItem>
             <FormItem label="性别">
                 <RadioGroup v-model="registerForm.gender">
@@ -208,10 +224,16 @@
             </FormItem>
           </div>
           <div v-show="currentStep === 1">
-            <FormItem label="邮箱" style="margin-bottom: .8rem">
-                <i-input v-model="registerForm.email" placeholder="输入邮箱作为登录账号"></i-input>
+            <FormItem label="邮箱" style="margin-bottom: 0">
+                <i-input
+                  v-model="registerForm.email"
+                  placeholder="输入邮箱作为登录账号"
+                  :class="{'error': emailErrMsg !== '','success': emailErrMsg === '' && registerForm.email}"
+                  @on-blur="checkInput('email')">
+                </i-input>
+                <p v-show="emailErrMsg" style="color: red;line-height: 2rem;height: 2rem;">{{emailErrMsg}}</p>
             </FormItem>
-            <FormItem label="" style="margin-bottom: 1rem">
+            <FormItem label="" style="margin-bottom: 1rem;height: 2.5rem;">
               <a href="#" v-if="!isActiveClick" @click="activeEmail">{{timeOut === 0 ? '重新发送' : '点击激活邮箱'}}</a>
               <span v-else>{{timeOut}} s</span>
             </FormItem>
@@ -220,6 +242,7 @@
             </FormItem>
           </div>
         </Form>
+
         <Button type="primary" @click="nextStep">{{currentStep === 2 ? '完成注册' : '下一步'}}</Button>
         <div class="panel-bottom">
           <div class="panel-bottom__label" v-show="panelType === 'register'">
@@ -239,9 +262,12 @@ export default {
   data () {
     return {
       currentStep: 0,
+      nameErrMsg: '',
+      emailErrMsg: '',
       panelType: 'login',
       isActiveClick: false,
       timeOut: 60,
+      userValidate: false,
       loginForm: {
         username: '',
         password: ''
@@ -307,9 +333,11 @@ export default {
     }
   },
   methods: {
+    // 密码是否可见
     changeInputType () {
       this.inputType = this.inputType === 'password' ? 'text' : 'password';
     },
+    // 切换面板
     changePanelType() {
       this.panelType = this.panelType === 'login' ? 'register' : 'login';
       this.currentStep = 0;
@@ -329,38 +357,71 @@ export default {
         rememberme: false
       }
     },
-    // 表单验证 因为表单是跨页面的 不适合使用表单验证
-    validateForm() {
-      if (!this.registerForm.username || !this.registerForm.userType || !this.registerForm.birth ||
-      !this.registerForm.password|| !this.registerForm.reconfirmPass) {
-        this.$Message.error('表单不完整,请检查');
-        return false;
+    // 失焦 验证输入名 或 邮箱
+    checkInput(type) {
+      if (type === 'email') {
+        this.emailErrMsg = ''
+        const pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+        if(!pattern.test(this.registerForm.email)) {
+          return this.emailErrMsg = '邮箱格式不正确,请重新输入！';
+        }
       }
-      else if (this.registerForm.password !== this.registerForm.reconfirmPass) {
-        this.$Message.error('前后密码不一致,请检查');
-        return false;
-      }
-      return true;
+      this.axios.get('/checkUserExist', {
+        params: {
+          checkType: type,
+          checkData: type === 'username' ? this.registerForm.username : this.registerForm.email
+        }
+      })
+      .then(res => {
+        if (type === 'username') {
+          this.nameErrMsg = '';
+        }
+        else {
+          this.emailErrMsg = '';
+        }
+        // this.$Message.success(res.message);
+      })
+      .catch(err => {
+        if (type === 'username') {
+          this.nameErrMsg = err.message;
+        }
+        else {
+          this.emailErrMsg = err.message;
+        }
+        // this.$Message.error(err.message);
+      })
     },
     // 下一步
     nextStep() {
       if (this.currentStep === 0) {
-        // 验证输入
-        if(!this.validateForm()) return;
+        // 注册第一步 验证输入
+        if (!this.registerForm.username || !this.registerForm.userType || !this.registerForm.birth
+          || !this.registerForm.password|| !this.registerForm.reconfirmPass) {
+          return this.$Message.error('表单不完整,请检查');
+        }
+        else if (this.registerForm.password !== this.registerForm.reconfirmPass) {
+          return this.$Message.error('前后密码不一致,请检查');
+        }
         this.currentStep = this.currentStep + 1;
       }
       else if (this.currentStep === 1) {
-        if (this.registerForm.code === '') {
-          this.$Message.error('请输入验证码');
-          return;
+        // 第二步邮箱验证
+        if (this.registerForm.email === '') {
+          return this.$Message.error('请输入邮箱');
+        }
+        else if (this.registerForm.code === '') {
+          return this.$Message.error('请输入验证码');
         }
         else if (this.registerForm.email !== this.cacheEmail) {
-          this.$Message.error('输入邮箱和发送验证邮箱不符,请修改');
+          return this.$Message.error('输入邮箱和发送验证邮箱不符,请修改');
+        }
+        else if (this.emailErrMsg !== '') {
           return;
         }
         this.emailCheckCode();
       }
       else if (this.currentStep === 2) {
+        // 最后一步
         this.panelType = 'login';
         this.currentStep = 0;
         this.resetFromFields();
@@ -410,6 +471,7 @@ export default {
         this.$Message.error(err.message);
       })
     },
+    // 登录操作
     loginAction () {
       // 校验步骤
       this.axios.post('/login', {

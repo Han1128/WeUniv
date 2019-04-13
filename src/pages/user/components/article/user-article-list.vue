@@ -176,12 +176,12 @@
         }
       }
       .ivu-page {
+        height: 4.5rem;
+        line-height: 4rem;
         border-radius: 0 0 0.5rem 0.5rem;
         text-align: center;
         border: 1.5px solid #dedede;
         border-top: none;
-        padding: 1.5rem;
-        padding-top: .5rem;
       }
     }
   }
@@ -228,12 +228,12 @@
         :key="item._id" :value="item.title">
         <div class="card">
           <div class="card-header-img">
-            <img :src="item.author.avatar">
+            <img :src="item.author.avatar || defaultAvatar">
           </div>
           <div class="card-center">
             <div class="article-header">
               <router-link class="user-name" tag="a" :to="'/user/' + item.author._id">{{item.author.username}}</router-link>
-              <Dropdown v-if="item.author._id === userDetails._id" trigger="click" @on-click="moreOperator($event, item._id)">
+              <Dropdown v-if="item.author._id === userDetails._id && !['home', 'follow'].includes(page)" trigger="click" @on-click="moreOperator($event, item._id)">
                 <Icon type="ios-more" />
                 <DropdownMenu slot="list">
                   <DropdownItem name="edit" v-show="item.type === 'long'" >
@@ -244,7 +244,7 @@
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
-              <Tag color="error" v-if="item.isTop && item.author._id === userDetails._id">置顶</Tag>
+              <Tag color="error" v-if="item.isTop && item.author._id === userDetails._id && !['home', 'follow'].includes(page)">置顶</Tag>
               <div class="article-time">
                 <p><Time :time="Date.parse(item.public_time)" :type="getDateType(item.public_time)"/>发表</p>
               </div>
@@ -308,10 +308,16 @@
             v-if="showCommentList[index]"
             :articleId="item._id"
             :author_id="item.author._id"
-            :commentList="item.commentFrom.slice(currentPage - 1, currentPage + 2)"
+            :commentList="item.commentFrom.slice((currentPage - 1) * 3, (currentPage - 1) * 3 + 3)"
             :avatar="userDetails.avatar || defaultAvatar">
           </comment-panel>
-          <Page v-if="showCommentList[index]" :total="item.commentFrom.length" :current.sync="currentPage" :page-size="3" show-elevator/>
+          <Page
+            v-if="showCommentList[index]"
+            size="small"
+            :total="item.commentFrom.length"
+            :current.sync="currentPage"
+            :page-size="3"
+            show-elevator/>
         </template>
       </li>
     </ul>
@@ -336,6 +342,10 @@ import commentPanel from './comment-panel';
 export default {
   components: { commentPanel },
   props: {
+    page: {
+      type: String,
+      default: ''
+    },
     articleDetails: {
       type: Array
     },
@@ -440,7 +450,7 @@ export default {
       }
     },
     /**
-     * 将文章加入点赞列表中
+     * 将文章加入点赞列表中或取消点赞
      * @param operatorType 区分操作是点赞还是取消点赞 add是点赞 cancel是取消
      */
     addToList(operatorType, addType, articleId, authorId) {

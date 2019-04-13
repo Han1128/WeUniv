@@ -129,7 +129,7 @@
   <div class="comment-panel">
     <!-- 评论输入区 -->
     <div class="submit-area">
-      <img :src="avatar">
+      <img :src="avatar || defaultAvatar">
       <div class="btn-style">
         <Button @click="submitComment">评论</Button>
       </div>
@@ -158,7 +158,7 @@
               <div v-else class="content-top-reply">
                 <router-link tag="a" :to="'/user/' + item.from_author._id">{{item.from_author.username}}</router-link>
                 <span style="padding-left: 1rem;">回复评论:</span>
-                <div class="reply-area">
+                <div class="reply-area" v-if="item.from_comment.isEffect">
                   <div class="reply-history">
                     <router-link tag="a" :to="'/user/' + item.from_comment.from_author._id">{{item.from_comment.from_author.username + ':'}}</router-link>
                     <span style="padding-left: 1rem;">{{item.from_comment.content}}</span>
@@ -167,6 +167,7 @@
                     {{item.content}}
                   </div>
                 </div>
+                <div v-else style="background: #EAEAEC;border-radius: 0.5rem;padding-left: 1.5rem;margin-right: 10rem;margin-bottom: .5rem">该评论已失效</div>
               </div>
               <!-- 评论底部时间和 '回复' '赞' -->
               <div class="content-bottom">
@@ -321,8 +322,9 @@ export default {
       this.axios.post('/postComment', data)
       .then(res => {
         bus.$emit('updateHomeData'); // 主页更新
+        bus.$emit('updateFollowData'); // 关注页更新
         bus.$emit('updateUserData'); // 用户页更新
-        bus.$emit('updateDesignArticle'); // 用户页更新
+        bus.$emit('updateDesignArticle'); // 文章页更新
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });

@@ -1,6 +1,6 @@
 <style lang="less" scoped>
 .admin-article-manage {
-  padding-top: 5rem;
+  padding-top: 3rem;
   margin: 0 3rem;
   /deep/.ivu-table {
     width: 100%;
@@ -17,6 +17,7 @@
 </style>
 <template>
   <div class="admin-article-manage">
+    <Button type="success" icon="md-add" @click="addModal = true" style="margin-bottom: 2rem">添加用户</Button>
     <i-table size="large" border :columns="userMap" :data="userData">
       <template slot-scope="{ row, index }" slot="index">
           <strong>{{ (currentPage - 1)* 10 + index + 1 }}</strong>
@@ -52,21 +53,31 @@
     </i-table>
     <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getUserData"/>
 
+    <!-- 用户无邮件添加 -->
     <Modal
-        title="详细信息"
-        v-model="detailsModal"
-        :mask-closable="false"
-        @on-ok="detailsModal = false"
-        @on-cancel="detailsModal = false">
-        <user-details :userDetails="userData[editIndex]"></user-details>
+      title="用户添加"
+      v-model="addModal"
+      :mask-closable="false">
+      <adminUser-add ref="addUser" @success="getUserData"></adminUser-add>
+      <div slot="footer">
+        <Button @click="adminAddUser" type="info">提交</Button>
+      </div>
     </Modal>
     <Modal
-        title="私密信息修改"
-        v-model="modifyModal"
-        :mask-closable="false"
-        @on-ok="confirm"
-        @on-cancel="modifyModal = false">
-        <admin-user-modify ref="userModify" :userDetails="userData[editIndex]" @success="getUserData"></admin-user-modify>
+      title="详细信息"
+      v-model="detailsModal"
+      :mask-closable="false"
+      @on-ok="detailsModal = false"
+      @on-cancel="detailsModal = false">
+      <user-details :userDetails="userData[editIndex]"></user-details>
+    </Modal>
+    <Modal
+      title="私密信息修改"
+      v-model="modifyModal"
+      :mask-closable="false"
+      @on-ok="confirm"
+      @on-cancel="modifyModal = false">
+      <admin-user-modify ref="userModify" :userDetails="userData[editIndex]" @success="getUserData"></admin-user-modify>
     </Modal>
   </div>
 </template>
@@ -74,8 +85,9 @@
 import { USER_MAP } from '../common/index.js'
 import UserDetails from './details/user-details';
 import AdminUserModify from './details/admin-user-modify';
+import AdminUserAdd from './details/admin-user-add';
 export default {
-  components: {UserDetails, AdminUserModify},
+  components: {UserDetails, AdminUserModify, AdminUserAdd},
   data () {
     return {
       adminId: '',
@@ -84,6 +96,7 @@ export default {
       recommendList: {},
       currentPage: 1,
       totalNums: 0,
+      addModal: false,
       detailsModal: false,
       modifyModal: false,
       editIndex: -1
@@ -96,6 +109,9 @@ export default {
   methods: {
     confirm() {
       this.$refs.userModify.confirm()
+    },
+    adminAddUser() {
+      this.$refs.addUser.handleSubmit();
     },
     getUserData() {
       this.axios.get('/getAdminMenuList', {
@@ -112,6 +128,11 @@ export default {
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+      .finally(_ => {
+        this.addModal = false;
+        this.detailsModal = false;
+        this.modifyModal = false;
       })
     },
     showDetails(index, modal) {

@@ -164,7 +164,7 @@
       <img class="cover-bg" v-show="articleDetail.coverBg" :src="getArticleImg">
       <h1 class="title">{{articleDetail.title}}</h1>
       <div class="author-info" v-show="!loading">
-        <img :src="getAuthorAvatar">
+        <img :src="getAuthorAvatar || defaultAvatar">
         <div class="info-tags">
           <p>{{getUsername}}</p>
           <p class="public-time">发表于 <Time :time="getPublicTime" type="datetime" /></p>
@@ -197,6 +197,7 @@
 <script>
 import $ from 'jquery';
 import bus from '@/common/bus.js';
+import { DEFAULT_AVATAR } from '@/constant/index.js';
 import { VueLoading } from 'vue-loading-template';
 import commentPanel from '../user/components/article/comment-panel';
 export default {
@@ -213,7 +214,8 @@ export default {
       articleDetail: {},
       articleId: '',
       userId: '',
-      userData: {}
+      userData: {},
+      defaultAvatar: DEFAULT_AVATAR
     }
   },
   created() {

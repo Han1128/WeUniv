@@ -263,7 +263,7 @@ export default {
     articleDetailContent: {
       immediate: true, // 如果没有这句在created的时候不会执行
       handler (val) {
-        if (val._id) {
+        if (val && val._id) {
           this.editor.txt.html(val.content);
           this.editorTitle = val.title;
           this.articleCoverBg = val.coverBg[0];

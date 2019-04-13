@@ -230,7 +230,7 @@ export default {
   data () {
     return {
       isTop: false,
-      topId: '', // 置顶文章id
+      // topId: '', // 置顶文章id
       imgList: [], // 图片组合
       editorContent: '', // 输入的内容
       emojiShow: false, // emoji表情框显示状态
@@ -239,12 +239,17 @@ export default {
     }
   },
   created() {
-    this.topId = JSON.parse(localStorage.getItem('userData')).topArticle;
+    this.userData = JSON.parse(localStorage.getItem('userData'))
     if (this.tagProp.length !== 0) {
       this.selectTags = this.tagProp;
     }
     else {
       this.getAllTags();
+    }
+  },
+  computed: {
+    topId() {
+      return this.userData && this.userData.topArticle
     }
   },
   methods: {

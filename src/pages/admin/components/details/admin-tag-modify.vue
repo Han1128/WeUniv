@@ -7,10 +7,10 @@
   <div class="user-details">
     <Form :model="tagData" :label-width="100">
         <FormItem label="id">
-            <i-input v-model="tagDetails.iconLabel" placeholder="输入话题名"></i-input>
+            <i-input v-model="tagData.iconLabel" placeholder="输入话题名"></i-input>
         </FormItem>
         <FormItem label="用户名">
-            <i-input v-model="tagDetails.iconCode" placeholder="输入话题iconfont编码"></i-input>
+            <i-input v-model="tagData.iconCode" placeholder="输入话题iconfont编码"></i-input>
         </FormItem>
     </Form>
   </div>
@@ -26,14 +26,14 @@ export default {
   data () {
     return {
       tagData: {
-        iconFont: '',
+        iconLabel: '',
         iconCode: ''
       }
     }
   },
   watch: {
-    confirm() {
-      this.tagData = JSON.parse(JSON.stringify(this.tagDetails));
+    tagDetails(val) {
+      this.tagData = JSON.parse(JSON.stringify(val));
     }
   },
   methods: {

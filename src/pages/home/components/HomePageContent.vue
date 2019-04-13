@@ -363,6 +363,7 @@
           <user-article-list
             :articleDetails="articleDetails"
             :userDetails="userDetails"
+            :page="'home'"
             @updateOperator="handleUpdate">
           </user-article-list>
           <vue-loading
@@ -438,6 +439,7 @@ export default {
     this.getHotTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
+      debugger
       this.handleUpdate()
     })
   },
