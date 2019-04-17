@@ -13,6 +13,14 @@
         font-size: 1.4rem;
         z-index: 1;
       }
+      // .ivu-menu-item-active {
+      //   color: #009A61;
+      //   border-bottom: 2px solid #009A61;
+      // }
+      // .ivu-menu-submenu:hover, .ivu-menu-item:hover {
+      //   color: #009A61;
+      //   border-bottom: 2px solid #009A61;
+      // }
       .ivu-input-wrapper {
         width: 20rem;
         position: absolute;

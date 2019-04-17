@@ -62,6 +62,7 @@
       }
     }
     /deep/.article-content {
+      overflow-x: scroll;
       p, h1, h2, h3, h4, h5, table, pre {
         margin: 15px 0;
         line-height: 1.6;

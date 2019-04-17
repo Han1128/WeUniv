@@ -2,6 +2,7 @@
 .user-movement-list {
   min-height: 70rem;
   margin: 0 2rem;
+  margin-bottom: 3rem;
   margin-right: 13rem;
   border-radius: .5rem;
   background: #fff;

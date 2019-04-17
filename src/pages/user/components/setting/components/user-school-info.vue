@@ -116,14 +116,13 @@ export default {
   created() {
   },
   watch: {
-    copySchoolData() {
-      return this.userBaseInfo;
+    userBaseInfo(val) {
+      this.copySchoolData = JSON.parse(JSON.stringify(val))
     }
   },
   methods: {
     getSchoolInfo(value) {
-      if (!this.userBaseInfo.schoolData[value]) return '快来补充吧~'
-      return this.userBaseInfo.schoolData ? this.userBaseInfo.schoolData[value] : '快来补充吧~' ;
+      return this.userBaseInfo && this.userBaseInfo.schoolData && this.userBaseInfo.schoolData[value] ? this.userBaseInfo.schoolData[value] : '快来补充吧~' ;
     },
     changeCommonSetStatus(identify) {
       this.copySchoolData = JSON.parse(JSON.stringify(this.userBaseInfo));

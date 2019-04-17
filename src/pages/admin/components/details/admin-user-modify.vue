@@ -32,7 +32,7 @@
             </RadioGroup>
         </FormItem>
         <FormItem label="是否有效">
-            <i-switch v-model="getUserStatus" size="large">
+            <i-switch v-model="userData.status" size="large">
                 <span slot="open">有效</span>
                 <span slot="close">无效</span>
             </i-switch>
@@ -50,18 +50,14 @@ export default {
   },
   data () {
     return {
-      userData: {} // 对象拷贝
-    }
-  },
-  computed: {
-    getUserStatus() {
-      return this.userData.status ? true : false;
+      userData: {}, // 对象拷贝
     }
   },
   watch: {
     userDetails() {
       this.userData = JSON.parse(JSON.stringify(this.userDetails));
       this.userData.password = '';
+       this.userData.status = this.userData.status ? true : false;
     }
   },
   methods: {
@@ -73,7 +69,7 @@ export default {
         userType: this.userData.userType,
         password: this.userData.password,
         gender: this.userData.gender,
-        status: this.userData.status,
+        status: this.userData.status? 1 : 0,
       })
       .then(res => {
         this.$Notice.success({ title: '提示',  desc: '修改成功' });

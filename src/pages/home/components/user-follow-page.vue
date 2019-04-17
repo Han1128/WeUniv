@@ -65,6 +65,10 @@
             border-radius: 6rem;
             vertical-align: middle;
           }
+          .user-avatar[lazy=error] {
+            background: url(~assets/images/boy.png) no-repeat;
+            background-size: 100% 100%;
+          }
         }
         .user-info_follow {
           padding: .5rem 1rem;
@@ -157,6 +161,8 @@
           .time-filter_list {
             font-size: 1.3rem;
             overflow: hidden;
+            border-radius: .5rem;
+            box-shadow: 2px 1px 2px rgba(0, 0, 0, 0.3);
             li {
               float: left;
               padding: 0 2rem;
@@ -237,7 +243,7 @@
     <div class="content-right">
       <div class="user-info">
         <p class="user-info_header">
-          <img :src="getUserAvatar">
+          <img class="user-avatar" v-lazy="getUserAvatar">
           <router-link tag="label" :to="'/user/' + userDetails._id">{{userDetails.username}}</router-link>
         </p>
         <p class="user-info_follow">
@@ -276,7 +282,7 @@
         <ul class="recommend-list">
           <li v-for="item in recommendList" :key="item._id">
             <div class="header">
-              <img :src="item.author.avatar">
+              <img class="user-avatar" v-lazy="item.author.avatar">
             </div>
             <div class="body">
               <p>{{item.title}}</p>
@@ -368,7 +374,7 @@ export default {
     this.getUserTags();
     // 交互操作更新
     bus.$on('updateFollowData', () => {
-      debugger
+      // debugger
       this.handleUpdate();
     })
   },

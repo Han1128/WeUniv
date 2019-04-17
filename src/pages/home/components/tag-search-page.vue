@@ -93,6 +93,8 @@
           .time-filter_list {
             font-size: 1.3rem;
             overflow: hidden;
+            border-radius: .5rem;
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
             li {
               float: left;
               padding: 0 2rem;
@@ -146,7 +148,7 @@
         </div>
         <ul>
           <li class="follower-list-item" v-for="(item, index) in tagInfo.follower" :key="index">
-            <img :src="item.avatar || defaultAvatar">
+            <img class="user-avatar" v-lazy="item.avatar || defaultAvatar">
             <p>{{item.username}}</p>
           </li>
         </ul>
@@ -168,6 +170,7 @@
           </ul>
         </div>
         <user-article-list
+          :page="'tag'"
           :filterType="filterType"
           :articleDetails="articleDetails"
           :userDetails="userDetails"

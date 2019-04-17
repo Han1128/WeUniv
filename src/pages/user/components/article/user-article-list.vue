@@ -28,6 +28,10 @@
             height: 6rem;
             border-radius: 6rem;
           }
+          .user-avatar[lazy=error] {
+            background: url(~assets/images/boy.png) no-repeat;
+            background-size: 100% 100%;
+          }
         }
         .card-center {
           padding-top: 1rem;
@@ -76,6 +80,7 @@
               .content-body {
                 min-height: 90px;
                 margin-right: 120px;
+                margin-bottom: .8rem;
                 .title {
                   padding: 1rem 2rem;
                   a {
@@ -105,6 +110,14 @@
                   height: 9rem;
                   border-radius: .5rem;
                 }
+                .short-bg[lazy=error] {
+                  background: url(~assets/images/empty.png) no-repeat;
+                  background-size: 100% 100%;
+                }
+                .short-bg[lazy=loading] {
+                  background: url(~assets/images/loading.gif) no-repeat;
+                  background-size: 100% 100%;
+                }
               }
             }
             .short-text {
@@ -125,6 +138,14 @@
                       width: 10rem;
                       height: 10rem;
                       cursor: zoom-in;
+                    }
+                    .short-bg[lazy=error] {
+                      background: url(~assets/images/empty.png) no-repeat;
+                      background-size: 100% 100%;
+                    }
+                    .short-bg[lazy=loading] {
+                      background: url(~assets/images/loading.gif) no-repeat;
+                      background-size: 100% 100%;
                     }
                   }
                 }
@@ -228,12 +249,12 @@
         :key="item._id" :value="item.title">
         <div class="card">
           <div class="card-header-img">
-            <img :src="item.author.avatar || defaultAvatar">
+            <img class="user-avatar" v-lazy="item.author.avatar || defaultAvatar">
           </div>
           <div class="card-center">
             <div class="article-header">
               <router-link class="user-name" tag="a" :to="'/user/' + item.author._id">{{item.author.username}}</router-link>
-              <Dropdown v-if="item.author._id === userDetails._id && !['home', 'follow'].includes(page)" trigger="click" @on-click="moreOperator($event, item._id)">
+              <Dropdown v-if="item.author._id === userDetails._id && !['home', 'follow', 'tag'].includes(page)" trigger="click" @on-click="moreOperator($event, item._id)">
                 <Icon type="ios-more" />
                 <DropdownMenu slot="list">
                   <DropdownItem name="edit" v-show="item.type === 'long'" >
@@ -244,7 +265,7 @@
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
-              <Tag color="error" v-if="item.isTop && item.author._id === userDetails._id && !['home', 'follow'].includes(page)">置顶</Tag>
+              <Tag color="error" v-if="item.isTop && item.author._id === userDetails._id && !['home', 'follow', 'tag'].includes(page)">置顶</Tag>
               <div class="article-time">
                 <p><Time :time="Date.parse(item.public_time)" :type="getDateType(item.public_time)"/>发表</p>
               </div>
@@ -253,13 +274,13 @@
               <!-- 长文 -->
               <div class="long-text" v-if="item.type === 'long'">
                 <div class="content-img" v-if="item.coverBg[0]">
-                  <img :src="item.coverBg[0]">
+                  <img class="short-bg" v-lazy="item.coverBg[0]">
                 </div>
                 <div class="content-body">
                   <h3 class="title"><router-link tag="a" :to="'/view/' + item._id">{{item.title}}</router-link></h3>
                   <p class="tags">
                     <Icon type="md-pricetags" />
-                    <Tag v-for="(tag, index) in item.tag" :key="index" :color="randomColor()">{{tag}}</Tag>
+                    <Tag v-for="(tag, index) in item.tag" :key="index" :color="randomColor(index)">{{tag}}</Tag>
                   </p>
                 </div>
               </div>
@@ -271,7 +292,7 @@
                 <div class="content-img">
                   <ul>
                     <li v-for="(imgUrl,index) in item.coverBg" :key="imgUrl">
-                      <img :src="imgUrl" @click="showPreview(item.coverBg, index)">
+                      <img class="short-bg" v-lazy="imgUrl" @click="showPreview(item.coverBg, index)">
                     </li>
                   </ul>
                 </div>
@@ -337,6 +358,10 @@
   </div>
 </template>
 <script>
+import MAN_AVA from '@/assets/images/man.jpg';
+import WOMAN_AVA from '@/assets/images/woman.jpg';
+import BOY_AVA from '@/assets/images/boy.png';
+import GIRL_AVA from '@/assets/images/girl.jpg';
 import { DEFAULT_AVATAR, EMPTY } from '@/constant/index.js';
 import commentPanel from './comment-panel';
 export default {
@@ -368,16 +393,19 @@ export default {
       previewIndex: -1,
       showCommentList: [],
       defaultAvatar: DEFAULT_AVATAR,
-      emptyImg: EMPTY
+      emptyImg: EMPTY,
+      manAva: MAN_AVA,
+      womanAva: WOMAN_AVA,
+      boyAva: BOY_AVA,
+      girlAva: GIRL_AVA
     }
   },
   created() {
     this.showCommentList = [];
   },
   methods: {
-    randomColor() {
+    randomColor(index) {
       const colorList = ['primary', 'success', 'purple', 'error', 'warning'];
-      let index = Math.floor((Math.random() * colorList.length));
       return colorList[index];
     },
     getDateType(time) {

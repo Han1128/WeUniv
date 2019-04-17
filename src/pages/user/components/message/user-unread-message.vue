@@ -10,6 +10,13 @@
   .list-header {
     padding: 2rem;
     padding-left: 3rem;
+    padding-bottom: .5rem;
+  }
+  .set-read {
+    font-size: 1.4rem;
+    margin-left: 3rem;
+    display: inline-block;
+    margin-bottom: 1rem;
   }
   .ivu-divider {
     width: auto;
@@ -60,6 +67,7 @@
 <template>
   <div class="user-unread-list">
     <h2 class="list-header">未读信息</h2>
+    <a type="text" class="set-read" @click="updateMessageStatus">全部置为已读</a>
     <Divider/>
     <ul class="collect-list">
       <li v-for="item in unReadMsg" :key="item._id">
@@ -116,6 +124,24 @@ export default {
       })
       .catch(err => {
         this.$Notice.error({ title: '提示',  desc: err.message });
+      })
+    },
+    updateMessageStatus() {
+      this.$Modal.confirm({
+        title: '操作提示',
+        content: `<p>是否更改所有消息已读状态?</p>`,
+        onOk: () => {
+          this.axios.post('/updateUnreadMsg', {
+            userId: this.userId,
+          })
+          .then(res => {
+            this.$Notice.success({ title: '提示',  desc: '更新成功' });
+            this.getUnReadMsg();
+          })
+          .catch(err => {
+            this.$Notice.error({ title: '提示',  desc: err.message });
+          })
+        }
       })
     }
   }

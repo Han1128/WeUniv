@@ -23,9 +23,10 @@
           <strong>{{ (currentPage - 1)* 10 + index + 1 }}</strong>
       </template>
       <!-- 状态 -->
-      <template slot-scope="{ row }" slot="status">
-        <Tag color="success" v-if="row.status">有效</Tag>
-        <Tag color="error" v-else>无效</Tag>
+      <template slot-scope="{ row, index }" slot="status">
+        <Tag color="success" v-if="row.status === 2">已认证</Tag>
+        <Tag color="primary" v-else-if="row.status === 1" @click.native="userVerificate(index)">待认证</Tag>
+        <Tag color="error" v-else >无效</Tag>
       </template>
       <!-- 标签 -->
       <template slot-scope="{ row }" slot="tag">
@@ -145,6 +146,25 @@ export default {
         content: `<p>新增推荐用户将替代旧推荐用户,是否确认修改？</p>`,
         onOk: () => {
           this.axios.post('/addToRecommendUser', {
+            adminId: this.adminId,
+            userId: this.userData[index]._id
+          })
+          .then(res => {
+            this.$Notice.success({ title: '提示',  desc: '设置成功!' });
+            this.getUserData();
+          })
+          .catch(err => {
+            this.$Notice.error({ title: '提示',  desc: err.message });
+          })
+        }
+      });
+    },
+    userVerificate (index) {
+      this.$Modal.confirm({
+        title: '操作提示',
+        content: `<p>验证用户必须具备完整的验证信息,验证前请仔细检查</p>`,
+        onOk: () => {
+          this.axios.post('/adminUserVerificate', {
             adminId: this.adminId,
             userId: this.userData[index]._id
           })

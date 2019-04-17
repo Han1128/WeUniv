@@ -12,6 +12,11 @@
     padding: 1rem 0;
   }
   .box-center {
+    /deep/.ivu-tag {
+      /deep/.ivu-icon-ios-close {
+        color: rgba(0, 0, 0, .58) !important;
+      }
+    }
     .short-text-input {
       .img-area {
         width: auto;
@@ -97,6 +102,21 @@
           font-size: 1.8rem;
           vertical-align: text-bottom;
         }
+        /deep/.ivu-poptip-body {
+          padding-left: 2.3rem;
+          padding-right: .5rem;
+        }
+        .tags-list {
+          overflow: hidden;
+         .tags-list-item {
+          margin-right: 1.5rem;
+          margin-top: .1rem;
+         }
+         & li:last-child {
+            float: left;
+            margin-right: 0;
+          }
+        }
       }
       .article-top {
         float: right;
@@ -155,17 +175,17 @@
       </div>
       <div class="select-tags-list">
         <span slot="prepend">
-          <span v-for="(item,index) in selectTags" :key="item">
-            <Tag color="success" :closable="tagProp.length === 0" @on-close="removeTags(index)">{{item}}</Tag>
+          <span v-for="(item, index) in selectTags" :key="item">
+            <Tag :color="randomColor(index)" :closable="tagProp.length === 0" @on-close="removeTags(index)">{{item}}</Tag>
           </span>
         </span>
       </div>
       <div class="box-option">
         <ul class="btn-list">
-          <li @click="showEmoji" v-click-outside="hideEmoji">
+          <li class="box-choose" @click="showEmoji" v-click-outside="hideEmoji">
             <Icon class="emoji-btn" type="md-happy"/>表情
           </li>
-          <li>
+          <li class="box-choose">
             <img-upload
               :fixed="true"
               :fixedNumber="[1,1]"
@@ -187,9 +207,9 @@
                   <ul class="tags-list">
                     <li
                       class="tags-list-item"
-                      v-for="item in tagsList"
+                      v-for="(item, index) in tagsList"
                       :key="item.iconCode">
-                      <Tag color="success" @click.native="chooseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
+                      <Tag :color="randomColor(index)" @click.native="chooseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
                     </li>
                   </ul>
                 </div>
@@ -247,6 +267,13 @@ export default {
       this.getAllTags();
     }
   },
+  watch: {
+    selectTags(){
+      if (this.tagProp.length !== 0) {
+        this.selectTags = this.tagProp;
+      }
+    }
+  },
   computed: {
     topId() {
       return this.userData && this.userData.topArticle
@@ -264,6 +291,11 @@ export default {
     },
     hideEmoji() {
       this.emojiShow = false;
+    },
+    randomColor(index) {
+      index = index % 5;
+      const colorList = ['blue', 'cyan', 'purple', 'magenta', 'volcano'];
+      return colorList[index];
     },
     resetFields() {
       this.imgList = [];

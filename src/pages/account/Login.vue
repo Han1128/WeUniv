@@ -258,6 +258,7 @@
   </div>
 </template>
 <script>
+import io from 'socket.io-client';
 export default {
   data () {
     return {
@@ -295,6 +296,7 @@ export default {
         value: 'organization'
       }],
       value1: '',
+      socket: '',
       inputType: 'password',
       dateOption: {
         disabledDate (date) {
@@ -479,6 +481,12 @@ export default {
         password: this.loginForm.password
       })
       .then(res => {
+        // this.socket = io.connect('http://localhost:3000')
+        // this.socket.emit('user_login', {
+        //   token: res.data.token,
+        //   userId: res.data.userid
+        // })
+
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('username', res.data.username);
         localStorage.setItem('userid', res.data.userid);

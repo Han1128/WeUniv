@@ -25,7 +25,8 @@
           <strong>{{userData.gender ? '男' : '女' }}</strong>
         </FormItem>
         <FormItem label="生日">
-          <Time :time="userData ? userData.birth : ''" type="date" />
+          <strong>{{getBirthDate}}</strong>
+          <!-- <Time :time="JSON.stringify(userData) !== '{}' ? userData.birth : ''" type="date" /> -->
         </FormItem>
         <FormItem label="爱好">
           <Tag v-for="item in userData.hobby_tags" :key="item" color="primary">{{item}}</Tag>
@@ -34,7 +35,8 @@
           <strong>{{userData.description}}</strong>
         </FormItem>
         <FormItem label="创建时间">
-          <Time :time="userData ? userData.createTime : ''" type="date" />
+          <strong>{{getCreateTime}}</strong>
+          <!-- <Time :time="getCreateTime" type="date" /> -->
         </FormItem>
         <FormItem label="学校">
           <strong>{{ userData.schoolData ? userData.schoolData.schoolName : ''}}</strong>
@@ -70,14 +72,31 @@ export default {
       userData: {} // 对象拷贝
     }
   },
+  computed: {
+    getBirthDate() {
+      let Time = JSON.stringify(this.userData) !== '{}' ? this.userData.birth : ''
+      if (Time) {
+        Time = new Date(Time)
+        return `${Time.getFullYear()}-${(Time.getMonth() + 1) < 10 ? '0'+(Time.getMonth() + 1) : Time.getMonth() + 1}-${Time.getDate()}`
+      }
+      else {
+        return '-'
+      }
+    },
+    getCreateTime() {
+      let Time = JSON.stringify(this.userData) !== '{}' ? this.userData.createTime : ''
+      if (Time) {
+        Time = new Date(Time)
+        return `${Time.getFullYear()}-${(Time.getMonth() + 1) < 10 ? '0'+(Time.getMonth() + 1) : Time.getMonth() + 1}-${Time.getDate()}`
+      }
+      else {
+        return '-'
+      }
+    }
+  },
   watch: {
     userDetails() {
       this.userData = JSON.parse(JSON.stringify(this.userDetails));
-    }
-  },
-  methods: {
-    getStaticsData() {
-
     }
   }
 }

@@ -2,9 +2,17 @@
 .user-tags-manage {
   width: 60%;
   margin: 0 auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1.5px solid #ccc;
+  padding: 0 3rem;
+  margin-top: 7rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
   .tags-content {
-    margin-top: 5rem;
-    padding-top: 4rem;
+    margin-top: 3rem;
     .tags-body {
       padding-left: 4rem;
       overflow: hidden;

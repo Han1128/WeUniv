@@ -3,12 +3,13 @@
     width: 100%;
     height: 100%;
     background:#F6F6F6;
+    position: relative;
     .page-bg {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left:0;
-        right:0;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left:0;
+      right:0;
     }
     .footer {
       text-align: center;
@@ -18,7 +19,7 @@
 <template>
   <div class="home">
     <g-header></g-header>
-    <!-- <g-bgcover></g-bgcover> -->
+    <g-bgcover></g-bgcover>
     <!-- <div id="particles-js" class="page-bg"></div> -->
     <router-view></router-view>
     <div class="footer">footer</div>

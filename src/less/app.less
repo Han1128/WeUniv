@@ -1,5 +1,6 @@
 #app {
   // background: url(~assets/images/bg.png);
+  height: 100%;
   font-size: 1.4rem;
   /deep/.divide-div {
     height: 1.5px;
@@ -15,6 +16,11 @@
       margin: 0 1rem;
     }
   }
+}
+
+.user-avatar[lazy=error] {
+  background: url(~assets/images/boy.png) no-repeat;
+  background-size: 100% 100%;
 }
 
 // 短文
@@ -107,7 +113,7 @@
             float: left;
             font-size: 1.55rem;
             cursor: pointer;
-            padding: .5rem 1rem;
+            // padding: .5rem 1rem;
             margin-right: 1.5rem;
             .article-top {
               /deep/.ivu-switch-checked {

@@ -71,6 +71,14 @@
             border-radius: 6rem;
             vertical-align: middle;
           }
+          .user-avatar[lazy=error] {
+            background: url(~assets/images/boy.png) no-repeat;
+            background-size: 100% 100%;
+          }
+          // .user-avatar[lazy=loading] {
+          //   background: url(~assets/images/loading.gif) no-repeat;
+          //   background-size: 100% 100%;
+          // }
         }
         .user-info_follow {
           padding: .5rem 1rem;
@@ -94,6 +102,7 @@
         margin: 2rem;
         background: #fff;
         border-radius: .4rem;
+        padding-bottom: .5rem;
         .label {
           padding: 1.2rem 1.5rem;
           font-size: 1.5rem;
@@ -166,6 +175,10 @@
               width: 100%;
               height: 100%;
             }
+            .swiper-bg[lazy=error] {
+              background: url(~assets/images/empty.png) no-repeat;
+              background-size: 100% 100%;
+            }
             .title {
               width: 100%;
               height: 5rem ;
@@ -195,6 +208,8 @@
           .time-filter_list {
             font-size: 1.3rem;
             overflow: hidden;
+            border-radius: .5rem;
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
             li {
               float: left;
               padding: 0 2rem;
@@ -253,8 +268,14 @@
     <div class="content-right">
       <div class="user-info">
         <p class="user-info_header">
-          <img :src="getUserAvatar">
+          <img class="user-avatar" v-lazy="getUserAvatar">
           <router-link tag="label" :to="'/user/' + userDetails._id">{{userDetails.username}}</router-link>
+          <!-- <div>
+            <span>
+              {{userDetails.userType === 'student' ? '学生' : userDetails.userType === 'teacher' ? '教师' : '机构'}}
+            </span>
+            <Tag :color="userDetails.status === 2 ?'success' : 'primary'" style="margin-left: 1rem;vertical-align: bottom;">{{userDetails.status === 2 ? '已认证' : '未认证'}}</Tag>
+          </div> -->
         </p>
         <p class="user-info_follow">
           <ul class="follow-list">
@@ -322,7 +343,7 @@
           </vue-loading> -->
           <swiper :options="swiperOption" ref="mySwiper">
             <swiper-slide v-for="item in swiperList" :key="item._id">
-              <img :src="item.coverBg[0]">
+              <img class="swiper-bg" v-lazy="item.coverBg[0]">
               <router-link class="title" tag="p" :to="'/view/' + item._id">{{item.title}}</router-link>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
@@ -380,6 +401,7 @@
 </template>
 <script>
 import $ from 'jquery';
+import _ from 'lodash';
 const R = require('ramda');
 import bus from '@/common/bus.js';
 import mixins from '../common/mixins.js';
@@ -439,7 +461,7 @@ export default {
     this.getHotTags();
     // 交互操作更新
     bus.$on('updateHomeData', () => {
-      debugger
+      // debugger
       this.handleUpdate()
     })
   },
@@ -530,8 +552,10 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
       .finally(_ => {
-        this.loading = false;
-        this.loadType = 'add';
+        setTimeout(() => {
+          this.loading = false;
+          this.loadType = 'add';
+        }, 2000)
       })
     },
     // 近期更新文章

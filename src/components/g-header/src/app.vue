@@ -7,17 +7,17 @@
       <ul class="menu">
         <li>
           <transition name="slide">
-            <router-link tag="a" to="/">首页</router-link>
+            <router-link tag="a" to="/" :class="{'active': getPageType==='/home/main'}">首页</router-link>
           </transition>
         </li>
         <li>
           <transition name="slide">
-            <router-link tag="a" to="/home/follow">关注</router-link>
+            <router-link tag="a" to="/home/follow" :class="{'active': getPageType==='/home/follow'}">关注</router-link>
           </transition>
         </li>
         <li>
           <transition name="slide">
-            <router-link tag="a" to="/home/tag">话题</router-link>
+            <router-link tag="a" to="/home/tag" :class="{'active': getPageType==='/home/tag'}">话题</router-link>
           </transition>
         </li>
       </ul>
@@ -61,7 +61,7 @@
               <ul class="list-details">
                 <transition name="slide">
                     <router-link tag="li" to="/message/unReadMsg">
-                      <span class="tip">15</span>
+                      <!-- <span class="tip">15</span> -->
                       <span class="content">未读通知</span>
                     </router-link>
                   </transition>
@@ -86,10 +86,9 @@
         </li>
         <li>
           <Poptip placement="bottom-end" v-model="userVisible">
-              <Avatar
+              <img
                 class="header-avatar"
-                :src="getAvatar">
-              </Avatar>
+                v-lazy="getAvatar" />
               <div class="api" slot="title">
                 {{userDetails.username}}
               </div>
@@ -134,8 +133,10 @@
 </template>
 <script>
 import bus from '@/common/bus.js';
+// import io from 'socket.io-client';
 import { DEFAULT_AVATAR } from '@/constant/index.js';
 import bg from '@/assets/images/WeUniv.png';
+// const socket = io.connect('http://localhost:3000')
 export default {
   name: 'g-header',
   data () {
@@ -146,6 +147,8 @@ export default {
       searchContent: '', // 搜索内容
       userId: '',
       userDetails: [],
+      socket: null,
+      activeName: 'empty'
     }
   },
   created() {
@@ -155,12 +158,26 @@ export default {
       this.getUserInfo();
     })
   },
+  mounted() {
+    // this.socket = io.connect('http://localhost:3000')
+    // this.socket.on('receive_message', function () {
+    //   console.log('收到信息啦')
+    //   debugger
+    // })
+    // this.$socket.on('receive_message', function () {
+    //   console.log('收到信息啦')
+    //   debugger
+    // })
+  },
   beforeDestroy() {
     bus.$off('updateUserInfo');
   },
   computed: {
     getAvatar() {
       return this.userDetails.avatar ? this.userDetails.avatar : DEFAULT_AVATAR;
+    },
+    getPageType() {
+      return this.$route.path
     }
   },
   methods: {

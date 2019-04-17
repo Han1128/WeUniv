@@ -9,14 +9,15 @@
     .profile-header {
       width: 100%;
       height: 30rem;
-      background: #F6F6F6;
+      background: url(~assets/images/profile.png) #F6F6F6;
+      background-size: cover;
       .header-left {
         float: left;
         width: 30rem;
         height: 100%;
-        background: #F6F6F6;
+        // background: #F6F6F6;
         position: relative;
-        .ivu-avatar {
+        img {
           width: 17rem;
           height: 17rem;
           border-radius: 17rem;
@@ -30,8 +31,9 @@
         height: 100%;
         margin-left: 30rem;
         margin-right: 35rem;
-        background: #F6F6F6;
+        // background: #F6F6F6;
         position: relative;
+        color: rgba(255,255,255,0.9);
         a {
           color: #009a61;
         }
@@ -130,7 +132,7 @@
       <!-- 用户信息头部 -->
       <div class="profile-header">
         <div class="header-left">
-          <Avatar :src="userAvatar"/>
+          <img class="user-avatar" v-lazy="userAvatar"/>
         </div>
         <div class="header-right">
           <Card :bordered="false">
@@ -157,12 +159,14 @@
                 <Icon type="md-school"/>
                 学校
                 <span class="detail-info" v-if="userSchoolName">{{userSchoolName}}</span>
-                <a class="suppleInfo" href="#" v-else @click="redirectToSetting('schoolInfoSet')">填写所在学校</a>
+                <a v-else-if="userId === authorId" class="suppleInfo" href="#" @click="redirectToSetting('schoolInfoSet')">填写所在学校</a>
+                <span v-else class="detail-info">该用户暂无填写学校</span>
               </p>
               <p>
                 <Icon type="md-person"/>
                 身份
                 <span class="detail-info">{{userType[authorDetails.userType]}}</span>
+                <Tag :color="authorDetails.status === 2 ?'success' : 'primary'" style="margin-left: 1rem;vertical-align: bottom;">{{authorDetails.status === 2 ? '已认证' : '未认证'}}</Tag>
               </p>
             </div>
             <ul class="followShip">
@@ -209,6 +213,7 @@ export default {
     return {
       onload: false,
       authorId: '',
+      userId: '',
       fllowShip: '关注', // 关注状态
       authorDetails: {}, // 页面作者
       userDetails: {}, // 登录用户
@@ -237,6 +242,7 @@ export default {
     }
   },
   created() {
+    this.userId = localStorage.getItem('userid')
     this.authorId = this.$route.params.userid;
     this.getAuthorInfo();
     this.getUserInfo();

@@ -12,6 +12,11 @@
   }
   .article-config {
     margin-bottom: 2rem;
+    /deep/.ivu-tag {
+      /deep/.ivu-icon-ios-close {
+        color: rgba(0, 0, 0, .58) !important;
+      }
+    }
     .is-top {
       float: left;
       height: 4rem;
@@ -47,8 +52,8 @@
     }
     .tags-panel {
       width: 50rem;
-      height: 20rem;
       border: 1px solid #ccc;
+      border-bottom: none;
       margin-left: 16rem;
       position: absolute;
       z-index: 3;
@@ -56,9 +61,11 @@
       .tags-list {
         overflow: hidden;
         padding: 1rem 1.5rem;
+        border-bottom: 1px dashed #ccc;
         .tags-list-item {
           float: left;
-          margin-right: 1rem;
+          margin-right: 1.4rem;
+          margin-bottom: 0.4rem;
         }
         /deep/.ivu-tag {
           height: 25px;
@@ -69,12 +76,14 @@
       }
       .close-panel {
         position: absolute;
-        bottom: 0;
-        width: 100%;
+        bottom: -4rem;
+        left: -1px;
+        width: calc(100% + 2px);
         text-align: center;
         height: 4rem;
         line-height: 4rem;
-        border-top: 1px dashed #ccc;
+        border: 1px solid #ccc;
+        border-top: none;
         background: rgba(239, 239, 239,0.2);
         cursor: pointer;
         user-select: none;
@@ -152,63 +161,94 @@
   .fade-enter-active { transition: all .5s;}
   .fade-leave-active { opacity: 0; transition: all .5s;}
 }
+.article-content {
+  width: 70%;
+  margin: 0 auto;
+  border: 1.5px solid #ccc;
+  padding: 3rem 5rem;
+  margin-top: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 3rem;
+  .title {
+    font-family: medium-content-title-font,Georgia,Cambria,"Times New Roman",Times,serif;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0;
+    font-size: 3.5rem;
+    text-align: center;
+  }
+  .empty {
+    font-size: 2rem;
+    text-align: center;
+  }
+}
 </style>
 <template>
-  <div class="wang-editor">
-    <Input v-model="editorTitle" placeholder="标题:用一句话来描述你的文章" />
-    <div class="article-config">
-      <div class="is-top">
-        <span>是否置顶:</span>
-        <i-switch v-model="isTop" @on-change="setArticleTop"/>
-      </div>
-      <i-input
-        v-model="editorTags"
-        placeholder="请选择或输入想要添加的标签(用,号分隔)按回车添加"
-        @on-focus="tagsPanelShow = true"
-        @keyup.enter.native="addTagsHandle">
-          <span slot="prepend">
-            <span v-for="(item,index) in chooseTagsList" :key="item">
-              <Tag color="success" closable @on-close="removeTags(index)">{{item}}</Tag>
-            </span>
-          </span>
-      </i-input>
-      <transition name="fade" mode="in-out">
-        <div v-show="tagsPanelShow" class="tags-panel">
-          <ul class="tags-list">
-            <li
-              class="tags-list-item"
-              v-for="item in tagsList"
-              :key="item.iconCode">
-              <Tag :color="randomColor()" @click.native="chooseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
-            </li>
-          </ul>
-          <p class="close-panel" @click="tagsPanelShow = false">收起</p>
+  <div>
+    <div class="wang-editor" v-show="model !== 'preview'">
+      <Input v-model="editorTitle" placeholder="标题:用一句话来描述你的文章" />
+      <div class="article-config">
+        <div class="is-top">
+          <span>是否置顶:</span>
+          <i-switch v-model="isTop" @on-change="setArticleTop"/>
         </div>
-      </transition>
-    </div>
-    <div id="editorElem" ref="editorElem" style="text-align:left"></div>
-    <p class="upload-label">上传一张图片作为封面大图吧~</p>
-    <div class="uplload-list" v-if="articleCoverBg">
-      <img :src="articleCoverBg" />
-      <div class="background-cover">
-        <Icon type="ios-trash-outline" @click.native="removeImg"></Icon>
+        <i-input
+          v-model="editorTags"
+          placeholder="请选择或输入想要添加的标签(用,号分隔)按回车添加"
+          @on-focus="tagsPanelShow = true"
+          @keyup.enter.native="addTagsHandle">
+            <span slot="prepend">
+              <span v-for="(item,index) in chooseTagsList" :key="item">
+                <Tag :color="randomColor(index)" closable @on-close="removeTags(index)">{{item}}</Tag>
+              </span>
+            </span>
+        </i-input>
+        <transition name="fade" mode="in-out">
+          <div v-show="tagsPanelShow" class="tags-panel">
+            <ul class="tags-list" :style="{'background': editorTheme ? darkColor : 'none'}">
+              <li
+                class="tags-list-item"
+                v-for="(item, index) in tagsList"
+                :key="item.iconCode">
+                <Tag :color="randomColor(index)" @click.native="chooseTags(item.iconLabel)">{{item.iconLabel}}</Tag>
+              </li>
+            </ul>
+            <p class="close-panel" @click="tagsPanelShow = false">收起</p>
+          </div>
+        </transition>
       </div>
-    </div>
-    <img-upload
-      class="article-bg-upload"
-      :fixed="true"
-      :fixedNumber="[2,1]"
-      :submitType="'articleBg'"
-      @cropperSuccess="cropperSuccess">
-      <div slot="upload-btn" style="padding: 20px 0; ">
-          <Icon type="ios-cloud-upload" size="52" style="color: #009a61"></Icon>
-          <p>Click or drag files here to upload</p>
+      <div id="editorElem" ref="editorElem" style="text-align:left"></div>
+      <p class="upload-label">上传一张图片作为封面大图吧~</p>
+      <div class="uplload-list" v-if="articleCoverBg">
+        <img :src="articleCoverBg" />
+        <div class="background-cover">
+          <Icon type="ios-trash-outline" @click.native="removeImg"></Icon>
+        </div>
       </div>
-    </img-upload>
-    <Spin fix v-show="spinshow">
-        <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
-        <div>Loading</div>
-    </Spin>
+      <img-upload
+        class="article-bg-upload"
+        :fixed="true"
+        :fixedNumber="fixedNumber === '2:1'? [2,1] : fixedNumber === '3,2' ? [3,2] : [4,3]"
+        :submitType="'articleBg'"
+        @cropperSuccess="cropperSuccess">
+        <div slot="upload-btn" style="padding: 20px 0; ">
+            <Icon type="ios-cloud-upload" size="52" style="color: #009a61"></Icon>
+            <p>Click or drag files here to upload</p>
+        </div>
+      </img-upload>
+      <Spin fix v-show="spinshow">
+          <Icon type="ios-loading" size=18 class="demo-spin-icon-load"></Icon>
+          <div>Loading</div>
+      </Spin>
+    </div>
+    <div v-show="model === 'preview'" class="article-content">
+      <div class="title">
+        <h1>{{editorTitle}}</h1>
+      </div>
+      <div class="content" v-html="editorContent" v-if="editorContent"></div>
+      <p class="empty" v-else>您的写作内容暂时为空哦~</p>
+    </div>
   </div>
 </template>
 <script>
@@ -221,12 +261,25 @@ export default {
   props: {
     articleDetailContent: {
       type: Object
+    },
+    fixedNumber: {
+      type: String,
+      default: '2:1'
+    },
+    editorTheme: {
+      type: Boolean,
+      default: false
+    },
+    model: {
+      type: String,
+      default: 'write'
     }
   },
   data () {
     return {
       editor: {},
       topId: '', // 置顶文章id
+      darkColor: '#1F2223',
       spinshow: false, // 图片预览显示
       isTop: false, // 是否置顶
       tagsPanelShow: false, // tags面板是否显示
@@ -271,6 +324,26 @@ export default {
           this.isTop = val.isTop;
         }
       }
+    },
+    editorTheme(val) {
+      if (val) {
+        // console.log('style', document.getElementsByClassName('ivu-input')[0].style)
+        // console.log('style', document.getElementsByClassName('ivu-input')[1].style)
+        document.getElementsByClassName('w-e-toolbar')[0].style.background = this.darkColor
+        document.getElementsByClassName('ivu-input')[0].style.background = this.darkColor
+        document.getElementsByClassName('ivu-input')[0].style.color = '#fff'
+        document.getElementsByClassName('ivu-input')[1].style.background = this.darkColor
+        document.getElementsByClassName('ivu-input')[1].style.color = '#fff'
+        document.getElementsByClassName('ivu-upload-drag')[0].style.background = this.darkColor
+      }
+      else {
+        document.getElementsByClassName('w-e-toolbar')[0].style.background = 'none'
+        document.getElementsByClassName('ivu-input')[0].style.background = 'none'
+        document.getElementsByClassName('ivu-input')[1].style.background = 'none'
+        document.getElementsByClassName('ivu-input')[0].style.color = '#515a6e'
+        document.getElementsByClassName('ivu-input')[1].style.color = '#515a6e'
+        document.getElementsByClassName('ivu-upload-drag')[0].style.background = 'none'
+      }
     }
   },
   methods: {
@@ -298,9 +371,9 @@ export default {
         });
       }
     },
-    randomColor() {
-      const colorList = ['primary', 'success', 'purple', 'error', 'warning'];
-      let index = Math.floor((Math.random() * colorList.length));
+    randomColor(index) {
+      index = index % 5;
+      const colorList = ['blue', 'cyan', 'purple', 'magenta', 'volcano'];
       return colorList[index];
     },
     removeImg() {

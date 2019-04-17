@@ -10,6 +10,10 @@
         margin-left: .5rem;
         border-radius: 5rem;
       }
+      .user-avatar[lazy=error] {
+        background: url(~assets/images/boy.png) no-repeat;
+        background-size: 100% 100%;
+      }
       .recommend-user-details {
         margin-left: 6rem;
         span {
@@ -36,7 +40,7 @@
   <div class="g-recommend-user">
     <ul class="recommend-user">
       <li v-for="item in recommendUser" :key="item._id">
-        <img :src="item.avatar || defaultAvatar">
+        <img class="user-avatar" v-lazy="item.avatar || defaultAvatar">
         <div class="recommend-user-details">
           <p>
             <router-link class="user-name" tag="span" :to="'/user/' + item._id">{{item.username}}</router-link>

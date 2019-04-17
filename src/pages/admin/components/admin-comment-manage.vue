@@ -41,7 +41,8 @@
         <Time :time="row.commentTime" type="datetime" />
       </template>
       <template slot-scope="{ row, index }" slot="action">
-          <i-button type="error" size="small" style="margin-right: 15px" @click="deleteComment(index)">删除</i-button>
+        <i-button v-if="row.isEffect" type="error" size="small" style="margin-right: 15px" @click="commentMange(index, 'delete')">删除</i-button>
+        <i-button v-else type="success" size="small" style="margin-right: 15px" @click="commentMange(index, 'restore')">恢复</i-button>
       </template>
   </i-table>
   <Page :total="totalNums" :current.sync="currentPage" show-elevator @on-change="getAdminCommentsList"/>
@@ -80,14 +81,15 @@ export default {
         this.$Notice.error({ title: '提示',  desc: err.message });
       })
     },
-    deleteComment(index) {
+    commentMange(index, type) {
       this.$Modal.confirm({
         title: '操作提示',
         content: `<p>是否确定要置该评论为无效？</p>`,
         onOk: () => {
-          this.axios.post('/deleteComment', {
+          this.axios.post('/commentMange', {
             adminId: this.adminId,
-            commentId: this.commentsList[index]._id
+            commentId: this.commentsList[index]._id,
+            type
           })
           .then(res => {
             this.$Notice.success({ title: '提示',  desc: '置为失效成功!' });

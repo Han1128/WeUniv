@@ -41,6 +41,10 @@
         a {
           color: #333;
         }
+        .active {
+          color: #009A61;
+          font-weight: bolder;
+        }
         &:hover {
           background: #d4d4d4;
           border-radius: 5px;
@@ -81,12 +85,30 @@
           top: 13px;
           left: 20px;
         }
+        img {
+          display: inline-block;
+          text-align: center;
+          background: #ccc;
+          color: #fff;
+          white-space: nowrap;
+          position: relative;
+          overflow: hidden;
+          vertical-align: middle;
+          width: 32px;
+          height: 32px;
+          line-height: 32px;
+          border-radius: 16px;
+        }
         .header-avatar {
           font-size: 1.3rem;
           margin-right: 2rem;
           cursor: pointer;
           color: #f56a00;
           background-color: #fde3cf;
+        }
+        .header-avatar[lazy=error] {
+          background: url(~assets/images/boy.png) no-repeat;
+          background-size: 100% 100%;
         }
         .ivu-poptip-title {
           .api {

@@ -6,6 +6,7 @@ export const Swiper_Options = {
   loop: true,
   autoplay: {
     delay: 4500,
+    stopOnLastSlide: false,
     disableOnInteraction: false
   },
   pagination: {
